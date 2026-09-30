@@ -129,7 +129,9 @@ interfaces
 - A2A;
 - AG-UI;
 - messaging;
-- rail/provider adapters.
+- PSP connectors;
+- rail/provider adapters;
+- smart-contract adapters.
 
 ## Authority boundary
 Financial commands are accepted only after authentication, mandate evaluation, policy/compliance, capability/risk checks and idempotency.
