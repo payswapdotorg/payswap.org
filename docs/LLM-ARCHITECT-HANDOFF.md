@@ -1,7 +1,7 @@
 # Tech Lead Handoff — PaySwap.org
 
 Date: 2026-09-30
-Architecture: v1.1-frozen-2026-09-30
+Architecture: v1.2-frozen-2026-09-30
 
 ## Mission
 Build an open economic operating system and programmable money-movement network in which humans, agents, developers, businesses, liquidity providers, lenders, merchants, experts, rails, and external services can contribute capabilities.
