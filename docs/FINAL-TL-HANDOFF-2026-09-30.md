@@ -5,6 +5,8 @@ Default branch: main
 Verified source HEAD before this handoff metadata update: f79ea407b37f45024c7c126779fa9713598375d2
 Architecture lock: 1.2-frozen-2026-09-30
 
+The v1.2 architecture also freezes smart-contract extensions, agent-native wallets, PSP-neutral merchant connectors, ServiceAccess abstractions, and Stage-0 UX/deployment architecture.
+
 ## Repository state
 
 The repository was empty at takeover and has now been bootstrapped as the source of truth for the entire implementation.
