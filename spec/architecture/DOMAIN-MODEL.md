@@ -151,6 +151,15 @@ interfaces
 - messaging;
 - PSP connectors;
 - rail/provider adapters;
+- Connector Capability Packs;
+- CapabilityDefinition;
+- ProviderImplementation;
+- ConnectedCapabilityInstance;
+- CapabilityObservation;
+- ProviderStateEnvelope;
+- connector execution modes;
+- ExternalFundsLocation;
+- ExternalFundsPositionObservation;
 - smart-contract adapters.
 
 ## Authority boundary

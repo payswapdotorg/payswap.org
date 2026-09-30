@@ -3,9 +3,33 @@
 Repository: payswapdotorg/payswap.org
 Default branch: main
 Verified repository state through GitHub repository contents; final head is tracked by the latest commit after this handoff update.
-Architecture lock: 1.4-frozen-2026-09-30
+Architecture lock: 1.5-frozen-2026-09-30
 
-The v1.2 architecture also freezes smart-contract extensions, agent-native wallets, PSP-neutral merchant connectors, ServiceAccess abstractions, Stage-0 UX/deployment architecture, and the strict non-custodial boundary.
+The v1.5 architecture also freezes smart-contract extensions, agent-native wallets, PSP-neutral merchant connectors, ServiceAccess abstractions, Stage-0 UX/deployment architecture, and the strict non-custodial boundary.
+
+## v1.5 connector hardening
+
+The connector model is now explicitly lossless and account-scoped. The architecture distinguishes:
+CapabilityDefinition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation.
+
+The provider catalogue is discovery input, never proof of merchant/account executability.
+
+ProviderStateEnvelope preserves provider lifecycle meaning, required customer actions, external object identity/revision, provider errors and evidence alongside canonical PaySwap state.
+
+Execution modes are explicit:
+- PASS_THROUGH_NATIVE;
+- COMPOSED_PAYSWAP;
+- OPTIMIZED_MULTI_PROVIDER.
+
+Provider-native optimization/recovery is itself a capability and remains an incumbent baseline candidate in the Lab.
+
+Large provider integrations use hierarchical independently versioned/certified capability packs.
+
+ExternalFundsLocation / ExternalFundsPositionObservation model provider-reported funds positions without creating PaySwap custody.
+
+W2-003 owns canonical connector capability vocabulary/instance/observation contracts. W3-003 consumes those contracts for execution adapters.
+
+W3-003 now explicitly depends on W2-003 to prevent parallel evolution of connector semantics.
 
 ## Repository state
 

@@ -1,8 +1,8 @@
-# PaySwap.org — Frozen Architecture v1.4
+# PaySwap.org — Frozen Architecture v1.5
 
 Status: FROZEN
 Locked: 2026-09-30
-Supersedes: 1.3-frozen-2026-09-30
+Supersedes: 1.4-frozen-2026-09-30
 Purpose: sole architecture authority for implementation
 
 ## 1. Product definition
@@ -34,20 +34,69 @@ Cross-cutting: evidence, provenance, privacy, compliance, regulatory perimeter, 
 
 A Connector is the productized boundary between PaySwap and an external system. Each Connector exposes a versioned Connector Capability Pack in the Capability Graph.
 
-A Connector may wrap a PSP, bank, ERP, CRM, construction platform, EHR, fleet system, hospitality PMS, legal matter system, cloud/developer platform, communications system, document platform or another external service.
+The connector hierarchy is lossless and scope-aware:
+1. **CapabilityDefinition** — provider-neutral semantics of an operation/capability.
+2. **ProviderImplementation** — a provider's concrete implementation of that definition.
+3. **ConnectedCapabilityInstance** — the capability actually exposed by one connected provider account, tenant, credential scope, geography/currency scope and permission state.
+4. **CapabilityObservation** — time/versioned observations of current availability, eligibility, health, quota, terms and external state.
 
-The customer can retain its external provider relationship while PaySwap supplies:
-- canonical capability interfaces;
-- agent/action contracts;
-- data/object mappings;
-- delegated auth;
-- health/availability;
-- evidence/provenance;
-- webhooks/events;
-- reconciliation;
-- portability/failover.
+The Lab/Director reasons over ConnectedCapabilityInstance plus CapabilityObservation, never over the provider catalogue alone. A provider may advertise a capability without a particular connected account being entitled, configured or healthy enough to execute it.
 
-The "Vercel over AWS" analogy means PaySwap can become a common experience/orchestration layer over heterogeneous providers; it does not imply control over the underlying provider.
+Every executable connector capability declares:
+- canonical operation semantics and state machine;
+- preconditions and authorization requirements;
+- side effects and financial effect classification;
+- idempotency and retry behavior;
+- compensation/cancellation behavior;
+- partial-execution behavior;
+- required customer/user actions;
+- provider action/state vocabulary;
+- external object identifiers and revisions;
+- evidence produced and evidence requirements;
+- economic terms, limits and settlement implications;
+- jurisdiction/regulatory/commercial constraints;
+- current scope/eligibility/health observations.
+
+### Provider-state preservation
+
+Adapters map provider states into canonical states without erasing provider meaning.
+
+Every consequential provider operation may carry a **ProviderStateEnvelope** containing:
+- provider name/version;
+- provider object type and external ID;
+- provider revision/version;
+- provider state and state history;
+- provider action required;
+- provider failure/code/reason metadata;
+- provider-specific constraints/metadata subject to privacy policy;
+- observation timestamp and source provenance.
+
+Canonical state controls protocol truth. ProviderStateEnvelope preserves provider semantics needed for customer action, reconciliation, support, audit and future reprocessing.
+
+### Incumbent-preserving execution modes
+
+A connector exposes an explicit execution mode:
+- **PASS_THROUGH_NATIVE** — preserve the provider's native execution/optimization flow with minimal translation;
+- **COMPOSED_PAYSWAP** — compose the provider capability with PaySwap capabilities such as FX, liquidity, credit, incentives or another rail;
+- **OPTIMIZED_MULTI_PROVIDER** — compare and orchestrate multiple reachable providers/capabilities.
+
+All three remain subject to Financial Protocol Authority, authorization, policy, compliance, security and evidence rules. PASS_THROUGH_NATIVE is semantic preservation, not a bypass around authority.
+
+Provider-native optimization, routing or recovery is itself represented as a discoverable capability so the Lab can compare incumbent behavior against PaySwap strategies.
+
+### Hierarchical Connector Capability Packs
+
+Large providers are represented by independently versioned/certified sub-packs. A PSP may expose payments, billing, risk, connect/marketplace, payouts, tax, issuing, financial accounts, crypto and provider-native optimization as separate sub-packs. Each sub-pack maps only to capabilities actually exposed by the ConnectedCapabilityInstance.
+
+### External provider funds state
+
+A connector may expose:
+- **ExternalFundsLocation** — an authoritative external location where funds/positions may reside;
+- **ExternalFundsPositionObservation** — a time-stamped observation reported by that provider.
+
+These are external-state observations, not PaySwap custody or internal customer balances. They can inform routing, payout timing, netting, treasury and reconciliation only according to their provenance and freshness.
+
+Providers beyond PSPs use the same model. The connector turns an external system into a set of versioned, executable capability implementations without making unsupported capabilities appear reachable.
 
 ## 2B. Work Interface Principle
 

@@ -61,3 +61,17 @@ Only the Financial Protocol Authority issues an execution grant.
 Every interface has explicit protocol version, compatibility window, deprecation path and conformance tests.
 
 Provider-specific SDK types and quirks stay inside adapters.
+
+## Connector semantic contract
+
+A connector adapter must preserve:
+- CapabilityDefinition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation;
+- ProviderStateEnvelope for provider-specific lifecycle meaning;
+- required customer actions and provider action surfaces;
+- idempotency/retry/compensation/partial-execution semantics;
+- execution mode (PASS_THROUGH_NATIVE / COMPOSED_PAYSWAP / OPTIMIZED_MULTI_PROVIDER);
+- external object ID/revision/source-of-truth;
+- evidence and reconciliation metadata;
+- ExternalFundsLocation / ExternalFundsPositionObservation where the provider reports external funds state.
+
+Provider catalogue availability is never substituted for connected-account eligibility.

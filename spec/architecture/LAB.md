@@ -80,6 +80,8 @@ A mandatory baseline suite contains:
 3. searched;
 4. incumbent production candidate.
 
+For provider-backed workflows, the incumbent candidate may be the provider-native optimization/recovery capability exposed by the connector. The Lab compares PASS_THROUGH_NATIVE, COMPOSED_PAYSWAP and OPTIMIZED_MULTI_PROVIDER candidates under the same hard constraints and evidence requirements; it does not assume additional orchestration is automatically superior.
+
 ## Director
 The Director is a subsystem:
 - deterministic scheduler/policy engine;

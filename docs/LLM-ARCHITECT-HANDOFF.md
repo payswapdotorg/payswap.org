@@ -1,7 +1,7 @@
 # Tech Lead Handoff — PaySwap.org
 
 Date: 2026-09-30
-Architecture: v1.4-frozen-2026-09-30
+Architecture: v1.5-frozen-2026-09-30
 
 PaySwap operating boundary: non-custodial orchestration. PaySwap does not take custody/title to user funds; onchain holding is delegated to certified smart-contract capabilities with no unilateral PaySwap withdrawal path.
 
@@ -83,6 +83,24 @@ Do not copy prototype-only behavior from related repositories. Reuse concepts, t
 - AG-UI for agent ↔ application interaction.
 - Messaging adapters for trusted human approval.
 - Rail/provider APIs only through protocol-authorized adapters.
+
+## Connector execution rule
+
+A provider catalogue is not an executable capability. Every connector resolves:
+CapabilityDefinition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation.
+
+W2-003 owns that vocabulary and instance/observation contracts. W3-003 consumes it and owns executable adapter behavior.
+
+ProviderStateEnvelope is mandatory for consequential provider operations where provider state, required customer action, external IDs/revisions or provider evidence matters.
+
+Connector execution modes are explicit:
+- PASS_THROUGH_NATIVE;
+- COMPOSED_PAYSWAP;
+- OPTIMIZED_MULTI_PROVIDER.
+
+Provider-native optimization/recovery is itself a capability and is a mandatory incumbent baseline. The Lab must be able to choose the incumbent path rather than optimize merely for additional orchestration.
+
+ExternalFundsLocation and ExternalFundsPositionObservation represent provider-reported external funds state. They never create PaySwap custody or a PaySwap customer balance.
 
 ## Acceptance definition
 The architecture is implemented only when:

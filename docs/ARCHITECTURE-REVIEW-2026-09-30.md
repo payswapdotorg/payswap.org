@@ -1,8 +1,22 @@
 # Architecture Review — 2026-09-30
 
-Architecture lock after closure: 1.4-frozen-2026-09-30
+Architecture lock after closure: 1.5-frozen-2026-09-30
 
 ## Added in this revision
+
+### Lossless executable connector model
+The connector abstraction is tightened from a generic provider adapter into an account-scoped, executable capability representation:
+CapabilityDefinition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation.
+
+Provider state is preserved through ProviderStateEnvelope; required user actions, asynchronous lifecycle, provider IDs/revisions, evidence and recovery semantics are not flattened. Provider-native optimization/recovery is represented as a capability and can remain the incumbent baseline.
+
+Execution modes are explicit: PASS_THROUGH_NATIVE, COMPOSED_PAYSWAP and OPTIMIZED_MULTI_PROVIDER.
+
+Large provider packs are hierarchical and independently certifiable. Provider-reported external balances use ExternalFundsLocation / ExternalFundsPositionObservation and never imply PaySwap custody.
+
+W2-003 owns the capability contract; W3-003 consumes it. The dependency graph now sequences them to prevent semantic drift.
+
+
 
 ### Payment-centric simulation closure
 The revised benchmark compares payment/economic work against actual payment methods rather than vertical software products. It confirms that PaySwap's primary advantage is orchestration above rails and exposes payment-specific gaps: method/rail separation, acceptance policies, translation, recurring mandates, remittance preservation, off-network payment records, fallback reauthorization, refunds/recourse and merchant settlement destinations.

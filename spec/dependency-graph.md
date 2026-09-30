@@ -23,11 +23,13 @@ These three are pairwise-disjoint at the implementation boundary and may run con
 
 ## Stage 2
 
+Connector capability authority is stabilized before provider execution adapters: W2-003 owns the canonical connector capability contracts; W3-003 consumes them. W3-003 may not redefine capability vocabulary or create parallel provider-state models.
+
 | ID | Work | Lane | Dependencies |
 |---|---|---|---|
 | W1-003 | Netting, liquidity, credit, FX, value conversion | Worker 1 | W1-002 |
 | W2-003 | Capability/Connector ecosystem + extensions + acceptance | Worker 2 | W2-002, W1-002 |
-| W3-003 | Execution graph, webhooks, generalized connector framework | Worker 3 | W3-002, W1-002 |
+| W3-003 | Execution graph, webhooks, generalized connector framework | Worker 3 | W3-002, W1-002, W2-003 |
 
 ## Stage 3
 

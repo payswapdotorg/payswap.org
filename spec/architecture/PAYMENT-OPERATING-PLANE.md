@@ -158,6 +158,20 @@ A PSP connector can expose PaySwap as:
 
 It never claims an underlying rail is available unless the rail/provider capability is actually authorized and reachable.
 
+Payment connectors use the lossless hierarchy:
+PaymentMethod/semantic definition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation.
+
+Provider state required for USER_ACTION_REQUIRED, asynchronous processing, capture, mandate, refund, dispute, payout and connected-account flows is preserved rather than collapsed into a generic status.
+
+Execution mode is explicit:
+- PASS_THROUGH_NATIVE;
+- COMPOSED_PAYSWAP;
+- OPTIMIZED_MULTI_PROVIDER.
+
+Provider-native optimization may itself be a capability selected by the Lab. PaySwap must be able to preserve the incumbent provider path when it is the selected route.
+
+Provider-reported external balances are represented as ExternalFundsLocation/ExternalFundsPositionObservation. These observations inform strategy and reconciliation but never become a PaySwap custodial customer balance.
+
 ## Core UX
 
 The interface should ask:

@@ -2,7 +2,7 @@
 
 Open economic operating system and programmable money-movement network.
 
-Architecture lock: 1.1-frozen-2026-09-30. Repository status: architecture bootstrap; implementation is authorized only through the initial Work Order frontier.
+Architecture lock: 1.5-frozen-2026-09-30. Repository status: architecture bootstrap; implementation is authorized only through the initial Work Order frontier.
 
 The repository is the sole source of truth for the Tech Lead, three concurrent workers and future maintainers. Chat, agent reports, screenshots and claimed completion are not authoritative.
 
@@ -16,11 +16,12 @@ The repository is the sole source of truth for the Tech Lead, three concurrent w
 6. spec/architecture/FRONTEND-UX-DEPLOYMENT.md
 7. spec/architecture/PSP-ADAPTER-NETWORK.md
 8. spec/architecture/SERVICE-CAPABILITIES.md
-5. spec/architecture/PAYMENT-OPERATING-PLANE.md
-6. spec/architecture/INVARIANTS.md
-7. spec/dependency-graph.md
-8. spec/development-state/v2-work-order-state.json
-9. spec/worker-runbook.md
+9. spec/architecture/LOSSLESS-CONNECTOR-CAPABILITY-MODEL.md
+10. spec/architecture/PAYMENT-OPERATING-PLANE.md
+11. spec/architecture/INVARIANTS.md
+12. spec/dependency-graph.md
+13. spec/development-state/v2-work-order-state.json
+14. spec/worker-runbook.md
 
 ## Architecture in one sentence
 

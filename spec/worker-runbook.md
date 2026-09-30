@@ -5,9 +5,10 @@
 2. Read docs/LLM-ARCHITECT-HANDOFF.md.
 3. Read spec/architecture/FROZEN-ARCHITECTURE.md.
 4. Read spec/architecture/INVARIANTS.md.
-5. Read the active Work Order.
-6. Read the development-state JSON and dependency graph.
-7. Inspect source, tests and callers before trusting any completion claim.
+5. Read spec/architecture/LOSSLESS-CONNECTOR-CAPABILITY-MODEL.md when touching connector/provider code.
+6. Read the active Work Order.
+7. Read the development-state JSON and dependency graph.
+8. Inspect source, tests and callers before trusting any completion claim.
 
 ## Contract-first sequence
 1. freeze types/schemas/interfaces;
@@ -16,9 +17,10 @@
 4. wire real integration;
 5. implement failure/reconciliation path;
 6. add evidence;
-7. add adversarial tests;
-8. run verification;
-9. update Work Order state.
+7. preserve provider semantic state/evidence and connected-instance scope;
+8. add adversarial tests;
+9. run verification;
+10. update Work Order state.
 
 ## Forbidden
 - Math.random for financial outcomes;
@@ -31,7 +33,11 @@
 - untracked credit;
 - opaque universal trust scores;
 - incentive promises without funding/provenance;
-- rewriting historical records.
+- rewriting historical records;
+- treating provider catalogue availability as connected-account authority;
+- flattening consequential provider state into generic CRUD outcomes;
+- creating a second connector capability vocabulary;
+- treating provider-reported balances as PaySwap custody.
 
 ## TL acceptance
 The TL validates:
@@ -46,6 +52,16 @@ The TL validates:
 - security epoch;
 - production wiring;
 - browser/API journey where UI is affected.
+
+## Connector-specific acceptance
+Before accepting connector work, the TL verifies:
+- CapabilityDefinition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation;
+- connected-account scope, authorization, geography/currency and eligibility are explicit;
+- ProviderStateEnvelope preserves provider state, required customer action, external IDs/revisions and evidence where consequential;
+- execution mode is explicit: PASS_THROUGH_NATIVE / COMPOSED_PAYSWAP / OPTIMIZED_MULTI_PROVIDER;
+- provider-native optimization/recovery is represented as a capability and remains a valid incumbent baseline;
+- external funds observations have freshness/provenance and cannot become PaySwap custody;
+- W2-003 owns the capability vocabulary and W3-003 consumes it without redefining it.
 
 ## Worker completion report
 Include:
@@ -63,7 +79,6 @@ Never claim tests pass without the exact command and environment.
 ## Architecture conflict
 Worker finds conflict
 → stop at the boundary
-→ report exact conflict
 → TL evaluates
 → ADR + architecture version if needed
 → dependency graph/state update

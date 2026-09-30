@@ -42,6 +42,11 @@
 - INV-C02: unreachable source means availability unknown, not success/failure.
 - INV-C03: retirement cannot rewrite in-flight history.
 - INV-C04: extensions/packages cannot directly write financial state.
+- INV-C05: ConnectedCapabilityInstance is scoped to a real provider account/tenant, authorization, geography/currency and permission state; provider catalogue claims alone cannot authorize execution.
+- INV-C06: provider state required for customer action, reconciliation, support or audit is preserved in ProviderStateEnvelope and is never lossy-mapped into a canonical status.
+- INV-C07: PASS_THROUGH_NATIVE, COMPOSED_PAYSWAP and OPTIMIZED_MULTI_PROVIDER are explicit modes and none can bypass protocol authorization, policy, compliance, security or evidence.
+- INV-C08: provider-native optimization/recovery is represented as a capability and can be benchmarked without assuming PaySwap should replace it.
+- INV-C09: ExternalFundsPositionObservation is an observation of external state and can never be treated as PaySwap custody or proof of a PaySwap-held customer balance.
 
 ## Participation
 - INV-P01: monetary incentives are funded or explicitly contingent.

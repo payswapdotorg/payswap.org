@@ -100,3 +100,30 @@ No external processor webhook becomes truth without adapter verification and pro
 ## Scope
 
 Initial product work should prioritize the connector pattern and one PSP. Additional PSP adapters follow exactly the same provider-neutral contract.
+
+## Lossless PSP capability model
+
+The PSP adapter exposes four layers:
+CapabilityDefinition → ProviderImplementation → ConnectedCapabilityInstance → CapabilityObservation.
+
+For each merchant connection, the connector determines the actual scope that is authorized and reachable. A provider catalogue capability is not evidence that a particular merchant account can execute it.
+
+### Provider state
+
+Payment lifecycle semantics are preserved, including customer actions, asynchronous states, capture, recurring mandate state, refund/dispute state, payout state, connected-account relationships and provider-specific failure metadata. Use ProviderStateEnvelope rather than collapsing provider states into a generic action result.
+
+### Execution modes
+
+- PASS_THROUGH_NATIVE: preserve the PSP-native flow/optimizer.
+- COMPOSED_PAYSWAP: compose the PSP with PaySwap capabilities.
+- OPTIMIZED_MULTI_PROVIDER: route across reachable providers/capabilities.
+
+Provider-native optimization is itself a capability. The Lab may select it when it is the appropriate incumbent path.
+
+### External funds
+
+Provider balances are exposed only as ExternalFundsLocation / ExternalFundsPositionObservation with freshness and provenance. They are not PaySwap custodial balances.
+
+### Sub-pack hierarchy
+
+PSP packs are hierarchical and independently versioned/certified: payments, billing, risk, connect, payouts, tax, issuing, financial accounts, crypto and native optimization as applicable.

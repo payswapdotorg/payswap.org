@@ -29,6 +29,11 @@ Primary authority files:
 15. A worker may not change frozen architecture. A required change must be proposed as an ADR/versioned architecture amendment and approved by the Tech Lead under repository governance.
 16. Work must stay inside the assigned Work Order. Scope expansion requires an explicit update to the work-order file and dependency graph.
 17. No speculative dependency, provider lock-in, or framework-specific primitive may leak into a domain contract when a provider-neutral interface is possible.
+18. Never treat a provider catalogue capability as equivalent to a ConnectedCapabilityInstance. Execution must be scoped to actual account authorization, eligibility, geography/currency and current observation.
+19. Preserve provider lifecycle semantics with ProviderStateEnvelope; do not collapse customer-action-required, asynchronous, capture, mandate, refund, dispute, payout or connected-account states into generic CRUD outcomes.
+20. Provider-native optimization/recovery must be representable as a capability and remain an incumbent baseline; PaySwap must not assume composition is superior.
+21. External provider balances/positions are observations, never PaySwap custody or customer balances.
+22. W2-003 owns the canonical connector capability vocabulary; W3-003 consumes it. Do not create parallel connector/provider-state contracts.
 
 ## TL rules
 The TL is an orchestrator, not a fourth worker. The TL:

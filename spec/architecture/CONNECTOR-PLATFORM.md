@@ -31,6 +31,16 @@ Examples:
 - cloud/dev platform connector;
 - document/storage connector.
 
+## Capability hierarchy
+
+A connector distinguishes four layers:
+- **CapabilityDefinition** — provider-neutral semantic contract;
+- **ProviderImplementation** — concrete provider implementation;
+- **ConnectedCapabilityInstance** — capability actually exposed by a specific connected account/tenant/credential scope;
+- **CapabilityObservation** — current time/versioned availability, eligibility, health, quota and terms.
+
+The Lab/Director reasons over the connected instance and observations, not a provider catalogue alone.
+
 ## Connector Capability Pack
 
 Every connector exposes a declared set of capabilities:
@@ -55,7 +65,42 @@ Every connector exposes a declared set of capabilities:
 - provider status/health;
 - compatibility matrix.
 
-The Capability Graph represents each exposed capability independently while preserving the connector provenance.
+The Capability Graph represents each exposed capability independently while preserving connector provenance and the capability hierarchy.
+
+## Lossless executable capability contract
+
+Beyond CRUD-style primitives, an executable capability declares:
+- preconditions and authorization requirements;
+- canonical state machine and provider-state vocabulary;
+- required customer/user actions;
+- financial side effects;
+- idempotency/retry behavior;
+- compensation/cancellation semantics;
+- partial-execution semantics;
+- external IDs and revisions;
+- evidence/proof produced and required;
+- economic terms/limits;
+- jurisdiction/commercial constraints;
+- current connected-account scope and eligibility.
+
+Provider-specific state is preserved in a **ProviderStateEnvelope**: provider/version, object type/ID, provider revision, state/history, required action, failure metadata, observation time and provenance.
+
+## Execution modes
+
+Connectors explicitly advertise:
+- **PASS_THROUGH_NATIVE** — preserve provider-native flow/optimization with minimal translation;
+- **COMPOSED_PAYSWAP** — compose the provider with PaySwap capabilities;
+- **OPTIMIZED_MULTI_PROVIDER** — compare/orchestrate multiple reachable providers.
+
+No mode bypasses protocol authorization, policy, compliance, security, idempotency or evidence. Provider-native optimization is itself a discoverable capability.
+
+## Hierarchical packs
+
+Large providers are decomposed into independently versioned/certified sub-packs. For PSPs this can include payments, billing, risk, connect, payouts, tax, issuing, financial accounts, crypto and native optimization. Each sub-pack exposes only capabilities present on the connected instance.
+
+## External funds observation
+
+Connectors may expose **ExternalFundsLocation** and **ExternalFundsPositionObservation** for provider-reported external balances/positions. These are not PaySwap custody or customer balances; freshness and provenance are explicit.
 
 ## Connector contract
 
