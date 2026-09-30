@@ -70,6 +70,12 @@
 - INV-O03: schema migrations are deployment-compatible.
 - INV-O04: restore/replay can reconstruct authoritative state.
 
+## Non-custody
+- INV-NC01: PaySwap cannot unilaterally withdraw user-held funds.
+- INV-NC02: any fund-holding smart contract declares withdrawal, upgrade, admin and recovery authority.
+- INV-NC03: smart-contract custody claims are certification claims, not assumptions.
+- INV-NC04: PSP connectors cannot imply support for rails that are not actually reachable and authorized.
+
 ## Privacy/compliance
 - INV-R01: regulated data is purpose-bound.
 - INV-R02: model context receives the minimum data required.
