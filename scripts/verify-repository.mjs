@@ -1,0 +1,55 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const root = process.cwd();
+
+const required = [
+  "README.md",
+  "AGENTS.md",
+  "docs/LLM-ARCHITECT-HANDOFF.md",
+  "docs/ARCHITECTURE-REVIEW-2026-09-30.md",
+  "spec/architecture/FROZEN-ARCHITECTURE.md",
+  "spec/architecture/INVARIANTS.md",
+  "spec/architecture/DOMAIN-MODEL.md",
+  "spec/architecture/PARTICIPATION-ENGINEERING.md",
+  "spec/architecture/LAB.md",
+  "spec/architecture/SECURITY-EVIDENCE-RECOURSE.md",
+  "spec/architecture/INTEGRATIONS.md",
+  "spec/architecture/decisions/ADR-001-participation-engineering.md",
+  "spec/research/CASE-STUDIES.md",
+  "spec/dependency-graph.md",
+  "spec/worker-runbook.md",
+  "spec/development-state/README.md",
+  "spec/development-state/v2-work-order-state.json"
+];
+
+for (const file of required) {
+  if (!fs.existsSync(path.join(root, file))) {
+    throw new Error("Missing source-of-truth file: " + file);
+  }
+}
+
+const state = JSON.parse(
+  fs.readFileSync(
+    path.join(root, "spec/development-state/v2-work-order-state.json"),
+    "utf8"
+  )
+);
+
+if (state.max_concurrent_workers !== 3) {
+  throw new Error("max_concurrent_workers must remain 3");
+}
+if (state.architecture_version !== "1.0-frozen-2026-09-30") {
+  throw new Error("Unexpected architecture version");
+}
+if (!state.frontier || state.frontier.length !== 3) {
+  throw new Error("Initial frontier must contain exactly three Work Orders");
+}
+if (!state.implementation_authorized) {
+  throw new Error("Implementation authorization flag must be true");
+}
+if (state.production_deployment_authorized) {
+  throw new Error("Production deployment must remain disabled at bootstrap");
+}
+
+console.log("Repository governance verification passed.");
