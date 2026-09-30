@@ -7,6 +7,7 @@ const required = [
   "README.md",
   "AGENTS.md",
   "docs/LLM-ARCHITECT-HANDOFF.md",
+  "docs/FINAL-TL-HANDOFF-2026-09-30.md",
   "docs/ARCHITECTURE-REVIEW-2026-09-30.md",
   "spec/architecture/FROZEN-ARCHITECTURE.md",
   "spec/architecture/INVARIANTS.md",
