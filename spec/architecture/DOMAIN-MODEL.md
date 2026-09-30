@@ -29,10 +29,23 @@ intent
 - EconomicGoal;
 - EconomicProgram;
 - MoneyMovementIntent;
+- ServiceAccessIntent;
 - IntentArchetype;
 - constraints;
 - compiler contracts;
 - recourse/proof requirements.
+
+payment
+- PaymentMethod;
+- PaymentCredentialCapability;
+- PaymentAcceptancePolicy;
+- PaymentMethodOffer;
+- PaymentMethodTranslation;
+- PaymentAttempt;
+- PaymentFallbackPolicy;
+- MerchantSettlementDestination;
+- RemittanceAllocation;
+- OffNetworkPaymentRecord;
 
 strategy
 - Strategy;
