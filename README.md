@@ -2,7 +2,7 @@
 
 Open economic operating system and programmable money-movement network.
 
-Repository status: architecture bootstrap; implementation is authorized only through the initial Work Order frontier.
+Architecture lock: 1.1-frozen-2026-09-30. Repository status: architecture bootstrap; implementation is authorized only through the initial Work Order frontier.
 
 The repository is the sole source of truth for the Tech Lead, three concurrent workers and future maintainers. Chat, agent reports, screenshots and claimed completion are not authoritative.
 
