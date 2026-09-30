@@ -1,7 +1,7 @@
 # Tech Lead Handoff — PaySwap.org
 
 Date: 2026-09-30
-Architecture: v1.0-frozen-2026-09-30
+Architecture: v1.1-frozen-2026-09-30
 
 ## Mission
 Build an open economic operating system and programmable money-movement network in which humans, agents, developers, businesses, liquidity providers, lenders, merchants, experts, rails, and external services can contribute capabilities.
@@ -26,6 +26,18 @@ USER / DEV / EXTERNAL AGENT
 → FINALITY + EVIDENCE
 → OUTCOME / OPPORTUNITY / PARTICIPATION SIGNAL
 → LAB LEARNING
+
+## Opportunity Engine
+
+FinancialOpportunity is a first-class object for current, conditional and future opportunities. The engine can discover cost, revenue, liquidity, credit, asset, treasury, network and participation opportunities. Suggestions remain advisory until compiled into authorized protocol actions.
+
+## Typed protocol artifacts
+
+Extensions compose through typed protocol tokens for Intent, Capability, Authorization, Evidence, Quote, Liquidity, Credit, Execution, Settlement, Netting, Dispute/Recourse, Expert, Policy and Participation. Tokens are typed references/artifacts, not financial authority.
+
+## Cognitive and economic efficiency
+
+The Director selects among deterministic and increasingly capable cognitive tiers (0 deterministic through 5 human expert). The Lab tracks EconomicWork: external movement, hops, liquidity locked, capital, cost/spread, latency and risk.
 
 ## Participation Engineering
 The network must discover ways to increase useful participation, not merely route value.
