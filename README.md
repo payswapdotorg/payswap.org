@@ -12,6 +12,10 @@ The repository is the sole source of truth for the Tech Lead, three concurrent w
 2. docs/LLM-ARCHITECT-HANDOFF.md
 3. docs/ARCHITECTURE-REVIEW-2026-09-30.md
 4. spec/architecture/FROZEN-ARCHITECTURE.md
+5. spec/architecture/SMART-CONTRACT-EXTENSIONS.md
+6. spec/architecture/FRONTEND-UX-DEPLOYMENT.md
+7. spec/architecture/PSP-ADAPTER-NETWORK.md
+8. spec/architecture/SERVICE-CAPABILITIES.md
 5. spec/architecture/INVARIANTS.md
 6. spec/dependency-graph.md
 7. spec/development-state/v2-work-order-state.json
