@@ -1,69 +1,28 @@
 # Architecture Review — 2026-09-30
 
-Architecture lock after closure: 1.1-frozen-2026-09-30
-
-This review reconciles the full discussion into the frozen architecture.
+Architecture lock after closure: 1.3-frozen-2026-09-30
 
 ## Added in this revision
 
-### Opportunity Engine
-FinancialOpportunity and the proactive Opportunity Engine are explicit first-class objects/services so the system can discover current, conditional and future economic improvements rather than only react to blocked intents.
+### Universal Connector Platform
+Connectors now generalize beyond PSPs and expose versioned Connector Capability Packs covering authentication, search, reads, writes, actions, events, health, evidence, reconciliation and portability.
 
-### Typed protocol tokens
-Typed protocol artifacts provide safe composition between extensions, capabilities and agent organizations without granting direct state mutation.
+### Work Operating Plane
+A first-class Work Graph links projects/cases, tasks, documents, conversations, decisions, contracts, external records and economic objects. This is the missing layer between professional work and the economic protocol.
 
-### Cognitive tiers and EconomicWork
-The architecture now makes explicit how the Director chooses the least powerful safe cognitive capability and how the Lab measures economic compression.
+### Main-interface strategy
+PaySwap aims to become the primary interface while external vertical platforms can remain systems of record. This avoids a big-bang rebuild of every industry product.
 
-### Smart-contract services and agent-native wallets
-Smart contracts are first-class capabilities, and user agents abstract wallet/seed/gas complexity through constrained smart-account/session-key mechanisms.
+### Regulatory perimeter
+Each capability/flow explicitly declares its regulatory and contractual operating boundary.
 
-### PSP-neutral connector network
-The product supports existing PSPs as merchant front doors while PaySwap supplies additional reachable/authorized rails through a provider-neutral connector.
+### Commercial/operator architecture
+Connector economics, PaySwap SaaS billing, partner revenue sharing, SLOs, support and enterprise procurement are explicit concerns.
 
-### Frontend/deployment as Stage-0 architecture
-UX information architecture, Stripe parity research, deployment topology and browser verification begin before feature implementation, rather than being postponed until the end.
+### Simulation-driven closure
+The one-year and multi-industry simulations surfaced context switching, external object mapping, long-running work, field/offline work and enterprise governance as the most important missing primitives.
 
-### Treasury and network economics
-The network's own fees, reserves, guarantees, incentives and operating budgets are versioned treasury policy rather than hidden application logic.
-
-### Participation as a first-class economic subsystem
-Added ParticipationGoal, ParticipationExperiment, IncentiveProgram, budget reservation, contribution attribution, reward accounting, referral attribution, recognition, role-specific leaderboards, reputation attestations and anti-gaming.
-
-### Participation organizations
-The Lab may discover organizations whose job is to increase liquidity, lending, repayment, merchant activation, corridor supply, expert supply, developer/agent participation, or security participation.
-
-### Governance/policy authority
-A separate Policy and Governance Authority owns versioned hard constraints, network parameters, fee rules, incentive budgets, eligibility, security response and effective epochs. Intelligence can propose, but cannot set financial truth.
-
-### Reservation discipline
-Financial value, liquidity, credit, incentive budgets and escrow capacity are explicitly reserved before execution or reward finalization. This prevents double allocation.
-
-### Accounting completeness
-The protocol covers journal entries, projections, fees, FX, incentive liabilities, credit exposures, escrow/bonds and recourse adjustments as first-class accounting objects.
-
-### Time and epochs
-All safety-sensitive versions and policies have explicit effective times/epochs. Delay is an optimization dimension. Security epochs bound delegated authority.
-
-### Acceptance capability
-Merchant/provider acceptance is a first-class capability, separate from funding source and route.
-
-### Proof and evidence
-Authorization lineage and evidence lineage are separate but linked. Proof policy chooses evidence strength; finality remains protocol-owned.
-
-### Human fallback
-Expert resolution is versioned and reusable. Later improvements never erase the historical resolution.
-
-### Security immune system
-Network-wide advisories can quarantine affected agents/packages/extensions/capabilities through a global security epoch.
-
-### Production learning boundary
-Simulation, RL and agent search are explicitly separated from production financial authority. Promotion is gated by replay/counterfactual, robustness, shadow and canary.
-
-### Recovery and operations
-Idempotency, durable outbox, reconciliation, replay, secret management, observability and restore/rebuild are implementation requirements rather than afterthoughts.
-
-## Fundamental principles preserved
+## Retained principles
 1. Intent is universal.
 2. Economic intent is rail-neutral.
 3. Permissions are delegated authority.
@@ -73,20 +32,27 @@ Idempotency, durable outbox, reconciliation, replay, secret management, observab
 7. Capabilities are universal ecosystem primitives.
 8. Extensions are first-class but non-authoritative.
 9. Strategies are first-class.
-10. Netting is an emergent strategy, not a bolt-on.
+10. Netting is a strategy, not a post-processing feature.
 11. Time is an optimization dimension.
 12. Credit is explicit.
 13. FIAT, crypto and future rails are peers.
 14. UNKNOWN never silently becomes failure.
 15. Finality is protocol-owned.
-16. Demo and production share the same protocol pipeline.
+16. Demo and production share one pipeline.
 17. Security is network-wide.
 18. Humans are capabilities.
 19. The network learns from human resolutions and real outcomes.
-20. REST, MCP, A2A and AG-UI are native boundary protocols.
-21. Participation is optimized as an economic network problem.
+20. REST, MCP, A2A and AG-UI are native boundaries.
+21. Participation is optimized as an economic-network problem.
 22. Incentives are funded, attributable and anti-gaming.
-23. Social reputation is evidence-backed and role-specific, never a universal authority score.
+23. Smart contracts are first-class capabilities.
+24. User Agents hide wallet mechanics without becoming custodians.
+25. PSP integrations are provider-neutral.
+26. UX/deployment architecture begins in Stage 0.
+27. The main interface is a universal Work Command Center.
 
-## Architecture closure check
-No previously discussed core capability is intentionally omitted. The remaining details are implementation choices that must fit the frozen contracts rather than expand the authority model.
+## Simulation conclusion
+The architecture was coherent at the financial-protocol level but initially incomplete at the work-context level. The revised architecture closes that gap without turning PaySwap into a collection of vertical clones.
+
+The intended product is:
+**the agentic operating layer that understands the work, coordinates the systems and optimizes the economics.**
