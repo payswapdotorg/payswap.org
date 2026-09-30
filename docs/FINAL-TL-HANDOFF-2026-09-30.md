@@ -3,7 +3,7 @@
 Repository: payswapdotorg/payswap.org
 Default branch: main
 Verified HEAD: 02be3f7ce0f30cf7e8a3ab6b887a0bb075ba4cfd
-Architecture lock: 1.0-frozen-2026-09-30
+Architecture lock: 1.1-frozen-2026-09-30
 
 ## Repository state
 
@@ -28,6 +28,8 @@ A direct local clone could not be performed in this environment because outbound
 ## What is frozen
 
 The network is an economic operating system centered on:
+
+In addition to fulfillment, the architecture now explicitly includes FinancialOpportunity, typed protocol tokens, cognitive-tier selection, EconomicWork measurement, and versioned network treasury economics.
 EconomicGoal → EconomicProgram → MoneyMovementIntent → authorization/policy → Strategy → Organization → Capability Graph → Execution Graph → Financial Protocol → clearing/netting/liquidity/FX → settlement/finality/evidence.
 
 Participation is not an add-on. It is a first-class economic control loop:
