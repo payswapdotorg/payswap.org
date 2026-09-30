@@ -19,12 +19,14 @@ Ecommerce, payroll, P2P, cross-border, savings, investment, credit, lending, BNP
 ## 2. System planes
 A. Experience — web, mobile, developer UX, merchant checkout, SDKs, Aurum and messaging surfaces.
 B. Trust / Delegation — identity, agent principals, mandates, permission grants, approvals, credentials and security epoch.
-C. Economic Control — goals/programs, intent compiler, constraints, authorization, policy and strategy.
-D. Agent Network — Agent Body, Agent Instance, Agent Package, Organization, runtime, communications and agent-native wallet/session-key capabilities.
-E. Capability / Market Network — capabilities, acceptance, providers, rails, FX, liquidity, credit, experts, extensions and certification.
-F. Financial Protocol — deterministic accounting of obligations, reservations, clearing, netting, settlement instructions, external rail effects, finality, FX, liquidity, credit, fees, disputes and recourse. PaySwap is non-custodial: it does not take custody/title to user funds and acts only as an orchestration/co-ordination layer.
-G. Participation Economics — participation goals, experiments, contribution records, incentive programs, budgets, rewards, referrals, recognition, leaderboards and reputation attestations.
-H. Reality Engineering Lab — replay, scenarios, simulation, fault injection, strategy/org/capability/mechanism search, evaluation, security experiments, human fallback and promotion.
+C. Work Operating Plane — universal work/project context, external-system context, tasks, documents, conversations, decisions, contracts, approvals, SLAs and long-running work.
+D. Payment Operating Plane — payment methods, acceptance offers/policies, payment credentials/mandates, payment-method translation, merchant settlement destinations, remittance/document allocation, payment attempts/fallbacks, recurring payments, refunds and off-network payment records.
+E. Economic Control — goals/programs, intent compiler, constraints, authorization, policy, opportunities and strategy.
+F. Agent Network — Agent Body, Agent Instance, Agent Package, Organization, runtime, communications and agent-native wallet/session-key capabilities.
+G. Capability / Connector Market Network — capabilities, acceptance, ServiceAccess, providers, connectors, Connector Capability Packs, rails, FX, liquidity, credit, experts, extensions and certification.
+H. Financial Protocol — deterministic accounting of obligations, reservations, clearing, netting, settlement instructions, external rail effects, finality, FX, liquidity, credit, fees, disputes and recourse. PaySwap is non-custodial: it does not take custody/title to user funds and acts only as an orchestration/co-ordination layer.
+I. Participation Economics — participation goals, experiments, contribution records, incentive programs, budgets, rewards, referrals, recognition, leaderboards and reputation attestations.
+J. Reality Engineering Lab — replay, scenarios, simulation, fault injection, strategy/org/capability/mechanism search, evaluation, security experiments, human fallback and promotion.
 
 Cross-cutting: evidence, provenance, privacy, compliance, regulatory perimeter, security immune system, observability, governance, commercial economics, connector/tenant policy, configuration epochs, non-custodial controls, frontend experience architecture and deployment architecture.
 
