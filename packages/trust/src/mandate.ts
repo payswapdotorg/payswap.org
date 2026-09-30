@@ -1,3 +1,5 @@
+import { compare, currencyCode, fromMinorUnits } from "@payswap/protocol";
+import type { CurrencyCode, Money } from "@payswap/protocol";
 import type { MandateRef } from "./principal.js";
 
 /**
@@ -14,7 +16,10 @@ import type { MandateRef } from "./principal.js";
  * Exact monetary amount: integer minor units as a decimal string.
  * Floating-point money is forbidden (INV-F01, AGENTS.md rule 3).
  *
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/protocol
+ * W2-002 CONSOLIDATION: exact amount comparison/arithmetic is delegated to the
+ * @payswap/protocol money primitive (`Money` + `compare`/`add`/`fromMinorUnits`).
+ * `AmountSpec` remains the trust wire format; exact-integer semantics now have
+ * exactly one owner (the protocol kernel) instead of a local duplicate.
  */
 export interface AmountSpec {
   readonly currency: string;
@@ -42,6 +47,19 @@ export function validateAmountSpec(amount: AmountSpec): void {
   }
 }
 
+/**
+ * Bridge an AmountSpec onto the protocol exact-money primitive (W2-002).
+ *
+ * The currency must be registered with @payswap/protocol; an unknown currency
+ * fails closed (UnknownCurrencyError) rather than participating in unbacked
+ * arithmetic.
+ */
+export function amountSpecToMoney(amount: AmountSpec): Money {
+  validateAmountSpec(amount);
+  const code: CurrencyCode = currencyCode(amount.currency);
+  return fromMinorUnits(code, BigInt(amount.minorUnits));
+}
+
 /** Exact comparison; amounts in different currencies are never comparable. */
 export function compareAmounts(a: AmountSpec, b: AmountSpec): -1 | 0 | 1 {
   validateAmountSpec(a);
@@ -51,9 +69,7 @@ export function compareAmounts(a: AmountSpec, b: AmountSpec): -1 | 0 | 1 {
       `cannot compare ${a.currency} with ${b.currency}: cross-currency comparison requires an FX quote`,
     );
   }
-  const av = BigInt(a.minorUnits);
-  const bv = BigInt(b.minorUnits);
-  return av < bv ? -1 : av > bv ? 1 : 0;
+  return compare(amountSpecToMoney(a), amountSpecToMoney(b));
 }
 
 export const ACTION_WILDCARD = "*";

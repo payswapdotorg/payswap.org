@@ -5,10 +5,14 @@ import type {
   ResourceRef,
 } from "./mandate.js";
 import {
+  amountSpecToMoney,
   compareAmounts,
   matchesActionPattern,
   matchesResourcePattern,
 } from "./mandate.js";
+import { add, compare } from "@payswap/protocol";
+import type { ScopedExecutionGrant, ScopedGrantRegistry } from "./grants.js";
+import { scopeCoversAction, scopeCoversResource } from "./grants.js";
 import type { Principal } from "./principal.js";
 import { principalRef } from "./principal.js";
 import type { EpochLedger } from "./security-epoch.js";
@@ -52,7 +56,10 @@ export type DenyReason =
   | "per_transaction_limit_exceeded"
   | "velocity_count_exceeded"
   | "velocity_amount_exceeded"
-  | "no_matching_grant";
+  | "no_matching_grant"
+  /** W2-002: scoped execution grants fail closed (see ./grants.ts). */
+  | "scoped_grant_revoked"
+  | "scoped_grant_expired";
 
 /** What an approval artifact authorizes (INV-A03). */
 export interface ApprovalScope {
@@ -81,10 +88,17 @@ export interface UsageRecord {
   readonly amount?: AmountSpec;
 }
 
-/** Evaluation state: the epoch ledger plus (optional) prior usage history. */
+/**
+ * Evaluation state: the epoch ledger, (optional) prior usage history and
+ * (optional, W2-002) the scoped-grant registry consulted for the scoped
+ * execution path. Absent registry ⇒ Stage-0 semantics unchanged (no scoped
+ * gate). Supplied registry ⇒ every covering scoped execution grant must be
+ * live at `requestedAt`, else fail closed (see ./grants.ts).
+ */
 export interface EpochState {
   readonly ledger: EpochLedger;
   readonly usage?: readonly UsageRecord[];
+  readonly scopedGrants?: ScopedGrantRegistry;
 }
 
 /**
@@ -115,6 +129,9 @@ function invariantRefs(reason: DenyReason): readonly string[] {
   switch (reason) {
     case "stale_security_epoch":
       return ["INV-A02", "INV-S02"];
+    case "scoped_grant_revoked":
+    case "scoped_grant_expired":
+      return ["INV-A02", "INV-S02", "INV-E01"];
     case "per_transaction_limit_exceeded":
     case "velocity_count_exceeded":
     case "velocity_amount_exceeded":
@@ -192,6 +209,10 @@ function evaluateMandate(
   }
 
   // Velocity limit over the sliding window ending at requestedAt.
+  //
+  // W2-002 CONSOLIDATION: the running sum and the bound are exact protocol
+  // Money values (add/compare from @payswap/protocol); the local bigint
+  // duplicate of exact-amount arithmetic was removed.
   const velocity = limits?.velocity;
   if (velocity !== undefined) {
     const windowStart = request.requestedAt - velocity.windowMs;
@@ -209,19 +230,72 @@ function evaluateMandate(
       if (context.amount.currency !== maxAmount.currency) {
         return deny("per_transaction_limit_currency_mismatch", 4);
       }
-      let sum = BigInt(context.amount.minorUnits);
+      let sum = amountSpecToMoney(context.amount);
       for (const record of inWindow) {
         if (record.amount !== undefined && record.amount.currency === maxAmount.currency) {
-          sum += BigInt(record.amount.minorUnits);
+          sum = add(sum, amountSpecToMoney(record.amount));
         }
       }
-      if (sum > BigInt(maxAmount.minorUnits)) {
+      if (compare(sum, amountSpecToMoney(maxAmount)) > 0) {
         return limitOutcome(mandate, "velocity_amount_exceeded", 6);
       }
     }
   }
 
   return { kind: "allow" };
+}
+
+/**
+ * W2-002 scoped-execution gate (fail closed, INV-A02/INV-E01).
+ *
+ * Considered only when the evaluation state carries a ScopedGrantRegistry.
+ * A permission grant whose mandate has derived scoped execution grants
+ * COVERING this request (action + resource) can only ALLOW when at least one
+ * covering scoped grant is ACTIVE at `requestedAt`. When every covering
+ * scoped grant is dead, the grant's scoped execution path is dead and the
+ * mandate cannot authorize at this instant:
+ *
+ *   - some covering grant REVOKED at requestedAt → scoped_grant_revoked
+ *     (REVOKED is the strongest death: revocation is immediate and monotonic);
+ *   - otherwise every covering grant EXPIRED → scoped_grant_expired.
+ *
+ * Scoped grants that do NOT cover this request never gate it: a narrowing
+ * instrument that names other actions/resources is not this request's
+ * execution path. Returns the vouching ACTIVE grant so ALLOW decisions can
+ * carry its reference as authorization evidence (INV-E01).
+ */
+/** Result of the scoped-execution gate: pass (with optional vouching grant) or fail-closed deny. */
+type ScopedGateResult =
+  | { readonly pass: true; readonly vouchingGrant?: ScopedExecutionGrant }
+  | { readonly pass: false; readonly reason: DenyReason };
+
+function scopedExecutionGate(
+  request: AuthorizationRequest,
+  registry: ScopedGrantRegistry,
+  mandate: Mandate,
+): ScopedGateResult {
+  const derived = registry.listForMandate({
+    mandateId: mandate.id,
+    version: mandate.version,
+  });
+  const covering = derived.filter(
+    (candidate) =>
+      scopeCoversAction(candidate.scope, request.action) &&
+      scopeCoversResource(candidate.scope, request.resource),
+  );
+  if (covering.length === 0) {
+    return { pass: true }; // no scoped instrument narrows this request; mandate governs
+  }
+  const activeAt = (candidate: ScopedExecutionGrant): boolean =>
+    registry.status(candidate.id, request.requestedAt) === "ACTIVE";
+  const vouching = covering.find(activeAt);
+  if (vouching !== undefined) {
+    return { pass: true, vouchingGrant: vouching };
+  }
+  const revoked = covering.some(
+    (candidate) => registry.status(candidate.id, request.requestedAt) === "REVOKED",
+  );
+  return { pass: false, reason: revoked ? "scoped_grant_revoked" : "scoped_grant_expired" };
 }
 
 /**
@@ -263,6 +337,33 @@ export function evaluate(
     const mandateRef = `mandate:${grant.mandate.id}@${grant.mandate.version}`;
     const outcome = evaluateMandate(request, ref, grant.mandate, usage);
     if (outcome.kind === "allow") {
+      const registry = epochState.scopedGrants;
+      if (registry !== undefined) {
+        const gate = scopedExecutionGate(request, registry, grant.mandate);
+        if (!gate.pass) {
+          // Scoped-execution rank 7 outranks every mandate deny rank, so a dead
+          // scoped path is always the most informative deny in the final answer.
+          if (bestDeny === undefined || 7 > bestDeny.rank) {
+            bestDeny = {
+              reason: gate.reason,
+              rank: 7,
+              policyRefs: [mandateRef, ...invariantRefs(gate.reason)],
+            };
+          }
+          continue;
+        }
+        const vouching = gate.vouchingGrant;
+        return {
+          decision: "ALLOW",
+          evidenceRefs: [
+            `grant:${grant.grantId}`,
+            mandateRef,
+            `lineage:${[grant.lineage.rootGrantId, ...grant.lineage.chain, grant.grantId].join(">")}`,
+            `request:${request.requestHash}`,
+            ...(vouching !== undefined ? [`scopedGrant:${vouching.id}`] : []),
+          ],
+        };
+      }
       return {
         decision: "ALLOW",
         evidenceRefs: [

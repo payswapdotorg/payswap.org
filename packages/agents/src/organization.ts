@@ -3,6 +3,7 @@ import type { AmountSpec } from "./amount.js";
 import type { AgentInstance } from "./instance.js";
 import type { VersionedRef } from "./instance.js";
 import type { AgentBody } from "./body.js";
+import type { MandateRef } from "@payswap/trust";
 
 /**
  * Organization contracts (FROZEN-ARCHITECTURE §7, INV-G02).
@@ -14,8 +15,8 @@ import type { AgentBody } from "./body.js";
  */
 
 /**
- * Budget amounts use the exact AmountSpec from ./amount.ts (INV-F01).
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/protocol
+ * Budget amounts use the exact AmountSpec consolidated onto @payswap/trust
+ * (whose exact arithmetic is backed by @payswap/protocol) (INV-F01).
  */
 
 export interface OrganizationBudget {
@@ -34,12 +35,10 @@ export interface CommunicationEdge {
  * Reference to the mandate that authorizes one delegation edge. Full mandate
  * semantics live in the trust domain.
  *
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/trust MandateRef
+ * W2-002 CONSOLIDATION: this is the @payswap/trust MandateRef; the alias keeps
+ * the Stage-0 @payswap/agents export name.
  */
-export interface DelegationMandateRef {
-  readonly mandateId: string;
-  readonly version: number;
-}
+export type DelegationMandateRef = MandateRef;
 
 export interface DelegationEdge {
   readonly fromInstanceId: string;

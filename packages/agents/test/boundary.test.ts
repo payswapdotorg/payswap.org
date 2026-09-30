@@ -3,13 +3,23 @@ import { join, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
- * Package boundary: src/** must contain ZERO non-relative imports.
+ * Package boundary (@payswap/agents), adapted for the W2-002 consolidation.
  *
- * Stage-0 TL decision: @payswap/agents is self-contained — no imports from
- * @payswap/trust, @payswap/capabilities, any other workspace package or any
- * runtime dependency. Shared primitives (AmountSpec, MandateRef, VersionedRef)
- * are defined locally and marked as consolidation candidates for W2-002.
+ * Stage-0 rule: src/** contains ZERO non-relative imports (fully
+ * self-contained). W2-002 mandates (a) consolidation of shared primitives
+ * onto @payswap/protocol (injected clock + id factory, exact money) and
+ * @payswap/trust (evaluate/attenuate authority for organization execution and
+ * the runtime tool-request gate). The boundary therefore evolves from "no
+ * workspace imports" to "ONLY the declared workspace dependencies":
+ *
+ * 1. every non-relative import in src/** is a declared @payswap/* dependency
+ *    of this package's package.json (no undeclared dependency can appear);
+ * 2. the declared workspace dependency set is a subset of the frozen maximum
+ *    allowlist for this package (no scope creep beyond consolidation);
+ * 3. no runtime (non-@payswap) dependency is ever imported.
  */
+
+const MAX_WORKSPACE_DEPS: readonly string[] = ["@payswap/protocol", "@payswap/trust"];
 
 function listSourceFiles(dir: string): string[] {
   const found: string[] = [];
@@ -50,33 +60,53 @@ function importSpecifiers(source: string): string[] {
   return specifiers;
 }
 
+function declaredWorkspaceDependencies(): string[] {
+  const pkg = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8")) as {
+    dependencies?: Record<string, string>;
+  };
+  return Object.keys(pkg.dependencies ?? {}).filter((dep) => dep.startsWith("@payswap/"));
+}
+
 describe("package boundary (@payswap/agents)", () => {
   it("scans a non-empty src tree", () => {
     const files = listSourceFiles(join(process.cwd(), "src"));
     expect(files.length).toBeGreaterThanOrEqual(8);
   });
 
-  it("src/** contains zero non-relative imports", () => {
+  it("declares only allowed workspace dependencies", () => {
+    const declared = declaredWorkspaceDependencies();
+    for (const dep of declared) {
+      expect(MAX_WORKSPACE_DEPS).toContain(dep);
+    }
+  });
+
+  it("src/** imports only declared @payswap/* workspace dependencies", () => {
     const root = join(process.cwd(), "src");
+    const declared = new Set(declaredWorkspaceDependencies());
     const offenders: string[] = [];
     for (const file of listSourceFiles(root)) {
       const source = readFileSync(file, "utf8");
       for (const specifier of importSpecifiers(source)) {
-        if (!specifier.startsWith(".")) {
-          offenders.push(`${file.replace(root + sep, "")}: '${specifier}'`);
+        if (specifier.startsWith(".")) {
+          continue;
+        }
+        if (!specifier.startsWith("@payswap/")) {
+          offenders.push(`${file.replace(root + sep, "")}: non-workspace import '${specifier}'`);
+        } else if (!declared.has(specifier)) {
+          offenders.push(`${file.replace(root + sep, "")}: undeclared workspace import '${specifier}'`);
         }
       }
     }
     expect(offenders).toEqual([]);
   });
 
-  it("never imports a sibling PaySwap workspace package", () => {
+  it("never imports @payswap/capabilities (vocabulary direction: W2-003 owns it)", () => {
     const root = join(process.cwd(), "src");
     const offenders: string[] = [];
     for (const file of listSourceFiles(root)) {
       const source = readFileSync(file, "utf8");
       for (const specifier of importSpecifiers(source)) {
-        if (specifier.startsWith("@payswap/") || specifier.startsWith("packages/")) {
+        if (specifier === "@payswap/capabilities") {
           offenders.push(`${file}: '${specifier}'`);
         }
       }

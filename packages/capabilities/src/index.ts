@@ -9,3 +9,4 @@ export const PACKAGE_NAME = "@payswap/capabilities" as const;
 export * from "./capability.js";
 export * from "./availability.js";
 export * from "./extension.js";
+export * from "./resolution.js";

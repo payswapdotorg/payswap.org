@@ -6,7 +6,10 @@
  * it does not defend against adversarial collision. Security-relevant
  * signatures live at the trust/trusted-surface boundary, never here.
  *
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/protocol content addressing
+ * W2-002 CONSOLIDATION DECISION: kept local on purpose — @payswap/protocol
+ * (W1-001) exports no content-addressing primitive at Stage 0 (only the
+ * idempotency scope key). Moving this into the kernel would change the frozen
+ * protocol surface; flagged as an ADR candidate for the TL instead.
  */
 
 export function canonicalString(value: unknown): string {

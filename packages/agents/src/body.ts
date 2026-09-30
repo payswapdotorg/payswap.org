@@ -1,4 +1,6 @@
 import { contentDigest } from "./canonical.js";
+import type { AgentInstance, AgentPrincipalRef, AgentRuntimeState, ModelBinding } from "./instance.js";
+import { isBodyContractCompatible } from "./instance.js";
 
 /**
  * Agent Body contracts (FROZEN-ARCHITECTURE §7, INV-G01).
@@ -52,4 +54,88 @@ export function bodyContractKey(body: AgentBody): string {
     interfaces: body.declaredInterfaces,
     capabilities: body.capabilityDescriptors,
   });
+}
+
+/**
+ * Possession parameters (W2-002). Possession binds a Body version to one
+ * principal and one ModelBinding: the Body declares WHAT the agent can do,
+ * the ModelBinding decides WHICH model serves it, and neither is a property
+ * of the other (INV-G01).
+ */
+export interface PossessParams {
+  readonly instanceId: string;
+  readonly principal: AgentPrincipalRef;
+  /** Initial runtime state; defaults to `{ status: "IDLE" }`. */
+  readonly runtimeState?: AgentRuntimeState;
+}
+
+/**
+ * A Body possesses-by-model-binding: create an AgentInstance for this Body
+ * under a distinct ModelBinding (W2-002 acceptance: multiple models can
+ * possess one Body).
+ *
+ * The instance's bodyRef pins the Body id AND version, so every possessor of
+ * the same Body shares the identical Body contract — verified by
+ * `isBodyContractCompatible(body, instance)` and by identical
+ * `bodyContractKey` values across possessors.
+ */
+export function possess(
+  body: AgentBody,
+  modelBinding: ModelBinding,
+  params: PossessParams,
+): AgentInstance {
+  if (params.instanceId.length === 0) {
+    throw new Error("possess: instanceId must not be empty");
+  }
+  if (params.principal.agentKeyFingerprint.length === 0) {
+    throw new Error("possess: principal agentKeyFingerprint must not be empty");
+  }
+  return {
+    id: params.instanceId,
+    bodyRef: { id: body.id, version: body.version },
+    principal: params.principal,
+    modelBinding,
+    runtimeState: params.runtimeState ?? { status: "IDLE" },
+  };
+}
+
+/**
+ * All instances that possess this Body (same id AND version), in array order.
+ * Two or more entries with distinct ModelBindings demonstrate multi-model
+ * possession of one Body.
+ */
+export function possessorsOf(
+  body: AgentBody,
+  instances: readonly AgentInstance[],
+): readonly AgentInstance[] {
+  return instances.filter((instance) => isBodyContractCompatible(body, instance));
+}
+
+/** Structural identity of a ModelBinding for possession counting. */
+export function bindingKey(binding: ModelBinding): string {
+  return `${binding.provider}/${binding.modelId}@${binding.bindingVersion}`;
+}
+
+/**
+ * The DISTINCT ModelBindings that possess this Body, in first-appearance
+ * order. Multiple entries prove the same Body is served by several models
+ * without any Body-contract change.
+ */
+export function possessingBindings(
+  body: AgentBody,
+  instances: readonly AgentInstance[],
+): readonly ModelBinding[] {
+  const seen = new Set<string>();
+  const bindings: ModelBinding[] = [];
+  for (const instance of possessorsOf(body, instances)) {
+    if (instance.modelBinding === undefined) {
+      continue;
+    }
+    const key = bindingKey(instance.modelBinding);
+    if (!seen.has(key)) {
+      seen.add(key);
+      bindings.push(instance.modelBinding);
+    }
+  }
+  return bindings;
 }

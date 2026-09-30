@@ -8,6 +8,9 @@
  * funding source (§11).
  */
 
+import type { AmountSpec, ProofLevel, ProofRequirement } from "@payswap/trust";
+import { PROOF_LEVELS } from "@payswap/trust";
+
 /**
  * Capability classes (FROZEN-ARCHITECTURE §11).
  * W2-003 owns the canonical connector capability vocabulary on top of these.
@@ -39,25 +42,21 @@ export function isFundingSourceClass(cls: CapabilityClass): cls is FundingSource
 
 /**
  * Exact monetary amount (INV-F01).
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/protocol
+ *
+ * W2-002 CONSOLIDATION: the local duplicate was removed; AmountSpec is the
+ * canonical @payswap/trust wire format (backed by the @payswap/protocol money
+ * primitive). The re-export preserves the Stage-0 export surface.
  */
-export interface AmountSpec {
-  readonly currency: string;
-  readonly minorUnits: string;
-}
-
-/** Proof levels (FROZEN-ARCHITECTURE §16). */
-export const PROOF_LEVELS = ["P0", "P1", "P2", "P3", "P4", "P5"] as const;
-export type ProofLevel = (typeof PROOF_LEVELS)[number];
+export type { AmountSpec };
 
 /**
- * Required proof for a scope of the capability's effects.
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/trust ProofRequirement
+ * Proof levels (FROZEN-ARCHITECTURE §16).
+ *
+ * W2-002 CONSOLIDATION: canonical PROOF_LEVELS/ProofLevel/ProofRequirement are
+ * owned by @payswap/trust; re-exported here to preserve the Stage-0 surface.
  */
-export interface ProofRequirement {
-  readonly proofLevel: ProofLevel;
-  readonly scope?: string;
-}
+export { PROOF_LEVELS };
+export type { ProofLevel, ProofRequirement };
 
 /** Hard constraints run before soft optimization (AGENTS.md rule 14). */
 export interface CapabilityCondition {
