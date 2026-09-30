@@ -40,6 +40,13 @@ payment
 - PaymentCredentialCapability;
 - PaymentAcceptancePolicy;
 - PaymentMethodOffer;
+- PaymentFallbackPolicy;
+- PaymentMethodTranslation;
+- PaymentAttempt;
+- MerchantSettlementDestination;
+- RemittanceAllocation;
+- OffNetworkPaymentRecord;
+- PaymentMethodOffer;
 - PaymentMethodTranslation;
 - PaymentAttempt;
 - PaymentFallbackPolicy;
