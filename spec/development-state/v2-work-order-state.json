@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "repository": "payswapdotorg/payswap.org",
-  "architecture_version": "1.0-frozen-2026-09-30",
+  "architecture_version": "1.1-frozen-2026-09-30",
   "implementation_authorized": true,
   "production_deployment_authorized": false,
   "max_concurrent_workers": 3,
