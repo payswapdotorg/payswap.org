@@ -1,8 +1,8 @@
-# PaySwap.org — Frozen Architecture v1.3
+# PaySwap.org — Frozen Architecture v1.4
 
 Status: FROZEN
 Locked: 2026-09-30
-Supersedes: 1.2-frozen-2026-09-30
+Supersedes: 1.3-frozen-2026-09-30
 Purpose: sole architecture authority for implementation
 
 ## 1. Product definition
@@ -57,6 +57,22 @@ PaySwap lets professionals search, ask, coordinate, approve and execute work acr
 
 Every capability and economic flow declares a RegulatoryProfile. Policy and Governance determines whether PaySwap may coordinate it in the relevant jurisdiction and licensed-provider arrangement.
 
+## 2D. Payment Control Loop
+
+Payment demand
+→ Acceptance/eligibility
+→ Payment Method Offer
+→ Strategy/routing
+→ Credential/mandate authorization
+→ Payment Attempt
+→ rail effects
+→ merchant settlement destination
+→ remittance/document allocation
+→ evidence
+→ refund/dispute/recourse when needed.
+
+Payment method and payment rail remain distinct abstractions.
+
 ## 3. Core control loops
 Fulfillment: Intent → constraints → strategy → organization → execution graph → protocol → settlement → evidence.
 
@@ -90,6 +106,40 @@ Identity, Principal and AgentPrincipal are distinct.
 An AgentPrincipal binds agent key, owner reference, Body/package version, authority envelope and security epoch.
 Mandates define allowed actions, resources, rails, currencies, countries, beneficiaries, transaction and velocity limits, cost/spread limits, expiry, escalation and proof requirements.
 Child delegation must be attenuated.
+
+## 6A. Payment method abstraction
+
+PaymentMethod is the user/merchant-facing instrument choice:
+- card;
+- bank transfer;
+- ACH/EFT;
+- instant payment;
+- mobile money;
+- wallet;
+- stablecoin/crypto;
+- virtual card;
+- BNPL/credit;
+- check/cash/external payment record.
+
+PaymentMethod is not a RailCapability.
+
+PaymentCredentialCapability represents the token, mandate, account authorization or other credential required to execute the method.
+
+PaymentAcceptancePolicy declares what the merchant will accept and under which terms:
+- methods/currencies;
+- recurring support;
+- partial payments;
+- refunds;
+- recourse/protection;
+- customer eligibility;
+- settlement destination;
+- timing;
+- remittance requirements;
+- geography.
+
+PaymentMethodTranslation records requested method → selected capability chain → actual rail effects → merchant settlement result.
+
+OffNetworkPaymentRecord records check/cash/external payments without claiming PaySwap orchestrated the movement. It carries source, evidence, reconciliation state and business-document references.
 
 ## 6. Economic intent
 ServiceAccessIntent is a complementary goal/intent form for obtaining a service or entitlement. It may be fulfilled through direct subscription, prepaid entitlement, delegated billing, LP financing, network credit or a certified smart-contract service. Its funding credential and service/account credential remain distinct.
