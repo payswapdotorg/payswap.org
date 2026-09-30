@@ -1,8 +1,8 @@
-# PaySwap.org — Frozen Architecture v1.2
+# PaySwap.org — Frozen Architecture v1.3
 
 Status: FROZEN
 Locked: 2026-09-30
-Supersedes: 1.1-frozen-2026-09-30
+Supersedes: 1.2-frozen-2026-09-30
 Purpose: sole architecture authority for implementation
 
 ## 1. Product definition
@@ -26,7 +26,36 @@ F. Financial Protocol — deterministic accounting of obligations, reservations,
 G. Participation Economics — participation goals, experiments, contribution records, incentive programs, budgets, rewards, referrals, recognition, leaderboards and reputation attestations.
 H. Reality Engineering Lab — replay, scenarios, simulation, fault injection, strategy/org/capability/mechanism search, evaluation, security experiments, human fallback and promotion.
 
-Cross-cutting: evidence, provenance, privacy, compliance, security immune system, observability, governance, configuration epochs, non-custodial controls, frontend experience architecture and deployment architecture.
+Cross-cutting: evidence, provenance, privacy, compliance, regulatory perimeter, security immune system, observability, governance, commercial economics, connector/tenant policy, configuration epochs, non-custodial controls, frontend experience architecture and deployment architecture.
+
+## 2A. Universal Connector Model
+
+A Connector is the productized boundary between PaySwap and an external system. Each Connector exposes a versioned Connector Capability Pack in the Capability Graph.
+
+A Connector may wrap a PSP, bank, ERP, CRM, construction platform, EHR, fleet system, hospitality PMS, legal matter system, cloud/developer platform, communications system, document platform or another external service.
+
+The customer can retain its external provider relationship while PaySwap supplies:
+- canonical capability interfaces;
+- agent/action contracts;
+- data/object mappings;
+- delegated auth;
+- health/availability;
+- evidence/provenance;
+- webhooks/events;
+- reconciliation;
+- portability/failover.
+
+The "Vercel over AWS" analogy means PaySwap can become a common experience/orchestration layer over heterogeneous providers; it does not imply control over the underlying provider.
+
+## 2B. Work Interface Principle
+
+The main interface is the Work Graph/Command Center, not the financial ledger.
+
+PaySwap lets professionals search, ask, coordinate, approve and execute work across connected systems while preserving the appropriate external systems as systems of record.
+
+## 2C. Regulatory Perimeter
+
+Every capability and economic flow declares a RegulatoryProfile. Policy and Governance determines whether PaySwap may coordinate it in the relevant jurisdiction and licensed-provider arrangement.
 
 ## 3. Core control loops
 Fulfillment: Intent → constraints → strategy → organization → execution graph → protocol → settlement → evidence.
@@ -40,6 +69,12 @@ Security: signal → threat signature → risk decision → restrict/quarantine 
 Human capability: gap → CapabilityCase → qualified match → ExpertTask → Resolution version → protocol decision/evidence → learning.
 
 Learning: outcome → trajectory → evaluation → candidate → replay/counterfactual → robustness → shadow → canary → promotion.
+
+## 3A. Work/Economic Coherence Loop
+
+Work object → context → agent plan → external connector actions → economic consequences → evidence → updated Work Graph.
+
+Every long-running Work Program has explicit ownership, source-of-truth fields, deadlines, external dependencies, approvals and exception handling.
 
 ## 4. Authority boundaries
 Financial Protocol Authority owns financial truth and external effect authorization.
