@@ -16,14 +16,15 @@ The repository is the sole source of truth for the Tech Lead, three concurrent w
 6. spec/architecture/FRONTEND-UX-DEPLOYMENT.md
 7. spec/architecture/PSP-ADAPTER-NETWORK.md
 8. spec/architecture/SERVICE-CAPABILITIES.md
-5. spec/architecture/INVARIANTS.md
-6. spec/dependency-graph.md
-7. spec/development-state/v2-work-order-state.json
-8. spec/worker-runbook.md
+5. spec/architecture/PAYMENT-OPERATING-PLANE.md
+6. spec/architecture/INVARIANTS.md
+7. spec/dependency-graph.md
+8. spec/development-state/v2-work-order-state.json
+9. spec/worker-runbook.md
 
 ## Architecture in one sentence
 
-A deterministic financial protocol executes universal economic intents, while replaceable agents, strategies, capabilities, incentives and learning systems discover how to fulfill them safely and grow network participation.
+A deterministic financial protocol executes universal economic intents, while replaceable agents, strategies, capabilities, incentives and learning systems discover how to fulfill them safely and grow network participation. The Payment Operating Plane keeps payment methods, rails, credentials, acceptance, settlement and reconciliation coherent above heterogeneous providers.
 
 ## Initial concurrency
 
