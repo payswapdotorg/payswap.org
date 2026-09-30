@@ -6,7 +6,16 @@
   "engines": {
     "node": ">=22"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "verify:repo": "node scripts/verify-repository.mjs"
+    "verify:repo": "node scripts/verify-repository.mjs",
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
   }
 }

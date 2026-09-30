@@ -1,0 +1,18 @@
+{
+  "name": "@payswap/trust",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Trust, identity, principals, mandates, delegated authority, authorization decisions, security epoch (Work Order W2-001)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}

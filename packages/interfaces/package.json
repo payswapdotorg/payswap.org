@@ -1,0 +1,18 @@
+{
+  "name": "@payswap/interfaces",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "API, runtime and experience boundary contracts: REST/HTTP, webhooks, trusted approval surfaces, MCP, A2A, AG-UI, messaging, merchant PSP connector (Work Order W3-001)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
