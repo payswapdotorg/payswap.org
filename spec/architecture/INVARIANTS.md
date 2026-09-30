@@ -52,6 +52,12 @@
 - INV-P06: clawbacks create separate adjustment obligations; contribution history remains.
 - INV-P07: incentive changes create new versions/effective epochs.
 
+## Smart-contract and custody
+- INV-SC01: smart-contract extensions declare source/bytecode, chain, upgrade, admin, pause, oracle and custody properties.
+- INV-SC02: no PaySwap operator/key may unilaterally withdraw user-held funds.
+- INV-SC03: smart-account/session-key authority is bounded by an explicit permission envelope.
+- INV-SC04: contract upgrade/governance risk is treated as part of capability certification.
+
 ## Security
 - INV-S01: security advisories can restrict affected components globally.
 - INV-S02: security epoch is checked on every sensitive delegated action.
