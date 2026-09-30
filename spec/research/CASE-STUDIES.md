@@ -72,6 +72,35 @@ https://github.com/payswapdotorg/sporta
 
 Lesson: separate learning/simulation from production authority.
 
+## Ethereum account abstraction
+Ethereum's account-abstraction documentation describes smart contract wallets with programmable security, recovery, batching, and sponsored gas. ERC-4337 defines UserOperations, bundlers, factories and paymasters; EIP-7702 allows EOAs to delegate code with use cases including batching, sponsorship and privilege de-escalation.
+
+https://ethereum.org/roadmap/account-abstraction
+https://eips.ethereum.org/EIPS/eip-4337
+https://eips.ethereum.org/EIPS/eip-7702
+
+Lesson:
+User Agents can hide wallet mechanics while session keys, spending limits and sponsored gas constrain authority. PaySwap should use these mechanisms as wallet capabilities, not as central custody.
+
+## Stripe agentic commerce
+Stripe's current agentic-commerce materials describe Shared Payment Tokens, Link's agent wallet, Delegated Checkout and machine payments. Stripe's product catalogue currently reports 53 products across payments, risk, revenue, data, money management, embedded finance, crypto and platform.
+
+https://stripe.com/guides/agentic-commerce-primer
+https://stripe.com/products
+https://stripe.com/blog/giving-agents-the-ability-to-pay
+
+Lesson:
+PaySwap should model scoped payment credentials, agent funding, delegated checkout, merchant discovery and machine payments as provider-neutral capabilities. Stripe becomes one provider adapter rather than the network boundary.
+
+## Provider-neutral PSP orchestration
+Stripe's processor-agnostic guidance describes an orchestration layer between merchant software and multiple processors, routing payments by cost, geography, payment method, performance or availability.
+
+https://stripe.com/resources/more/processor-agnostic-payments
+https://docs.stripe.com/payments/mobile/custom-payment-methods
+
+Lesson:
+PaySwap's Merchant PSP Connector can place PaySwap alongside an existing PSP, while PaySwap remains responsible for only the additional capabilities/rails actually reachable and authorized.
+
 ## Arena
 Arena models Agent Bodies as stable capability contracts, cognitive substrates as replaceable possessions and expert matching as qualification/evidence based.
 
