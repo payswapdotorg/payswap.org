@@ -61,7 +61,10 @@ export class PackageLifecycleError extends Error {
  * Reference to an extension manifest. Extensions are owned by the capability
  * domain; packages only reference them.
  *
- * CONSOLIDATION CANDIDATE (W2-002): align with @payswap/capabilities ExtensionManifest
+ * W2-002 CONSOLIDATION DECISION: kept local on purpose — importing
+ * @payswap/capabilities from @payswap/agents is reserved for W2-003 (which
+ * owns the canonical connector/extension vocabulary); the TL boundary
+ * explicitly forbids agents → capabilities at this stage.
  */
 export interface ExtensionRef {
   readonly extensionId: string;

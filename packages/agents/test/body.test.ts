@@ -75,3 +75,118 @@ type _assert2 = Expect<Equal<_bodyHasNoSoul, false>>;
 type _assert3 = Expect<Equal<_bodyHasNoProvider, false>>;
 type _assert4 = Expect<Equal<_bodyHasNoPrompt, false>>;
 type _assert5 = Expect<Equal<_bodyHasNoWeights, false>>;
+
+// ---------------------------------------------------------------------------
+// W2-002 — possession: multiple models can possess one Body (INV-G01).
+// ---------------------------------------------------------------------------
+
+import {
+  possess,
+  possessorsOf,
+  possessingBindings,
+  isBodyContractCompatible,
+} from "../src/index.js";
+import type { ModelBinding } from "../src/index.js";
+
+const anthropic: ModelBinding = {
+  provider: "anthropic",
+  modelId: "claude-sonnet",
+  bindingVersion: 1,
+};
+const openai: ModelBinding = {
+  provider: "openai",
+  modelId: "gpt-5",
+  bindingVersion: 2,
+};
+const local: ModelBinding = {
+  provider: "self-hosted",
+  modelId: "qwen-inhouse",
+  bindingVersion: 1,
+};
+
+describe("possess — Body/ModelBinding possession (W2-002)", () => {
+  it("creates an instance pinning the Body id+version under a model binding", () => {
+    const instance = possess(body, anthropic, {
+      instanceId: "inst-payer-a",
+      principal: { agentKeyFingerprint: "key-a", ownerRef: "user:owner-1" },
+    });
+    expect(instance.bodyRef).toEqual({ id: "body:payer", version: 1 });
+    expect(instance.modelBinding).toEqual(anthropic);
+    expect(instance.runtimeState).toEqual({ status: "IDLE" });
+    expect(isBodyContractCompatible(body, instance)).toBe(true);
+  });
+
+  it("two+ DISTINCT ModelBindings can possess ONE Body with identical contract compatibility", () => {
+    const a = possess(body, anthropic, {
+      instanceId: "inst-payer-a",
+      principal: { agentKeyFingerprint: "key-a", ownerRef: "user:owner-1" },
+    });
+    const b = possess(body, openai, {
+      instanceId: "inst-payer-b",
+      principal: { agentKeyFingerprint: "key-b", ownerRef: "user:owner-2" },
+    });
+    const c = possess(body, local, {
+      instanceId: "inst-payer-c",
+      principal: { agentKeyFingerprint: "key-c", ownerRef: "user:owner-1" },
+    });
+    const possessors = possessorsOf(body, [a, b, c]);
+    expect(possessors.map((instance) => instance.id)).toEqual([
+      "inst-payer-a",
+      "inst-payer-b",
+      "inst-payer-c",
+    ]);
+    // three distinct bindings, one Body
+    const bindings = possessingBindings(body, [a, b, c]);
+    expect(bindings).toHaveLength(3);
+    expect(bindings).toEqual([anthropic, openai, local]);
+    // identical Body contract across possessors (INV-G01)
+    for (const instance of possessors) {
+      expect(isBodyContractCompatible(body, instance)).toBe(true);
+    }
+  });
+
+  it("possession of a DIFFERENT Body version does not count (id+version pin)", () => {
+    const a = possess(body, anthropic, {
+      instanceId: "inst-payer-a",
+      principal: { agentKeyFingerprint: "key-a", ownerRef: "user:owner-1" },
+    });
+    const otherVersion = possess(
+      { ...body, version: 2 },
+      openai,
+      {
+        instanceId: "inst-payer-v2",
+        principal: { agentKeyFingerprint: "key-a", ownerRef: "user:owner-1" },
+      },
+    );
+    expect(possessorsOf(body, [a, otherVersion])).toEqual([a]);
+    expect(possessingBindings(body, [a, otherVersion])).toEqual([anthropic]);
+  });
+
+  it("deduplicates identical model bindings across possessors", () => {
+    const a = possess(body, anthropic, {
+      instanceId: "inst-payer-a",
+      principal: { agentKeyFingerprint: "key-a", ownerRef: "user:owner-1" },
+    });
+    const b = possess(body, { ...anthropic }, {
+      instanceId: "inst-payer-b",
+      principal: { agentKeyFingerprint: "key-b", ownerRef: "user:owner-2" },
+    });
+    expect(possessorsOf(body, [a, b])).toHaveLength(2);
+    expect(possessingBindings(body, [a, b])).toEqual([anthropic]);
+  });
+
+  it("rejects empty instanceId and empty principal fingerprint", () => {
+    expect(() =>
+      possess(body, anthropic, {
+        instanceId: "",
+        principal: { agentKeyFingerprint: "key-a", ownerRef: "user:owner-1" },
+      }),
+    ).toThrow(/instanceId/);
+    expect(() =>
+      possess(body, anthropic, {
+        instanceId: "inst-x",
+        principal: { agentKeyFingerprint: "", ownerRef: "user:owner-1" },
+      }),
+    ).toThrow(/agentKeyFingerprint/);
+  });
+});

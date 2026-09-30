@@ -10,4 +10,5 @@ export * from "./principal.js";
 export * from "./mandate.js";
 export * from "./attenuation.js";
 export * from "./authorization.js";
+export * from "./grants.js";
 export * from "./security-epoch.js";
