@@ -1,8 +1,11 @@
 # Architecture Review — 2026-09-30
 
-Architecture lock after closure: 1.3-frozen-2026-09-30
+Architecture lock after closure: 1.4-frozen-2026-09-30
 
 ## Added in this revision
+
+### Payment-centric simulation closure
+The revised benchmark compares payment/economic work against actual payment methods rather than vertical software products. It confirms that PaySwap's primary advantage is orchestration above rails and exposes payment-specific gaps: method/rail separation, acceptance policies, translation, recurring mandates, remittance preservation, off-network payment records, fallback reauthorization, refunds/recourse and merchant settlement destinations.
 
 ### Universal Connector Platform
 Connectors now generalize beyond PSPs and expose versioned Connector Capability Packs covering authentication, search, reads, writes, actions, events, health, evidence, reconciliation and portability.
