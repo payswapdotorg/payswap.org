@@ -1,11 +1,13 @@
 # Tech Lead Handoff — PaySwap.org
 
 Date: 2026-09-30
-Architecture: v1.2-frozen-2026-09-30
+Architecture: v1.4-frozen-2026-09-30
 
 PaySwap operating boundary: non-custodial orchestration. PaySwap does not take custody/title to user funds; onchain holding is delegated to certified smart-contract capabilities with no unilateral PaySwap withdrawal path.
 
 ## Mission
+
+PaySwap's payment-specific control plane is frozen in the Payment Operating Plane. PaymentMethod, RailCapability, PaymentCredentialCapability, PaymentAcceptancePolicy, PaymentMethodTranslation, PaymentAttempt, MerchantSettlementDestination, RemittanceAllocation and OffNetworkPaymentRecord are separate concepts.
 Build an open economic operating system and programmable money-movement network in which humans, agents, developers, businesses, liquidity providers, lenders, merchants, experts, rails, and external services can contribute capabilities.
 
 A user expresses an economic goal or money-movement intent. The network discovers feasible strategies, execution organizations, liquidity, capabilities, incentives, and human fallback as needed. The financial protocol remains deterministic and authoritative.
@@ -95,6 +97,10 @@ The architecture is implemented only when:
 - human expert fallback is recorded with reusable evidence;
 - APIs/MCP/A2A/AG-UI interoperate through provider-neutral contracts;
 - browser journeys exercise production wiring with no dead buttons or fake settlement.
+
+## Payment benchmark
+
+The repository's current payment-centric simulation is spec/research/SIMULATION-MULTI-INDUSTRY-PAYMENTS-2026-09-30.md. It is the authoritative synthetic benchmark for payment/economic-interface adoption and supersedes the earlier vertical-software comparison.
 
 ## Current start
 The exact initial frontier is in spec/development-state/v2-work-order-state.json. Do not invent a different starting point in chat.
