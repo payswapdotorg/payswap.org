@@ -1,0 +1,12 @@
+{
+  "name": "@payswap/payswap-org",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "verify:repo": "node scripts/verify-repository.mjs"
+  }
+}
