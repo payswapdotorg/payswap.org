@@ -19,15 +19,15 @@ These three are pairwise-disjoint at the implementation boundary and may run con
 |---|---|---|---|
 | W1-002 | Ledger, reservations, obligations, clearing | Worker 1 | W1-001 |
 | W2-002 | Agent runtime, Bodies, Organizations, Packages | Worker 2 | W2-001 |
-| W3-002 | Auth/approval/trusted surfaces + developer API | Worker 3 | W3-001, W2-001 |
+| W3-002 | Auth/approval/trusted surfaces + developer API + Work Operating Plane | Worker 3 | W3-001, W2-001 |
 
 ## Stage 2
 
 | ID | Work | Lane | Dependencies |
 |---|---|---|---|
 | W1-003 | Netting, liquidity, credit, FX, value conversion | Worker 1 | W1-002 |
-| W2-003 | Capability ecosystem + extensions + acceptance | Worker 2 | W2-002, W1-002 |
-| W3-003 | Execution graph, webhooks, provider adapter framework | Worker 3 | W3-002, W1-002 |
+| W2-003 | Capability/Connector ecosystem + extensions + acceptance | Worker 2 | W2-002, W1-002 |
+| W3-003 | Execution graph, webhooks, generalized connector framework | Worker 3 | W3-002, W1-002 |
 
 ## Stage 3
 
