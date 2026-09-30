@@ -1,8 +1,22 @@
 # Architecture Review — 2026-09-30
 
+Architecture lock after closure: 1.1-frozen-2026-09-30
+
 This review reconciles the full discussion into the frozen architecture.
 
 ## Added in this revision
+
+### Opportunity Engine
+FinancialOpportunity and the proactive Opportunity Engine are explicit first-class objects/services so the system can discover current, conditional and future economic improvements rather than only react to blocked intents.
+
+### Typed protocol tokens
+Typed protocol artifacts provide safe composition between extensions, capabilities and agent organizations without granting direct state mutation.
+
+### Cognitive tiers and EconomicWork
+The architecture now makes explicit how the Director chooses the least powerful safe cognitive capability and how the Lab measures economic compression.
+
+### Treasury and network economics
+The network's own fees, reserves, guarantees, incentives and operating budgets are versioned treasury policy rather than hidden application logic.
 
 ### Participation as a first-class economic subsystem
 Added ParticipationGoal, ParticipationExperiment, IncentiveProgram, budget reservation, contribution attribution, reward accounting, referral attribution, recognition, role-specific leaderboards, reputation attestations and anti-gaming.
