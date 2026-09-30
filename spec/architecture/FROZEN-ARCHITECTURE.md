@@ -1,7 +1,8 @@
-# PaySwap.org — Frozen Architecture v1.0
+# PaySwap.org — Frozen Architecture v1.1
 
 Status: FROZEN
 Locked: 2026-09-30
+Supersedes: 1.0-frozen-2026-09-30
 Purpose: sole architecture authority for implementation
 
 ## 1. Product definition
@@ -10,6 +11,8 @@ PaySwap.org is an open economic operating system built around a deterministic fi
 Two core primitives:
 1. EconomicGoal — what the principal wants economically.
 2. MoneyMovementIntent — an executable value-transfer demand.
+
+FinancialOpportunity is a first-class proactive object. It describes a current, conditional or future way to improve an economic outcome, with affected objects, preconditions, proposed action, expected benefit, cost, risk, liquidity/capital impact, evidence and expiry.
 
 Ecommerce, payroll, P2P, cross-border, savings, investment, credit, lending, BNPL, crowdfunding, treasury and DAO workflows compile into shared primitives rather than parallel payment engines.
 
@@ -222,5 +225,70 @@ UNKNOWN
 
 UNKNOWN always requires reconciliation.
 
-## 22. Completion criterion
+## 22. Opportunity Engine
+
+The Financial Opportunity Engine continuously discovers opportunities across:
+- cost reduction;
+- revenue/capability supply;
+- liquidity;
+- credit;
+- asset usage;
+- treasury;
+- network growth;
+- participation.
+
+An opportunity is advisory until compiled into an authorized program/intent. Opportunity discovery may be proactive or reactive. User agents may surface opportunities through trusted surfaces without treating suggestions as permission.
+
+## 23. Typed protocol tokens
+
+Extensions, Agents and Organizations compose through typed protocol artifacts rather than direct state mutation.
+
+Token families:
+- Intent;
+- Capability;
+- Authorization;
+- Identity/Evidence;
+- Quote;
+- Liquidity;
+- Credit;
+- Execution;
+- Settlement;
+- Netting;
+- Dispute/Recourse;
+- Expert;
+- Policy;
+- Participation/Incentive.
+
+A token is a typed reference to authoritative protocol state or an immutable content-addressed artifact. Tokens are not money.
+
+An extension may consume and emit permitted token types declared in its manifest. Financial effects still require a protocol-authorized command.
+
+## 24. Cognitive tiers and economic work
+
+The network chooses the least powerful cognitive tier that safely solves a task:
+- Tier 0: deterministic rules/algorithms;
+- Tier 1: fast/small model;
+- Tier 2: specialist model;
+- Tier 3: deep reasoning;
+- Tier 4: multi-agent organization;
+- Tier 5: human expert.
+
+Escalation is policy-driven by complexity, risk, ambiguity and expected value.
+
+The Lab measures EconomicWork: external value moved, number of hops, liquidity locked, capital consumed, fees/FX spread, latency and risk exposure. Strategies that compress unnecessary economic work without violating hard constraints are preferred.
+
+## 25. Network economics and treasury
+
+The network itself is an economic actor with versioned treasury policies for:
+- fees;
+- reserves;
+- guarantees;
+- incentive budgets;
+- security bounties;
+- operator costs;
+- liquidity programs.
+
+Treasury actions are ordinary protocol obligations/settlements and are subject to the same authorization, policy, accounting and evidence rules as user activity.
+
+## 26. Completion criterion
 The architecture is complete only when a real end-to-end economic flow can discover and use real capabilities and rails, produce deterministic accounting and evidence, reconcile ambiguity, enforce delegated authority, use netting/liquidity/FX/credit/incentives, support disputes/recourse, and learn from outcomes without allowing an LLM or simulator to become financial truth.
