@@ -14,7 +14,7 @@ Two core primitives:
 
 FinancialOpportunity is a first-class proactive object. It describes a current, conditional or future way to improve an economic outcome, with affected objects, preconditions, proposed action, expected benefit, cost, risk, liquidity/capital impact, evidence and expiry.
 
-Ecommerce, payroll, P2P, cross-border, savings, investment, credit, lending, BNPL, crowdfunding, treasury and DAO workflows compile into shared primitives rather than parallel payment engines.
+Ecommerce, payroll, P2P, cross-border, savings, investment, credit, lending, BNPL, crowdfunding, treasury, DAO and service-access workflows compile into shared primitives rather than parallel payment engines.
 
 ## 2. System planes
 A. Experience — web, mobile, developer UX, merchant checkout, SDKs, Aurum and messaging surfaces.
@@ -22,7 +22,7 @@ B. Trust / Delegation — identity, agent principals, mandates, permission grant
 C. Economic Control — goals/programs, intent compiler, constraints, authorization, policy and strategy.
 D. Agent Network — Agent Body, Agent Instance, Agent Package, Organization, runtime, communications and agent-native wallet/session-key capabilities.
 E. Capability / Market Network — capabilities, acceptance, providers, rails, FX, liquidity, credit, experts, extensions and certification.
-F. Financial Protocol — deterministic accounting of obligations, reservations, clearing, netting, settlement instructions, external rail effects, finality, FX, liquidity, credit, fees, disputes and recourse. PaySwap is non-custodial: it does not take custody/title to user funds and acts as an orchestration/co-ordination layer.
+F. Financial Protocol — deterministic accounting of obligations, reservations, clearing, netting, settlement instructions, external rail effects, finality, FX, liquidity, credit, fees, disputes and recourse. PaySwap is non-custodial: it does not take custody/title to user funds and acts only as an orchestration/co-ordination layer.
 G. Participation Economics — participation goals, experiments, contribution records, incentive programs, budgets, rewards, referrals, recognition, leaderboards and reputation attestations.
 H. Reality Engineering Lab — replay, scenarios, simulation, fault injection, strategy/org/capability/mechanism search, evaluation, security experiments, human fallback and promotion.
 
@@ -57,6 +57,8 @@ Mandates define allowed actions, resources, rails, currencies, countries, benefi
 Child delegation must be attenuated.
 
 ## 6. Economic intent
+ServiceAccessIntent is a complementary goal/intent form for obtaining a service or entitlement. It may be fulfilled through direct subscription, prepaid entitlement, delegated billing, LP financing, network credit or a certified smart-contract service. Its funding credential and service/account credential remain distinct.
+
 MoneyMovementIntent contains at minimum:
 - principal and counterparty context;
 - source/destination rail, currency and country;
