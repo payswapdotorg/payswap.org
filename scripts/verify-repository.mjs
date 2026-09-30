@@ -40,7 +40,7 @@ const state = JSON.parse(
 if (state.max_concurrent_workers !== 3) {
   throw new Error("max_concurrent_workers must remain 3");
 }
-if (state.architecture_version !== "1.0-frozen-2026-09-30") {
+if (state.architecture_version !== "1.1-frozen-2026-09-30") {
   throw new Error("Unexpected architecture version");
 }
 if (!state.frontier || state.frontier.length !== 3) {
@@ -51,6 +51,13 @@ if (!state.implementation_authorized) {
 }
 if (state.production_deployment_authorized) {
   throw new Error("Production deployment must remain disabled at bootstrap");
+}
+
+for (const lane of ["W1", "W2", "W3"]) {
+  for (let n = 1; n <= 7; n++) {
+    const file = "spec/work-items/" + lane + "-00" + n + ".md";
+    if (!fs.existsSync(path.join(root, file))) throw new Error("Missing Work Order: " + file);
+  }
 }
 
 console.log("Repository governance verification passed.");
