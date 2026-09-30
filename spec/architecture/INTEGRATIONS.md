@@ -1,5 +1,12 @@
 # Integration Contracts
 
+## Non-custodial and PSP-neutral boundary
+PaySwap is an orchestration/co-ordination network, not a default custodian. Domain contracts do not take title to user funds.
+
+Merchant integrations use a provider-neutral PSP connector. A merchant may keep an existing PSP such as Stripe, Adyen, Checkout.com or another compatible PSP while adding PaySwap as a payment method/processor/orchestration capability. PaySwap executes or coordinates the underlying supported rail through an authorized provider capability; the existing PSP is not assumed to process every PaySwap rail.
+
+Smart-contract capabilities can provide non-custodial custody/escrow when certified. PaySwap must not have unilateral withdrawal authority.
+
 ## REST / HTTP
 Expose goals, programs, intents, quotes/plans, approvals, execution status, balances/projections, capabilities, incentives, contribution history, disputes and evidence.
 
