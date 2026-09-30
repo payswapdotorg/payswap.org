@@ -15,6 +15,15 @@ Typed protocol artifacts provide safe composition between extensions, capabiliti
 ### Cognitive tiers and EconomicWork
 The architecture now makes explicit how the Director chooses the least powerful safe cognitive capability and how the Lab measures economic compression.
 
+### Smart-contract services and agent-native wallets
+Smart contracts are first-class capabilities, and user agents abstract wallet/seed/gas complexity through constrained smart-account/session-key mechanisms.
+
+### PSP-neutral connector network
+The product supports existing PSPs as merchant front doors while PaySwap supplies additional reachable/authorized rails through a provider-neutral connector.
+
+### Frontend/deployment as Stage-0 architecture
+UX information architecture, Stripe parity research, deployment topology and browser verification begin before feature implementation, rather than being postponed until the end.
+
 ### Treasury and network economics
 The network's own fees, reserves, guarantees, incentives and operating budgets are versioned treasury policy rather than hidden application logic.
 
