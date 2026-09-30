@@ -48,7 +48,7 @@ const state = JSON.parse(
 if (state.max_concurrent_workers !== 3) {
   throw new Error("max_concurrent_workers must remain 3");
 }
-if (state.architecture_version !== "1.1-frozen-2026-09-30") {
+if (state.architecture_version !== "1.4-frozen-2026-09-30") {
   throw new Error("Unexpected architecture version");
 }
 if (!state.frontier || state.frontier.length !== 3) {
