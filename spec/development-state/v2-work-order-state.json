@@ -11,16 +11,62 @@
     "worker-3": "experience-participation-integrations"
   },
   "active_work_orders": [
-    { "id": "W1-001", "owner": "worker-1", "status": "ACTIVE", "activated_at": "2026-09-30" },
-    { "id": "W2-001", "owner": "worker-2", "status": "ACTIVE", "activated_at": "2026-09-30" },
-    { "id": "W3-001", "owner": "worker-3", "status": "ACTIVE", "activated_at": "2026-09-30" }
+    {
+      "id": "W1-001",
+      "owner": "worker-1",
+      "status": "ACTIVE",
+      "activated_at": "2026-09-30"
+    }
   ],
   "frontier": [
-    { "id": "W1-001", "status": "ACTIVE", "owner": "worker-1", "depends_on": [] },
-    { "id": "W2-001", "status": "ACTIVE", "owner": "worker-2", "depends_on": [] },
-    { "id": "W3-001", "status": "ACTIVE", "owner": "worker-3", "depends_on": [] }
+    {
+      "id": "W1-001",
+      "status": "ACTIVE",
+      "owner": "worker-1",
+      "depends_on": []
+    },
+    {
+      "id": "W1-002",
+      "status": "ELIGIBLE_AFTER",
+      "owner": "worker-1",
+      "depends_on": [
+        "W1-001"
+      ]
+    },
+    {
+      "id": "W2-002",
+      "status": "READY",
+      "owner": "worker-2",
+      "depends_on": [
+        "W2-001"
+      ]
+    },
+    {
+      "id": "W3-002",
+      "status": "READY",
+      "owner": "worker-3",
+      "depends_on": [
+        "W3-001",
+        "W2-001"
+      ]
+    }
   ],
-  "completed_work_orders": [],
+  "completed_work_orders": [
+    {
+      "id": "W2-001",
+      "owner": "worker-2",
+      "completed_at": "2026-09-30",
+      "merge": "3c12f2c",
+      "branch": "work/W2-001"
+    },
+    {
+      "id": "W3-001",
+      "owner": "worker-3",
+      "completed_at": "2026-09-30",
+      "merge": "3262d7f",
+      "branch": "work/W3-001"
+    }
+  ],
   "work_order_policy": {
     "activate_only_from_frontier": true,
     "pairwise_disjoint_required": true,
