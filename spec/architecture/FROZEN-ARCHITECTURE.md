@@ -102,7 +102,9 @@ Economic activity
 
 Evidence is separate but linked to every stage.
 
-The protocol provides immutable double-entry accounting, rebuildable projections, atomic reservations, idempotent commands, deterministic state machines, outbox/events, reconciliation, fee/FX/incentive accounting and temporal settlement windows.
+The protocol provides immutable double-entry **accountability accounting** for obligations, fees, FX, incentives, credit, escrow positions and settlement records. This ledger is not a custodial user-balance ledger: PaySwap does not take title to or directly hold user funds. External value remains at its rail/provider or certified smart-contract capability. Projections describe network obligations/positions and settlement status, not a claim that PaySwap possesses customer funds.
+
+It also provides atomic reservations, idempotent commands, deterministic state machines, durable outbox/events, reconciliation, and temporal settlement windows.
 
 ## 9. Netting, timing and credit
 Netting is a strategy available before final route selection.
@@ -124,6 +126,23 @@ rail movement, liquidity, FX, credit, lending, merchant acceptance, identity/KYC
 Every capability declares conditions, cost, risk, availability, provenance, economic accountability, proof requirements and bond/collateral/recourse where relevant.
 
 AcceptanceCapability is first-class so merchant acceptance is distinct from funding source.
+
+## 8A. Non-custodial financial authority
+
+Financial Protocol Authority means authority over PaySwap's protocol records and authorized execution, not custody of user funds.
+
+PaySwap may:
+- validate and sequence obligations;
+- reserve protocol/accountability capacity;
+- compute net positions;
+- authorize external execution;
+- record fees, credits, incentives and recourse;
+- reconcile external outcomes.
+
+PaySwap may not:
+- unilaterally withdraw customer funds;
+- move assets held in a user smart contract without the contract's permitted authorization path;
+- represent an internal database balance as proof that PaySwap holds corresponding customer assets.
 
 ## 12. Smart-contract services and non-custodial custody
 Smart contracts are first-class Extensions and may implement banking/PSP-like economic services such as escrow, lending, savings, credit, liquidity, guarantees, rewards, recurring logic, cooperative pools and treasury rules.
