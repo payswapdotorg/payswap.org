@@ -2,8 +2,8 @@
 
 Repository: payswapdotorg/payswap.org
 Default branch: main
-Verified source HEAD before this handoff metadata update: f79ea407b37f45024c7c126779fa9713598375d2
-Architecture lock: 1.2-frozen-2026-09-30
+Verified repository state through GitHub repository contents; final head is tracked by the latest commit after this handoff update.
+Architecture lock: 1.4-frozen-2026-09-30
 
 The v1.2 architecture also freezes smart-contract extensions, agent-native wallets, PSP-neutral merchant connectors, ServiceAccess abstractions, Stage-0 UX/deployment architecture, and the strict non-custodial boundary.
 
@@ -125,3 +125,15 @@ First prove the kernel can express and persist:
 Then add the dependency graph in order until a real test/sandbox rail can complete one end-to-end flow.
 
 The TL should treat every worker report as a claim to verify, never as repository truth.
+
+
+## Payment-centric simulation
+
+The authoritative payment benchmark is `spec/research/SIMULATION-MULTI-INDUSTRY-PAYMENTS-2026-09-30.md`.
+
+Synthetic result across 36 firms, 10,800 projects, 27,180 professionals and 335,700 payment events:
+- 20,294 (~74.7%) professionals are willing to use PaySwap as the main payment/economic interface;
+- 15,629 (~57.5%) are willing to use PaySwap as their only payment/economic interface;
+- 186,467 (~55.5%) payment events are routed/orchestrated through PaySwap.
+
+These are synthetic stress-test outputs, not market forecasts. The benchmark compares payment methods, not vertical software products.
