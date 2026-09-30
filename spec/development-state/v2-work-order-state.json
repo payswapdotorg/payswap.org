@@ -18,12 +18,6 @@
       "activated_at": "2026-09-30"
     },
     {
-      "id": "W2-002",
-      "owner": "worker-2",
-      "status": "ACTIVE",
-      "activated_at": "2026-09-30"
-    },
-    {
       "id": "W3-002",
       "owner": "worker-3",
       "status": "ACTIVE",
@@ -40,19 +34,19 @@
       ]
     },
     {
-      "id": "W2-002",
-      "status": "ACTIVE",
-      "owner": "worker-2",
-      "depends_on": [
-        "W2-001"
-      ]
-    },
-    {
       "id": "W3-002",
       "status": "ACTIVE",
       "owner": "worker-3",
       "depends_on": [
         "W3-001",
+        "W2-001"
+      ]
+    },
+    {
+      "id": "W2-002",
+      "status": "COMPLETED",
+      "owner": "worker-2",
+      "depends_on": [
         "W2-001"
       ]
     }
@@ -75,6 +69,12 @@
       "owner": "worker-3",
       "completed_at": "2026-09-30",
       "branch": "work/W3-001"
+    },
+    {
+      "id": "W2-002",
+      "owner": "worker-2",
+      "completed_at": "2026-09-30",
+      "branch": "work/W2-002"
     }
   ],
   "work_order_policy": {
