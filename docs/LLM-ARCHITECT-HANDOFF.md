@@ -3,6 +3,8 @@
 Date: 2026-09-30
 Architecture: v1.2-frozen-2026-09-30
 
+PaySwap operating boundary: non-custodial orchestration. PaySwap does not take custody/title to user funds; onchain holding is delegated to certified smart-contract capabilities with no unilateral PaySwap withdrawal path.
+
 ## Mission
 Build an open economic operating system and programmable money-movement network in which humans, agents, developers, businesses, liquidity providers, lenders, merchants, experts, rails, and external services can contribute capabilities.
 
