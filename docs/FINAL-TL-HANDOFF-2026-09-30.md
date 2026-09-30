@@ -5,7 +5,7 @@ Default branch: main
 Verified source HEAD before this handoff metadata update: f79ea407b37f45024c7c126779fa9713598375d2
 Architecture lock: 1.2-frozen-2026-09-30
 
-The v1.2 architecture also freezes smart-contract extensions, agent-native wallets, PSP-neutral merchant connectors, ServiceAccess abstractions, and Stage-0 UX/deployment architecture.
+The v1.2 architecture also freezes smart-contract extensions, agent-native wallets, PSP-neutral merchant connectors, ServiceAccess abstractions, Stage-0 UX/deployment architecture, and the strict non-custodial boundary.
 
 ## Repository state
 
@@ -30,6 +30,9 @@ A direct local clone could not be performed in this environment because outbound
 ## What is frozen
 
 The network is an economic operating system centered on:
+- ServiceAccessIntent for acquiring services/entitlements;
+- certified SmartContractCapability and SmartAccountCapability for trust-minimized onchain services;
+- Merchant PSP Connectors that let an existing PSP remain the merchant front door while PaySwap supplies additional reachable rails.
 
 In addition to fulfillment, the architecture now explicitly includes FinancialOpportunity, typed protocol tokens, cognitive-tier selection, EconomicWork measurement, and versioned network treasury economics.
 EconomicGoal → EconomicProgram → MoneyMovementIntent → authorization/policy → Strategy → Organization → Capability Graph → Execution Graph → Financial Protocol → clearing/netting/liquidity/FX → settlement/finality/evidence.
