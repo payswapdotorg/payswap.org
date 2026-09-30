@@ -26,14 +26,6 @@
       "depends_on": []
     },
     {
-      "id": "W1-002",
-      "status": "ELIGIBLE_AFTER",
-      "owner": "worker-1",
-      "depends_on": [
-        "W1-001"
-      ]
-    },
-    {
       "id": "W2-002",
       "status": "READY",
       "owner": "worker-2",
