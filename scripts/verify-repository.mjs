@@ -11,6 +11,8 @@ const required = [
   "docs/ARCHITECTURE-REVIEW-2026-09-30.md",
   "spec/architecture/FROZEN-ARCHITECTURE.md",
   "spec/architecture/INVARIANTS.md",
+  "spec/architecture/PAYMENT-OPERATING-PLANE.md",
+  "spec/research/SIMULATION-MULTI-INDUSTRY-PAYMENTS-2026-09-30.md",
   "spec/architecture/DOMAIN-MODEL.md",
   "spec/architecture/PARTICIPATION-ENGINEERING.md",
   "spec/architecture/LAB.md",
