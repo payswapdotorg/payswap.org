@@ -1,8 +1,8 @@
-# PaySwap.org — Frozen Architecture v1.1
+# PaySwap.org — Frozen Architecture v1.2
 
 Status: FROZEN
 Locked: 2026-09-30
-Supersedes: 1.0-frozen-2026-09-30
+Supersedes: 1.1-frozen-2026-09-30
 Purpose: sole architecture authority for implementation
 
 ## 1. Product definition
@@ -20,13 +20,13 @@ Ecommerce, payroll, P2P, cross-border, savings, investment, credit, lending, BNP
 A. Experience — web, mobile, developer UX, merchant checkout, SDKs, Aurum and messaging surfaces.
 B. Trust / Delegation — identity, agent principals, mandates, permission grants, approvals, credentials and security epoch.
 C. Economic Control — goals/programs, intent compiler, constraints, authorization, policy and strategy.
-D. Agent Network — Agent Body, Agent Instance, Agent Package, Organization, runtime and communications.
+D. Agent Network — Agent Body, Agent Instance, Agent Package, Organization, runtime, communications and agent-native wallet/session-key capabilities.
 E. Capability / Market Network — capabilities, acceptance, providers, rails, FX, liquidity, credit, experts, extensions and certification.
-F. Financial Protocol — double-entry ledger, reservations, activities, obligations, clearing, netting, settlement, FX, liquidity, credit, fees, disputes and recourse.
+F. Financial Protocol — deterministic accounting of obligations, reservations, clearing, netting, settlement instructions, external rail effects, finality, FX, liquidity, credit, fees, disputes and recourse. PaySwap is non-custodial: it does not take custody/title to user funds and acts as an orchestration/co-ordination layer.
 G. Participation Economics — participation goals, experiments, contribution records, incentive programs, budgets, rewards, referrals, recognition, leaderboards and reputation attestations.
 H. Reality Engineering Lab — replay, scenarios, simulation, fault injection, strategy/org/capability/mechanism search, evaluation, security experiments, human fallback and promotion.
 
-Cross-cutting: evidence, provenance, privacy, compliance, security immune system, observability, governance, configuration epochs and disaster recovery.
+Cross-cutting: evidence, provenance, privacy, compliance, security immune system, observability, governance, configuration epochs, non-custodial controls, frontend experience architecture and deployment architecture.
 
 ## 3. Core control loops
 Fulfillment: Intent → constraints → strategy → organization → execution graph → protocol → settlement → evidence.
@@ -125,7 +125,20 @@ Every capability declares conditions, cost, risk, availability, provenance, econ
 
 AcceptanceCapability is first-class so merchant acceptance is distinct from funding source.
 
-## 12. Packages and extensions
+## 12. Smart-contract services and non-custodial custody
+Smart contracts are first-class Extensions and may implement banking/PSP-like economic services such as escrow, lending, savings, credit, liquidity, guarantees, rewards, recurring logic, cooperative pools and treasury rules.
+
+A smart-contract extension is represented in the Capability Graph exactly like any other provider and becomes searchable by the Lab after certification.
+
+A contract is not automatically trustless. Certification evaluates source/bytecode correspondence, upgrade/admin authority, pause powers, oracle/bridge dependencies, accounting invariants, MEV/economic attacks and recovery paths.
+
+PaySwap must not have unilateral withdrawal authority over funds. Any fund-holding capability must expose immutable or appropriately constrained withdrawal authority, with upgradeability/governance risks explicit.
+
+User Agents may operate non-custodial smart accounts through provider-neutral SmartAccountCapability. Where supported, account abstraction can provide session keys, spending policies, recovery, batching and gas sponsorship. The root account credential never enters model context.
+
+The network may coordinate onchain execution but does not itself become the custodian.
+
+## 13. Packages and extensions
 Agent Packages contain Bodies, organization templates, capabilities, required extensions, security epoch, runtime requirements, model compatibility, evaluation suite and provenance.
 
 Lifecycle:
@@ -133,7 +146,7 @@ DRAFT → STATIC_ANALYSIS → BENCHMARKED → SECURITY_REVIEW → CERTIFIED → 
 
 Extensions use typed protocol artifacts/tokens and never hold direct ledger authority.
 
-## 13. Participation Economics
+## 14. Participation Economics
 Participation Engineering discovers interventions that increase useful participation.
 
 ParticipationGoal declares target bottleneck, actor population, desired behavior, scope, time, budget, risk, privacy and stop condition.
@@ -151,12 +164,12 @@ Dynamic programs may increase emissions below a target band, normalize inside a 
 
 Leaderboards are role-specific, quality-adjusted, time-bounded projections. They must not reward raw activity when that activity can be fabricated cheaply.
 
-## 14. Recourse and protection
+## 15. Recourse and protection
 RecoursePolicy is frozen at intent initiation.
 Mechanisms can include rail reversal, authorized pullback where supported, escrow, seller reserve/bond, network guarantee/insurance, explicit credit or hybrid.
 Disputes create new records and never rewrite the original transaction.
 
-## 15. Proof-carrying settlement
+## 16. Proof-carrying settlement
 Proof levels:
 P0 assertion;
 P1 authenticated artifact/receipt;
@@ -169,17 +182,17 @@ Risk policy selects the required level. Every consequential movement has Executi
 
 An agent signature proves the agent acted; it does not prove the owner was truthful.
 
-## 16. Security immune system
+## 17. Security immune system
 Signals include device/SIM/account changes, beneficiary changes, graph anomalies, velocity, agent/package behavior, provider incidents, expert findings, verification failures and coordinated abuse.
 
 SecurityAdvisory can raise SecurityEpoch and restrict, quarantine or retire affected components. Cached capability state cannot bypass quarantine.
 
-## 17. Human fallback
+## 18. Human fallback
 CapabilityCase → requirements → qualified match → ExpertTask → ExpertResolution version → protocol decision/evidence → learning.
 
 Later better resolutions coexist with historical versions.
 
-## 18. Lab
+## 19. Lab
 The Lab owns domain packs, scenarios, world simulation, replay, fault injection, strategy search, organization search, capability discovery, incentive/mechanism discovery, security experiments, evaluator, calibration, robustness, shadow, canary and promotion.
 
 Search methods are replaceable: evolutionary search, black-box optimization, bandits, offline learning, RL, planning or combinations.
@@ -188,7 +201,7 @@ Hard constraints are enforced before soft optimization. Baselines include determ
 
 Simulation is never production truth.
 
-## 19. Runtime and external protocols
+## 20. Runtime and external protocols
 Agent runtime contract supports session creation, execution, event streaming, approval, tool request, checkpoint, pause, resume, cancel and inspect.
 
 MCP is agent → capability/tool.
@@ -199,7 +212,7 @@ Messaging is a trusted human approval surface.
 
 These standards are edge adapters, not domain authority.
 
-## 20. Deployment topology
+## 21. Deployment topology
 Start as a modular monolith:
 - web/API;
 - protocol worker;
@@ -212,7 +225,7 @@ PostgreSQL is system-of-record. Object storage holds large evidence artifacts. S
 
 Extract services only when measured needs justify it.
 
-## 21. Terminal states
+## 22. Terminal states
 FULFILLED
 WAITING
 USER_ACTION_REQUIRED
@@ -225,7 +238,7 @@ UNKNOWN
 
 UNKNOWN always requires reconciliation.
 
-## 22. Opportunity Engine
+## 23. Opportunity Engine
 
 The Financial Opportunity Engine continuously discovers opportunities across:
 - cost reduction;
@@ -239,7 +252,7 @@ The Financial Opportunity Engine continuously discovers opportunities across:
 
 An opportunity is advisory until compiled into an authorized program/intent. Opportunity discovery may be proactive or reactive. User agents may surface opportunities through trusted surfaces without treating suggestions as permission.
 
-## 23. Typed protocol tokens
+## 24. Typed protocol tokens
 
 Extensions, Agents and Organizations compose through typed protocol artifacts rather than direct state mutation.
 
@@ -263,7 +276,7 @@ A token is a typed reference to authoritative protocol state or an immutable con
 
 An extension may consume and emit permitted token types declared in its manifest. Financial effects still require a protocol-authorized command.
 
-## 24. Cognitive tiers and economic work
+## 25. Cognitive tiers and economic work
 
 The network chooses the least powerful cognitive tier that safely solves a task:
 - Tier 0: deterministic rules/algorithms;
@@ -277,7 +290,7 @@ Escalation is policy-driven by complexity, risk, ambiguity and expected value.
 
 The Lab measures EconomicWork: external value moved, number of hops, liquidity locked, capital consumed, fees/FX spread, latency and risk exposure. Strategies that compress unnecessary economic work without violating hard constraints are preferred.
 
-## 25. Network economics and treasury
+## 26. Network economics and treasury
 
 The network itself is an economic actor with versioned treasury policies for:
 - fees;
@@ -290,5 +303,12 @@ The network itself is an economic actor with versioned treasury policies for:
 
 Treasury actions are ordinary protocol obligations/settlements and are subject to the same authorization, policy, accounting and evidence rules as user activity.
 
-## 26. Completion criterion
+## 21A. Frontend and deployment architecture
+Experience and deployment are designed from Stage 0. Every major capability must have a discoverable UX journey, authoritative state mapping, approval/error/UNKNOWN behavior and deployment ownership before backend completion is declared.
+
+Stripe.com is the primary design/reference lab for information architecture, product hierarchy, onboarding, dashboards, checkout, billing, Connect, developer tooling, agentic commerce and operational states. The repository records findings; proprietary/private data is never copied.
+
+A PSP integration is provider-neutral. Stripe is one adapter among any PSP that can expose the required capability. The system supports a Merchant PSP Connector pattern in which a merchant keeps its existing PSP stack while exposing PaySwap as an additional payment method/processor/orchestration capability. PaySwap then routes to any supported rail/capability it can lawfully and operationally reach.
+
+## 27. Completion criterion
 The architecture is complete only when a real end-to-end economic flow can discover and use real capabilities and rails, produce deterministic accounting and evidence, reconcile ambiguity, enforce delegated authority, use netting/liquidity/FX/credit/incentives, support disputes/recourse, and learn from outcomes without allowing an LLM or simulator to become financial truth.
