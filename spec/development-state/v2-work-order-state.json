@@ -1,0 +1,37 @@
+{
+  "schema_version": "2.0",
+  "repository": "payswapdotorg/payswap.org",
+  "architecture_version": "1.0-frozen-2026-09-30",
+  "implementation_authorized": true,
+  "production_deployment_authorized": false,
+  "max_concurrent_workers": 3,
+  "worker_lanes": {
+    "worker-1": "financial-protocol",
+    "worker-2": "trust-agents-capabilities-lab",
+    "worker-3": "experience-participation-integrations"
+  },
+  "active_work_orders": [],
+  "frontier": [
+    { "id": "W1-001", "status": "READY", "owner": "worker-1", "depends_on": [] },
+    { "id": "W2-001", "status": "READY", "owner": "worker-2", "depends_on": [] },
+    { "id": "W3-001", "status": "READY", "owner": "worker-3", "depends_on": [] }
+  ],
+  "work_order_policy": {
+    "activate_only_from_frontier": true,
+    "pairwise_disjoint_required": true,
+    "no_untracked_scope": true,
+    "source_of_truth": "repository"
+  },
+  "gates": {
+    "architecture_conformance": "REQUIRED",
+    "invariant_suite": "REQUIRED",
+    "real_integration_for_financial_effects": "REQUIRED",
+    "unknown_reconciliation": "REQUIRED",
+    "evidence_lineage": "REQUIRED",
+    "idempotency": "REQUIRED",
+    "adversarial_tests": "REQUIRED",
+    "browser_e2e_for_ui_journeys": "REQUIRED",
+    "simulation_isolated_from_production": "REQUIRED"
+  },
+  "done_definition": "spec/worker-runbook.md"
+}
