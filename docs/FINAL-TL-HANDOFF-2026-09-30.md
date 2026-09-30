@@ -3,7 +3,7 @@
 Repository: payswapdotorg/payswap.org
 Default branch: main
 Verified source HEAD before this handoff metadata update: f79ea407b37f45024c7c126779fa9713598375d2
-Architecture lock: 1.1-frozen-2026-09-30
+Architecture lock: 1.2-frozen-2026-09-30
 
 ## Repository state
 
