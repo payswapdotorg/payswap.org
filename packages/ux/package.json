@@ -1,0 +1,26 @@
+{
+  "name": "@payswap/ux",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Product UX contract layer (Work Order W3-006): universal Command Center view-model (search, universal inbox, Work-Graph context, economic controls), payment command-center journeys consuming the same API/protocol path as programmatic clients with no dead buttons, trusted-surface approval completion, incumbent provenance views, honest UNKNOWN/error states and messaging adapters bound to the same authorization gates",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/api": "*",
+    "@payswap/execution": "*",
+    "@payswap/interfaces": "*",
+    "@payswap/payment": "*"
+  },
+  "devDependencies": {
+    "@payswap/protocol": "^0.1.0",
+    "@payswap/trust": "^0.1.0",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
