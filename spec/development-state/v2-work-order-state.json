@@ -22,12 +22,6 @@
       "owner": "worker-2",
       "status": "ACTIVE",
       "activated_at": "2026-10-01"
-    },
-    {
-      "id": "W3-004",
-      "owner": "worker-3",
-      "status": "ACTIVE",
-      "activated_at": "2026-10-01"
     }
   ],
   "frontier": [
@@ -51,7 +45,7 @@
     },
     {
       "id": "W3-004",
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "owner": "worker-3",
       "depends_on": [
         "W1-002",
@@ -107,6 +101,12 @@
       "owner": "worker-2",
       "completed_at": "2026-10-01",
       "branch": "work/W2-003"
+    },
+    {
+      "id": "W3-004",
+      "owner": "worker-3",
+      "completed_at": "2026-10-01",
+      "branch": "work/W3-004"
     }
   ],
   "work_order_policy": {
