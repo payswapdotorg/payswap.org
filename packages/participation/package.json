@@ -1,0 +1,21 @@
+{
+  "name": "@payswap/participation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Participation engineering and incentive accounting: ParticipationGoal, experiments, IncentiveProgram versioning, budget reservations, contribution records, reward formulas/accruals, referrals, anti-gaming gates, recognition and leaderboard projections (Work Order W3-004)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
