@@ -1,7 +1,11 @@
 /**
  * @payswap/capabilities — Capability, AcceptanceCapability, capability state
  * vs source availability, and extension manifest contracts.
- * Work Order: W2-001 (Stage 0 contract freeze)
+ * Work Orders: W2-001 (Stage 0 contract freeze) + W2-003 (Stage 2:
+ * CapabilityGraphStore with acceptance/service-access queries,
+ * ServiceAccessCapability with funding/service credential separation,
+ * smart-contract extension representation and the append-only certification
+ * ledger).
  */
 
 export const PACKAGE_NAME = "@payswap/capabilities" as const;
@@ -10,3 +14,7 @@ export * from "./capability.js";
 export * from "./availability.js";
 export * from "./extension.js";
 export * from "./resolution.js";
+export * from "./graph.js";
+export * from "./smart-contract.js";
+export * from "./certification.js";
+
