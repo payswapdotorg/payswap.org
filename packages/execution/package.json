@@ -1,0 +1,23 @@
+{
+  "name": "@payswap/execution",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical execution graph: ExecutionPlan with explicit execution modes, protocol-issued scoped execution grants, retry-safe idempotent ExecutionAttempts with terminal monotonicity, reconciliation as the authority for ambiguous external effects, and payment-method offers derived from authoritative acceptance/capability state (Work Order W3-003)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/connectors": "*",
+    "@payswap/payment": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}

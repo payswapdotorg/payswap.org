@@ -1,0 +1,23 @@
+{
+  "name": "@payswap/adapters",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The Connector SDK/framework: provider-neutral RailAdapter interface, PSP connector interface (merchant keeps the incumbent PSP), generalized external-system connector interfaces, deterministic webhook/event ingestion with signature verification and replay protection, and one reference adapter shape (Work Order W3-003)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/connectors": "*",
+    "@payswap/execution": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
