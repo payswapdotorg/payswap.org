@@ -1,0 +1,23 @@
+{
+  "name": "@payswap/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Developer API surface: multi-tenant identity/session flows, signed approval artifacts, scoped execution grants, REST and webhook boundaries (Work Order W3-002)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/interfaces": "^0.1.0",
+    "@payswap/protocol": "^0.1.0",
+    "@payswap/trust": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
