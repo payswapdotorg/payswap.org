@@ -1,0 +1,22 @@
+{
+  "name": "@payswap/recourse",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Disputes, recourse, escrow, bonds and guarantees (Work Order W1-006): immutable transaction recourse policies with enforced claim windows and evidence requirements, append-only dispute cases that never rewrite original transactions, separate recourse obligations derived through the protocol obligation machinery (INV-F02 clawback discipline), separately accounted escrow/bond protection with evidence-backed release/forfeit paths, guarantee declarations with invocation windows, and dispute/recourse evidence attached to the settlement evidence graph (INV-E01/E02/E05).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/protocol": "*",
+    "@payswap/settlement": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
