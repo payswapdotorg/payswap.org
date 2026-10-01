@@ -1,0 +1,26 @@
+{
+  "name": "@payswap/rails",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Real rail adapters and reconciliation connectors (Work Order W1-005): fiat payment-intent rail, mobile-money rail, Ethereum JSON-RPC crypto rail (real public endpoint), ECB reference FX source (real public feed), webhook-loss reconciliation connectors consuming @payswap/settlement, and incident/outage handling. No simulated settlement: a rail whose provider is unreachable or lacks credentials reports UNKNOWN availability with provenance (INV-C01/C02) and fails closed (INV-NC04).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:live": "vitest run --config vitest.live.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/adapters": "*",
+    "@payswap/connectors": "*",
+    "@payswap/execution": "*",
+    "@payswap/protocol": "*",
+    "@payswap/settlement": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
