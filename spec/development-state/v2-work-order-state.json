@@ -2,7 +2,7 @@
   "schema_version": "2.0",
   "repository": "payswapdotorg/payswap.org",
   "architecture_version": "1.5-frozen-2026-09-30",
-  "implementation_authorized": true,
+  "implementation_authorized": false,
   "production_deployment_authorized": false,
   "max_concurrent_workers": 3,
   "worker_lanes": {
@@ -10,14 +10,7 @@
     "worker-2": "trust-agents-capabilities-lab",
     "worker-3": "experience-participation-integrations"
   },
-  "active_work_orders": [
-    {
-      "id": "W2-007",
-      "owner": "worker-2",
-      "status": "ACTIVE",
-      "activated_at": "2026-10-01"
-    }
-  ],
+  "active_work_orders": [],
   "frontier": [
     {
       "id": "W1-007",
@@ -30,7 +23,7 @@
     },
     {
       "id": "W2-007",
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "owner": "worker-2",
       "depends_on": [
         "W2-006",
@@ -167,6 +160,12 @@
       "owner": "worker-3",
       "completed_at": "2026-10-01",
       "branch": "work/W3-007"
+    },
+    {
+      "id": "W2-007",
+      "owner": "worker-2",
+      "completed_at": "2026-10-01",
+      "branch": "work/W2-007"
     }
   ],
   "work_order_policy": {
