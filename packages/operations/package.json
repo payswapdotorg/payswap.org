@@ -1,0 +1,23 @@
+{
+  "name": "@payswap/operations",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deployment, browser verification and operator runbook (Work Order W3-007): reproducible deployment planning with preview/production parity verification and migration compatibility, browser-journey verification contracts over the UX view-model layer, protocol-ID-correlated observability taxonomy with dashboard and alert declarations, vault-backed secret-reference hygiene, an evidenced operator-action catalog with rollback paths, and symptom→diagnosis→action→verification recovery playbooks assembled into the indexed operator runbook",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/journeys": "*",
+    "@payswap/protocol": "*",
+    "@payswap/ux": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
