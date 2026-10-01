@@ -1,0 +1,21 @@
+{
+  "name": "@payswap/payment",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Payment operating plane contracts: PaymentMethod vs RailCapability separation, PaymentCredentialCapability, acceptance policies and merchant settlement destinations, payment method translation with material-term reauthorization, recurring mandate semantics and fallback policy, off-network payment records without PaySwap execution attribution, remittance/document allocation (Work Order W1-003)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
