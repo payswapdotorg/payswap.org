@@ -1,0 +1,36 @@
+{
+  "name": "@payswap/adversarial",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Adversarial, replay, fault and abuse suite (Work Order W2-007): injects every fault family — duplicated commands, lost webhooks, ambiguous provider outcomes, account takeover/SIM-swap, malicious agents, package compromise, incentive Sybil/collusion/wash, leaderboard gaming, provider outage, clock skew, partial-payment edges — against the REAL merged subsystems and proves no invariant is breached, with an exact recovery/reconciliation path for every injected fault",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/agents": "*",
+    "@payswap/campaigns": "*",
+    "@payswap/capabilities": "*",
+    "@payswap/certification": "*",
+    "@payswap/connectors": "*",
+    "@payswap/execution": "*",
+    "@payswap/journeys": "*",
+    "@payswap/lab": "*",
+    "@payswap/participation": "*",
+    "@payswap/payment": "*",
+    "@payswap/protocol": "*",
+    "@payswap/rails": "*",
+    "@payswap/recourse": "*",
+    "@payswap/settlement": "*",
+    "@payswap/trust": "*",
+    "@payswap/security": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
