@@ -1,0 +1,22 @@
+{
+  "name": "@payswap/campaigns",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Production participation campaigns: campaign epochs over immutable IncentiveProgram versions with funding caps enforced at accrual, deterministic attribution pipeline and referral chains, dynamic target curves, role-specific leaderboard projections, referral surfaces with wash/collusion deferral and suppression, operator controls with evidence records, and reward provenance inspection (Work Order W3-005)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/participation": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
