@@ -1,0 +1,35 @@
+{
+  "name": "@payswap/journeys",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end economic journey certification (Work Order W1-007): composes every merged subsystem — protocol, payment, trust, agents, capabilities, connectors, execution, settlement, rails, recourse, participation, campaigns, lab, certification, security — into complete, evidenced, reconciled economic journeys with a per-journey acceptance-axis certification report",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/agents": "*",
+    "@payswap/campaigns": "*",
+    "@payswap/capabilities": "*",
+    "@payswap/certification": "*",
+    "@payswap/connectors": "*",
+    "@payswap/execution": "*",
+    "@payswap/lab": "*",
+    "@payswap/participation": "*",
+    "@payswap/payment": "*",
+    "@payswap/protocol": "*",
+    "@payswap/rails": "*",
+    "@payswap/recourse": "*",
+    "@payswap/security": "*",
+    "@payswap/settlement": "*",
+    "@payswap/trust": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
