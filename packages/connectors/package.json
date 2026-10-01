@@ -1,0 +1,22 @@
+{
+  "name": "@payswap/connectors",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical connector capability vocabulary: CapabilityDefinition -> ProviderImplementation -> ConnectedCapabilityInstance -> CapabilityObservation, ProviderStateEnvelope, execution modes, hierarchical Connector Capability Packs and external funds observations (Work Order W2-003)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/capabilities": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
