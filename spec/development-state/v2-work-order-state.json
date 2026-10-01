@@ -12,12 +12,6 @@
   },
   "active_work_orders": [
     {
-      "id": "W1-005",
-      "owner": "worker-1",
-      "status": "ACTIVE",
-      "activated_at": "2026-10-01"
-    },
-    {
       "id": "W2-005",
       "owner": "worker-2",
       "status": "ACTIVE",
@@ -28,16 +22,21 @@
       "owner": "worker-3",
       "status": "ACTIVE",
       "activated_at": "2026-10-01"
+    },
+    {
+      "id": "W1-006",
+      "owner": "worker-1",
+      "status": "ACTIVE",
+      "activated_at": "2026-10-01"
     }
   ],
   "frontier": [
     {
-      "id": "W1-005",
+      "id": "W1-006",
       "status": "ACTIVE",
       "owner": "worker-1",
       "depends_on": [
-        "W1-004",
-        "W3-003"
+        "W1-005"
       ]
     },
     {
@@ -131,6 +130,12 @@
       "owner": "worker-2",
       "completed_at": "2026-10-01",
       "branch": "work/W2-004"
+    },
+    {
+      "id": "W1-005",
+      "owner": "worker-1",
+      "completed_at": "2026-10-01",
+      "branch": "work/W1-005"
     }
   ],
   "work_order_policy": {
