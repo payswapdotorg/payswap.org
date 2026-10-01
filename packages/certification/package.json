@@ -1,0 +1,26 @@
+{
+  "name": "@payswap/certification",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Certification, promotion and safety gates: certification suites parameterized by component kind (strategy/organization/agent package/connector), security review gates that halt promotion on failure, replay/fault test contracts, versioned production promotion/rollback artifacts and THE uniform gate wall shared by all three execution modes (Work Order W2-006)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/protocol": "*",
+    "@payswap/security": "*",
+    "@payswap/lab": "*",
+    "@payswap/capabilities": "*",
+    "@payswap/connectors": "*",
+    "@payswap/agents": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
