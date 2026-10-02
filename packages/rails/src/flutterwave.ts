@@ -1751,10 +1751,11 @@ export class FlutterwaveConnector extends ConnectorSDK {
    */
   async observeExternalFunds(): Promise<readonly ExternalFundsPositionObservation[]> {
     const observedAt = isoTimestamp(this.#clock.now());
-    const data = await this.#withCredentials(async (material) =>
+    // #providerGet ALREADY unwraps the { status, message, data } envelope and
+    // returns body.data — the balances array itself (no double unwrap)
+    const balances = (await this.#withCredentials(async (material) =>
       this.#providerGet("/v3/balances", "balances", material),
-    );
-    const balances = this.#responseData(data) as unknown as readonly (
+    )) as readonly (
       | FlutterwaveWalletBalanceProviderObject
       | { readonly currency?: unknown }
     )[];
@@ -1778,10 +1779,11 @@ export class FlutterwaveConnector extends ConnectorSDK {
     readonly unconverted: readonly FlutterwaveUnconvertedWallet[];
   }> {
     const observedAt = isoTimestamp(this.#clock.now());
-    const data = await this.#withCredentials(async (material) =>
+    // #providerGet ALREADY unwraps the { status, message, data } envelope and
+    // returns body.data — the balances array itself (no double unwrap)
+    const balances = (await this.#withCredentials(async (material) =>
       this.#providerGet("/v3/balances", "balances", material),
-    );
-    const balances = this.#responseData(data) as unknown as readonly (
+    )) as readonly (
       | FlutterwaveWalletBalanceProviderObject
       | { readonly currency?: unknown }
     )[];

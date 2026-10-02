@@ -1,4 +1,4 @@
-# BLOCKED RAILS — @payswap/rails (W1-005; Stripe section updated P2-W2-001)
+# BLOCKED RAILS — @payswap/rails (W1-005; Stripe P2-W2-001; Paystack/Flutterwave/MTN P2-W3-001)
 
 Rails whose providers require credentials PaySwap does not currently hold.
 Per the real-network policy these rails are **NOT simulated**: their adapters
@@ -95,6 +95,126 @@ injected HTTP transport. Status as of 2026-10-02:
 - Until granted: same fail-closed semantics as the fiat rail
   (`PAYSWAP_RAILS_MOMO_SUBSCRIPTION_KEY_REF`,
   `PAYSWAP_RAILS_MOMO_API_USER_REF`, `PAYSWAP_RAILS_MOMO_API_KEY_REF`).
+
+### 3a. MTN MoMo — the honest BLOCKED state (P2-W3-001, recorded 2026-10-02)
+
+The LIVE probe of 2026-10-02
+(spec/development-state/provider-probes-20261002.json) recorded the sandbox
+**subscription key REJECTED at the APIM gate** — HTTP 401 "Access denied
+due to invalid subscription key" — across the **collection, disbursement
+and remittance products**; the API-user/API-key pair was **never
+evaluated**. The connector (extended in P2-W3-001 to the real API mapping:
+token acquisition, requesttopay lifecycle with X-Reference-Id idempotency
+and X-Target-Environment, status-polling reconciliation, account-balance
+observation) therefore proceeds **fail-closed with the blocked-probe
+reachability documented**:
+
+- **Credential: operator-supplied but probe-BLOCKED** — the vault reference
+  `PROVIDER_MTN_MOMO_CREDENTIAL_REF` →
+  `vault://payswap/providers/mtn-momo/sandbox-20261002` names exactly the
+  credential the probe recorded as rejected. The sealed bundle (subscription
+  key + API user + API key) opens only through the P2-W1-001
+  CredentialBroker connector-runtime path.
+- **Availability: UNKNOWN** (INV-C01/C02) — never AVAILABLE, never
+  UNAVAILABLE; the recorded datum
+  (`MTN_MOMO_BLOCKED_PROBE_20261002` in `src/mobile-money.ts`) is the
+  honest evidence.
+- **Effectful operations REFUSE**: on the control-plane path every
+  provider-calling operation throws `MtnMomoBlockedProbeError` BEFORE any
+  provider call, citing the recorded datum. The gate lifts ONLY through a
+  successful authenticated re-probe (`probeAuthentication()` — real
+  bearer-token issuance at `POST /collection/token/`) or newer verified
+  evidence supplied at construction. The env-driven path (unattributed
+  material) stays UNPROBED — the provider answer is the truth there, and
+  availability stays UNKNOWN.
+- **NO simulated substitute**: no mock MoMo, no fabricated requesttopay
+  states, no invented balances. The disbursement/remittance products share
+  the blocked-probe status and are recorded in the datum; their SDK surface
+  is deliberately not implemented (unverifiable against a rejected
+  subscription key — adding it would be dead code pretending to coverage).
+- **Re-probe path**: supply a valid subscription key, re-run
+  `probeAuthentication()` (the machine-checked counterpart is
+  `test/live/mtn-momo-reachability.live.test.ts`); on success the gate
+  lifts and operations proceed through the real API.
+
+## 4. Paystack production connector (`src/paystack.ts`, P2-W3-001) —
+   credential supplied, probe-verified, connector REAL
+
+The real Paystack connector (`PaystackConnector` + `PaystackProductionRail`)
+speaks the Paystack REST API (pinned surface `2026-10-02`) over the injected
+HTTP transport. Status as of 2026-10-02:
+
+- **Credential: SUPPLIED and probe-verified** — operator batch 2026-10-02, a
+  Paystack test-mode secret key. Authentication VERIFIED by live probe
+  (authenticated `GET /v1/bank?currency=GHS` ghipss enumeration; NGN 287
+  banks, KES 54, ZAR 33). The repo/manifests carry ONLY the control-plane
+  reference: `PROVIDER_PAYSTACK_CREDENTIAL_REF` →
+  `vault://payswap/providers/paystack/test-20261002` — the sealed bundle
+  material opens exclusively through the P2-W1-001 CredentialBroker
+  connector-runtime path.
+- **Connector: REAL** — hosted payment initialization + verify lifecycle
+  lossless through ProviderStateEnvelope (INV-C06; the `reference` preserved
+  as the external id, statuses verbatim: pending/processing/ongoing/success/
+  paid/failed/abandoned/reversed); recurring charges over saved
+  authorizations (POST /v3/charge); refunds (POST /v3/refund); bank
+  enumeration as capability/eligibility evidence with every bank entry
+  (name, code, supports_transfer) preserved verbatim; minor-unit amounts
+  (kobo/pesewas/cents) exact; `X-Paystack-Signature` = HMAC-SHA512(secret,
+  raw body) hex, constant-time, raw-body-required webhook verification with
+  (provider, eventId) dedupe (the scheme carries NO timestamp — no
+  fabricated window); duplicate reference at initialize → error state
+  (`PaystackDuplicateReferenceError`), never a silent success; mid-effect
+  transport failures → OUTCOME_UNKNOWN (INV-X01, never FAILED; a
+  verify-timeout never produces a FAILED payment).
+- **Eligibility honest**: the four probe-verified local-collection bank
+  rails (GHS ghipss — exemplar Absa Bank Ghana code 030100 supports_transfer
+  — NGN, KES, ZAR) are the ONLY eligibility facts the connector asserts;
+  every other country/currency is UNKNOWN — never assumed (the provider is
+  the authority).
+- **Remaining honest preconditions** (the same test-mode law as Stripe):
+  the credential is test-mode — real money cannot move; production requires
+  a live-mode key and operator-authorized activation through the phase-2
+  activation machine; no webhook endpoint is registered at Paystack yet
+  (the verifier, ingestor and dedupe are implemented and unit-tested; the
+  live delivery path is the remaining datum).
+
+## 5. Flutterwave production connector (`src/flutterwave.ts`, P2-W3-001) —
+   credential supplied, probe-verified, connector REAL
+
+The real Flutterwave connector (`FlutterwaveConnector` +
+`FlutterwaveProductionRail`) speaks the Flutterwave v3 API over the injected
+HTTP transport. Status as of 2026-10-02:
+
+- **Credential: SUPPLIED and probe-verified** — operator batch 2026-10-02, a
+  Flutterwave test secret key. Authentication VERIFIED by live probe
+  (authenticated `GET /v3/balances`: 31 currency wallets incl. NGN/KES/GHS/
+  USD/EUR/ZAR/XOF/XAF/UGX/TZS/RWF/ETB/ZMW/MWK/MZN/MAD/AED/EGP/MUR and the
+  stablecoin wallets USDC 1234.56 / USDT 789.01 / RLUSD 20004.01 test
+  balances). The repo/manifests carry ONLY the control-plane reference:
+  `PROVIDER_FLUTTERWAVE_CREDENTIAL_REF` →
+  `vault://payswap/providers/flutterwave/test-20261002`.
+- **Connector: REAL** — hosted-checkout transaction lifecycle (POST
+  /v3/payments link generation → GET /v3/transactions/{id}; the numeric tx
+  id is the external id, statuses verbatim: successful/failed/pending/
+  reversed, the tx_ref rides the state verbatim); refunds where supported
+  (POST /v3/refunds); the 31-currency wallet observation (including the
+  stablecoin wallets — an honest datum for the Stellar USDC local-rail
+  path) as ExternalFundsPositionObservation ONLY (INV-C09 — never custody;
+  exact bigint major→minor conversion, unconvertible wallets honestly
+  reported); `verif-hash` webhook verification (constant-time secret
+  compare — the scheme signs NO payload; integrity is the secret compare +
+  (provider, eventId) dedupe, never a fabricated body signature);
+  idempotency honesty (tx_ref derived deterministically from the protocol
+  key, duplicateBehavior PROVIDER_DEFINED — the provider enforces no
+  unique constraint); mid-effect transport failures → OUTCOME_UNKNOWN
+  (INV-X01, never FAILED).
+- **Eligibility honest**: the 30 probe-verified wallet currencies (27 fiat
+  + USDC/USDT/RLUSD) are the only eligibility facts asserted; every other
+  currency is UNKNOWN — never assumed.
+- **Remaining honest preconditions**: test-mode credential (no real money
+  can move); no webhook secret is proven against a live delivery yet (the
+  verifier + ingestor are implemented and unit-tested; the dashboard
+  endpoint registration and a real event are the remaining datum).
 
 ## Not blocked (exercised against genuinely reachable public endpoints)
 

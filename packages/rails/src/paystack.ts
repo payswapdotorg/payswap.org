@@ -5,7 +5,7 @@
  * Authority: spec/phase-2/work-items/P2-W3-001.md,
  * spec/phase-2/AUTHORIZATION-AND-CREDENTIAL-ISOLATION.md and the LIVE probe
  * facts in spec/development-state/provider-probes-20261002.json (test-mode
- * scoped credential; authenticated GET /v1/bank enumeration: GHS ghipss
+ * scoped credential; authenticated GET /bank enumeration (root-mounted endpoint): GHS ghipss
  * rails live — e.g. Absa Bank Ghana code 030100 supports_transfer — NGN 287
  * banks, KES 54, ZAR 33; verdict ELIGIBLE for GH/NG/KE/ZA local collection).
  * Same framework and fail-closed laws as the Stripe production connector
@@ -332,7 +332,7 @@ export function paystackCapabilityDefinitions(): readonly CapabilityDefinition[]
     }),
     paystackCapabilityDefinition({
       capabilityId: PAYSTACK_BANK_ENUMERATION_CAPABILITY_ID,
-      summary: "Bank enumeration as collection eligibility evidence (GET /v1/bank?currency=…)",
+      summary: "Bank enumeration as collection eligibility evidence (GET /bank?currency=…)",
       operation: "rails.paystack.banks.enumerate",
       description:
         "Enumerate the provider's bank rails per currency (GHS ghipss, NGN, KES, ZAR observed live 2026-10-02): each bank entry — name, code, supports_transfer, active/is_delisted — is preserved verbatim as capability/eligibility evidence; the probe-verified currencies are the only eligibility facts the connector asserts",
@@ -416,7 +416,7 @@ export interface PaystackBankRailProbeDatum {
 }
 
 /**
- * The RECORDED bank-rail probe data (2026-10-02, authenticated GET /v1/bank):
+ * The RECORDED bank-rail probe data (2026-10-02, authenticated GET /bank):
  * GHS ghipss rails live (Absa Bank Ghana code 030100 supports_transfer);
  * NGN 287 banks; KES 54; ZAR 33. The connector NEVER assumes these stay
  * true — `bankEnumeration(currency)` re-observes live — this record is the
@@ -1456,12 +1456,14 @@ export class PaystackConnector extends ConnectorSDK {
     const observedAt = this.#envelopeContext();
     const list = await this.#withCredentials(async (material) =>
       this.#providerGet(
-        `/v1/bank?currency=${encodeURIComponent(request.currency.toUpperCase())}&perPage=100`,
+        `/bank?currency=${encodeURIComponent(request.currency.toUpperCase())}&perPage=100`,
         ctx.idempotencyKey,
         material,
       ),
     );
-    const banks = this.#responseData(list) as unknown as readonly PaystackBankProviderObject[];
+    // #providerGet ALREADY unwraps the { status, message, data } envelope and
+    // returns body.data — the bank rows themselves (no double unwrap)
+    const banks = list as unknown as readonly PaystackBankProviderObject[];
     return this.#sdkResult(
       paystackBankListEnvelope(banks, request.currency, observedAt),
       `paystack:list-banks:${request.currency.toUpperCase()}:${this.#clock.now()}`,
@@ -1802,7 +1804,7 @@ export class PaystackConnector extends ConnectorSDK {
     if (resolution.kind === "NOT_PROVISIONED") {
       let endpointAnswered: boolean;
       try {
-        await this.#http(`${this.#apiBase}/v1/bank?currency=NGN`, {
+        await this.#http(`${this.#apiBase}/bank?currency=NGN`, {
           method: "GET",
           headers: {},
           timeoutMs: this.#timeoutMs,
@@ -1824,7 +1826,7 @@ export class PaystackConnector extends ConnectorSDK {
     }
     try {
       await this.#withCredentials(async (material) =>
-        this.#providerGet("/v1/bank?currency=NGN&perPage=1", "health-probe", material),
+        this.#providerGet("/bank?currency=NGN&perPage=1", "health-probe", material),
       );
       return { ...base, status: "HEALTHY", lastCheckedAt, degradedReasons: [] };
     } catch (error) {
@@ -1851,7 +1853,7 @@ export class PaystackConnector extends ConnectorSDK {
 
   /**
    * OBSERVED bank enumeration for one currency — the live eligibility
-   * evidence (GET /v1/bank?currency=…), preserving every bank entry
+   * evidence (GET /bank?currency=…), preserving every bank entry
    * verbatim. Fails closed without credentials. An unsupported currency is
    * whatever the provider answers (an error or an empty list — honest
    * either way, never fabricated).
@@ -1865,12 +1867,13 @@ export class PaystackConnector extends ConnectorSDK {
     const observedAt = this.#envelopeContext();
     const data = await this.#withCredentials(async (material) =>
       this.#providerGet(
-        `/v1/bank?currency=${encodeURIComponent(currency.toUpperCase())}&perPage=100`,
+        `/bank?currency=${encodeURIComponent(currency.toUpperCase())}&perPage=100`,
         "bank-enumeration",
         material,
       ),
     );
-    const banks = this.#responseData(data) as unknown as readonly PaystackBankProviderObject[];
+    // #providerGet ALREADY unwrapped body.data — these are the bank rows
+    const banks = data as unknown as readonly PaystackBankProviderObject[];
     return Object.freeze({
       evidence: paystackBankRailEvidence(
         banks,
