@@ -2091,14 +2091,14 @@ export function confirmWithdrawalScope(
   journey: PayoutJourney,
   scope: WithdrawalScope,
 ): PayoutJourney {
-  if (journey.stateName !== 'CONFIRMING_SCOPE') {
-    throw new JourneyContractError(
-      `confirm-withdrawal-scope is not legal in state ${journey.stateName}`,
-    );
-  }
   if (journey.destination === undefined) {
     throw new JourneyContractError(
       'a withdrawal scope can only be confirmed after an explicit destination is specified',
+    );
+  }
+  if (journey.stateName !== 'CONFIRMING_SCOPE') {
+    throw new JourneyContractError(
+      `confirm-withdrawal-scope is not legal in state ${journey.stateName}`,
     );
   }
   if (scope.singleUse !== true) {
@@ -2364,6 +2364,13 @@ function reconcileActions(journey: Omit<ReconcileJourney, 'actions'>): readonly 
   const base = { authorityRef: journey.paymentRef };
   switch (journey.stateName) {
     case 'TRACKING_IN_FLIGHT':
+      actions.push({
+        actionId: 'view-payment-record',
+        label: 'View the payment being reconciled',
+        kind: 'EVIDENCE_VIEW',
+        ...base,
+        available: true,
+      });
       actions.push({
         actionId: 'view-attempt-evidence',
         label: 'View the in-flight attempt evidence',

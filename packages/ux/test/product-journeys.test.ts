@@ -32,33 +32,62 @@ import { issueGrant, principalRef } from '@payswap/trust';
 
 import type { ConnectProviderJourney, PayJourney } from '../src/product-journeys.js';
 import {
+  abandonCollectJourney,
   abandonPayJourney,
+  abandonPayoutJourney,
+  applyCollectFulfillment,
+  applyCollectRequestResponse,
   applyConnectionAuthorizationOutcome,
   applyConnectionInitiationResponse,
   applyPayOutcome,
   applyPayReconciliationResolution,
   applyPaymentSubmissionResponse,
+  applyPayoutOutcome,
+  applyPayoutReconciliationResolution,
+  applyPayoutSubmissionResponse,
+  applyReconciliationResolution,
   asBrowserSessionRef,
   asConnectedCapabilityInstanceId,
   asEvidenceArtifactRef,
+  asPayoutDestinationRef,
   attachBrowserSession,
+  awaitFurtherObservation,
+  beginCollectJourney,
+  beginCollectTracking,
   beginConnectProvider,
   beginPayJourney,
+  beginPayoutJourney,
+  beginReconcileJourney,
   browseProviderCatalogue,
+  canTransitionCollect,
   canTransitionConnectProvider,
   canTransitionPay,
+  canTransitionPayout,
+  canTransitionReconcile,
   chooseProvider,
+  collectFulfillmentUiState,
   confirmConnectionApproval,
   confirmPayApproval,
+  confirmPayoutApproval,
+  confirmWithdrawalScope,
   CONNECT_PROVIDER_TRANSITIONS,
   deriveCatalogueOptions,
+  deriveShareableRequest,
+  dispatchCollectRequest,
   dispatchInitiateConnection,
   dispatchPaymentSubmission,
+  dispatchPayoutSubmission,
   dispatchProductJourneyAction,
+  dispatchReconciliationObservation,
+  markRequestShared,
   PAY_TRANSITIONS,
   productJourneyMutationEnvelope,
+  reenterPayoutDestinationSelection,
+  reconcileJourneyUiState,
+  recordOutcomeUnknown,
   routeCandidateIsExecutable,
   selectPayCapability,
+  specifyPayoutDestination,
   trackedOutcomeUiState,
 } from '../src/product-journeys.js';
 import { approvalArtifactRef, completeApprovalOnTrustedSurface } from '../src/trusted-approvals.js';
@@ -714,5 +743,405 @@ describe('pay journey', () => {
     expect(first.method).toBe('POST');
     expect(first.idempotencyKey).not.toBe(second.idempotencyKey);
     expect((first.body as Record<string, unknown>)['capabilityInstanceId']).toBe('inst_momo_gh_1');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Journey 3 — Collect
+// ---------------------------------------------------------------------------
+
+describe('collect journey', () => {
+  it('with no connected capability permitting collection, the journey begins in an HONEST EMPTY state (never an exception)', () => {
+    const journey = beginCollectJourney({
+      amount: { currency: 'GHS', minorUnits: '25000' },
+      payer: 'customer:ama',
+      collectCapableInstances: [],
+    });
+    expect(journey.stateName).toBe('COMPOSING_REQUEST');
+    expect(journey.terminal).toBe(false);
+    const create = journey.actions.find((action) => action.actionId === 'create-collect-request');
+    expect(create?.available).toBe(false);
+    expect(create?.unavailableReason).toContain('no connected capability permits collecting');
+    expect(journey.actions.find((action) => action.actionId === 'connect-a-capability')?.available).toBe(true);
+    // The mutation builder fails closed on the honest empty state.
+    expect(() => productJourneyMutationEnvelope(uxSession(productJourneyHarness(), 'collect-empty'), journey, 'create-collect-request')).toThrow(
+      /not available in state COMPOSING_REQUEST/,
+    );
+  });
+
+  it('happy path through the REAL api handler: create, share (opaque ref), track', async () => {
+    const session = uxSession(productJourneyHarness(), 'collect-test');
+    const journey = beginCollectJourney({
+      amount: { currency: 'GHS', minorUnits: '25000' },
+      payer: 'customer:ama',
+      collectCapableInstances: CONNECTED_INSTANCES,
+    });
+    const created = await dispatchCollectRequest(session, journey);
+    expect(created.response.status).toBe(200);
+    expect(created.journey.stateName).toBe('REQUEST_CREATED');
+    expect(created.journey.requestRef).toBeDefined();
+
+    // The shareable form is an OPAQUE reference (no credential material).
+    const shareable = deriveShareableRequest(created.journey);
+    expect('requestRef' in shareable).toBe(true);
+    if ('requestRef' in shareable) {
+      expect(typeof shareable.requestRef).toBe('string');
+    }
+
+    const shared = markRequestShared(created.journey);
+    expect(shared.stateName).toBe('SHARED');
+    const tracking = beginCollectTracking(shared);
+    expect(tracking.stateName).toBe('TRACKING');
+    expect(tracking.fulfillmentOutcome).toBe('PENDING');
+    expect(collectFulfillmentUiState('PENDING')).toBe(mapTerminalStateToUi('WAITING'));
+    expect(collectFulfillmentUiState('PENDING')).toBe('reconciling');
+  });
+
+  it('sharing before creation is honestly NOT_CREATED; the share fold fails closed', () => {
+    const journey = beginCollectJourney({
+      amount: { currency: 'GHS', minorUnits: '25000' },
+      payer: 'customer:ama',
+      collectCapableInstances: CONNECTED_INSTANCES,
+    });
+    expect(deriveShareableRequest(journey)).toEqual({ kind: 'NOT_CREATED' });
+    expect(() => markRequestShared(journey)).toThrow(/only be shared after it was created/);
+  });
+
+  it('fulfillment outcomes fold verbatim; PENDING refreshes in place', () => {
+    const journey = beginCollectJourney({
+      amount: { currency: 'GHS', minorUnits: '25000' },
+      payer: 'customer:ama',
+      collectCapableInstances: CONNECTED_INSTANCES,
+    });
+    const tracking = beginCollectTracking(
+      applyCollectRequestResponse(journey, grantedResponse('intent_collect_1')),
+    );
+    const stillPending = applyCollectFulfillment(tracking, 'PENDING');
+    expect(stillPending.stateName).toBe('TRACKING');
+
+    const fulfilled = applyCollectFulfillment(stillPending, 'FULFILLED');
+    expect(fulfilled.stateName).toBe('FULFILLED');
+    expect(fulfilled.terminal).toBe(true);
+
+    const expired = applyCollectFulfillment(tracking, 'EXPIRED');
+    expect(expired.stateName).toBe('EXPIRED');
+    expect(expired.actions.find((action) => action.actionId === 'reissue-as-new-request')?.available).toBe(true);
+
+    const cancelled = applyCollectFulfillment(tracking, 'CANCELLED');
+    expect(cancelled.stateName).toBe('CANCELLED');
+  });
+
+  it('illegal transitions throw; terminal collect journeys cannot be abandoned', () => {
+    const journey = beginCollectJourney({
+      amount: { currency: 'GHS', minorUnits: '25000' },
+      payer: 'customer:ama',
+      collectCapableInstances: CONNECTED_INSTANCES,
+    });
+    expect(canTransitionCollect('COMPOSING_REQUEST', 'FULFILLED')).toBe(false);
+    expect(canTransitionCollect('TRACKING', 'REQUEST_CREATED')).toBe(false);
+    expect(() => applyCollectFulfillment(journey, 'FULFILLED')).toThrow(/not foldable in state COMPOSING_REQUEST/);
+
+    const fulfilled = applyCollectFulfillment(
+      beginCollectTracking(applyCollectRequestResponse(journey, grantedResponse('intent_collect_2'))),
+      'FULFILLED',
+    );
+    expect(() => abandonCollectJourney(fulfilled)).toThrow(/cannot be abandoned from terminal state/);
+  });
+
+  it('the collect mutation carries a fresh idempotency key (INV-F05)', () => {
+    const session = uxSession(productJourneyHarness(), 'collect-envelope');
+    const journey = beginCollectJourney({
+      amount: { currency: 'GHS', minorUnits: '25000' },
+      payer: 'customer:ama',
+      collectCapableInstances: CONNECTED_INSTANCES,
+    });
+    const first = productJourneyMutationEnvelope(session, journey, 'create-collect-request');
+    const second = productJourneyMutationEnvelope(session, journey, 'create-collect-request');
+    expect(first.method).toBe('POST');
+    expect(first.idempotencyKey).not.toBe(second.idempotencyKey);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Journey 4 — Payout
+// ---------------------------------------------------------------------------
+
+const PAYOUT_DESTINATION = {
+  destinationRef: asPayoutDestinationRef('dest_bank_external_1'),
+  kind: 'BANK_ACCOUNT' as const,
+  currency: 'USD',
+  externalObservation: true as const,
+};
+
+const WITHDRAWAL_SCOPE = {
+  singleUse: true as const,
+  maxAmount: { currency: 'USD', minorUnits: '500000' },
+  destinationRef: asPayoutDestinationRef('dest_bank_external_1'),
+};
+
+describe('payout journey', () => {
+  it('a payout requires an EXPLICIT destination before anything can be submitted (fail closed)', () => {
+    const journey = beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } });
+    expect(journey.stateName).toBe('SPECIFYING_DESTINATION');
+    expect(journey.destination).toBeUndefined();
+    expect(journey.withdrawalScope).toBeUndefined();
+    // No submit action exists in the specifying state at all.
+    expect(journey.actions.find((action) => action.actionId === 'submit-payout')).toBeUndefined();
+    expect(() =>
+      productJourneyMutationEnvelope(uxSession(productJourneyHarness(), 'payout-1'), journey, 'submit-payout'),
+    ).toThrow(/no action 'submit-payout' exists in state SPECIFYING_DESTINATION/);
+  });
+
+  it('a destination alone is not enough: the withdrawal-scoped authorization is ALSO required', () => {
+    const journey = specifyPayoutDestination(
+      beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+      PAYOUT_DESTINATION,
+    );
+    expect(journey.stateName).toBe('CONFIRMING_SCOPE');
+    const submit = journey.actions.find((action) => action.actionId === 'submit-payout');
+    expect(submit?.available).toBe(false);
+    expect(submit?.unavailableReason).toContain('withdrawal-scoped authorization is required');
+    expect(() =>
+      productJourneyMutationEnvelope(uxSession(productJourneyHarness(), 'payout-2'), journey, 'submit-payout'),
+    ).toThrow(/not available in state CONFIRMING_SCOPE/);
+    // The response fold also fails closed.
+    expect(() => applyPayoutSubmissionResponse(journey, grantedResponse('x'))).toThrow(
+      /explicit destination AND a withdrawal scope/,
+    );
+  });
+
+  it('the withdrawal scope is single-use and bound to the explicit destination (connection ≠ blanket withdrawal authority)', () => {
+    const journey = specifyPayoutDestination(
+      beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+      PAYOUT_DESTINATION,
+    );
+    // A scope bound to a DIFFERENT destination is rejected.
+    expect(() =>
+      confirmWithdrawalScope(journey, {
+        singleUse: true,
+        maxAmount: { currency: 'USD', minorUnits: '500000' },
+        destinationRef: asPayoutDestinationRef('dest_other_bank'),
+      }),
+    ).toThrow(/bound to the explicit payout destination/);
+    // A mismatched currency is rejected.
+    expect(() =>
+      confirmWithdrawalScope(journey, {
+        singleUse: true,
+        maxAmount: { currency: 'GHS', minorUnits: '500000' },
+        destinationRef: PAYOUT_DESTINATION.destinationRef,
+      }),
+    ).toThrow(/denominated in GHS/);
+    // A scope cannot be confirmed before a destination exists.
+    expect(() =>
+      confirmWithdrawalScope(beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }), WITHDRAWAL_SCOPE),
+    ).toThrow(/only be confirmed after an explicit destination/);
+
+    const scoped = confirmWithdrawalScope(journey, WITHDRAWAL_SCOPE);
+    expect(scoped.withdrawalScope?.singleUse).toBe(true);
+    const scopeView = scoped.actions.find((action) => action.actionId === 'view-withdrawal-scope');
+    expect(scopeView?.available).toBe(true);
+  });
+
+  it('the destination is an external-funds observation (structural marker), never custody', () => {
+    expect(() =>
+      specifyPayoutDestination(beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }), {
+        ...PAYOUT_DESTINATION,
+        externalObservation: false as unknown as true,
+      }),
+    ).toThrow(/external-funds observation/);
+    const observationNote = beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }).actions.find(
+      (action) => action.actionId === 'view-destination-observation-note',
+    );
+    expect(observationNote?.available).toBe(true);
+  });
+
+  it('happy path through the REAL api handler: destination + scope → SUBMITTED; the envelope carries both', async () => {
+    const session = uxSession(productJourneyHarness(), 'payout-test');
+    const journey = confirmWithdrawalScope(
+      specifyPayoutDestination(
+        beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+        PAYOUT_DESTINATION,
+      ),
+      WITHDRAWAL_SCOPE,
+    );
+    const envelope = productJourneyMutationEnvelope(session, journey, 'submit-payout');
+    expect(envelope.method).toBe('POST');
+    expect(envelope.idempotencyKey).toBeDefined();
+    const body = envelope.body as Record<string, unknown>;
+    expect(body['destinationRef']).toBe('dest_bank_external_1');
+    expect(body['externalObservation']).toBe(true);
+    const scope = body['withdrawalScope'] as Record<string, unknown>;
+    expect(scope['singleUse']).toBe(true);
+    expect(scope['destinationRef']).toBe('dest_bank_external_1');
+
+    const submitted = await dispatchPayoutSubmission(session, journey);
+    expect(submitted.response.status).toBe(200);
+    expect(submitted.journey.stateName).toBe('SUBMITTED');
+    expect(submitted.journey.submittedIntentId).toBeDefined();
+  });
+
+  it('re-entering destination selection clears BOTH destination and scope', () => {
+    const journey = confirmWithdrawalScope(
+      specifyPayoutDestination(
+        beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+        PAYOUT_DESTINATION,
+      ),
+      WITHDRAWAL_SCOPE,
+    );
+    const reset = reenterPayoutDestinationSelection(journey);
+    expect(reset.stateName).toBe('SPECIFYING_DESTINATION');
+    expect(reset.destination).toBeUndefined();
+    expect(reset.withdrawalScope).toBeUndefined();
+  });
+
+  it('approval folding (INV-A03): 202 parks the payout; confirmation returns to scope confirmation with the artifact reference', () => {
+    const journey = confirmWithdrawalScope(
+      specifyPayoutDestination(
+        beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+        PAYOUT_DESTINATION,
+      ),
+      WITHDRAWAL_SCOPE,
+    );
+    const awaiting = applyPayoutSubmissionResponse(
+      journey,
+      approvalRequiredResponse({ requestHash: 'hash-payout-1', expiresAt: '2026-10-02T01:00:00Z' }),
+    );
+    expect(awaiting.stateName).toBe('AWAITING_APPROVAL');
+    expect(awaiting.actions.find((action) => action.actionId === 'open-trusted-approval-surface')?.kind).toBe(
+      'TRUSTED_SURFACE',
+    );
+    const confirmed = confirmPayoutApproval(awaiting);
+    expect(confirmed.stateName).toBe('CONFIRMING_SCOPE');
+    const envelope = productJourneyMutationEnvelope(uxSession(productJourneyHarness(), 'payout-3'), confirmed, 'submit-payout');
+    expect((envelope.body as Record<string, unknown>)['approvalArtifactRef']).toBe(approvalArtifactRef('hash-payout-1'));
+  });
+
+  it('payout outcome tracking: OUTCOME_UNKNOWN is NEVER FAILED (INV-X01)', () => {
+    const journey = confirmWithdrawalScope(
+      specifyPayoutDestination(
+        beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+        PAYOUT_DESTINATION,
+      ),
+      WITHDRAWAL_SCOPE,
+    );
+    const submitted = applyPayoutSubmissionResponse(journey, grantedResponse('intent_payout_1'));
+    const unknown = applyPayoutOutcome(submitted, 'OUTCOME_UNKNOWN', [asEvidenceArtifactRef('ev_payout_amb_1')]);
+    expect(unknown.stateName).toBe('RECONCILING');
+    expect(unknown.terminal).toBe(false);
+    expect(trackedOutcomeUiState('OUTCOME_UNKNOWN')).toBe(mapTerminalStateToUi('UNKNOWN'));
+
+    const still = applyPayoutReconciliationResolution(unknown, 'STILL_UNKNOWN', asEvidenceArtifactRef('ev_payout_obs_1'));
+    expect(still.stateName).toBe('RECONCILING');
+    const resolved = applyPayoutReconciliationResolution(still, 'RESOLVED_FULFILLED', asEvidenceArtifactRef('ev_payout_res_1'));
+    expect(resolved.stateName).toBe('COMPLETED');
+    expect(resolved.terminal).toBe(true);
+  });
+
+  it('illegal transitions throw; a submitted payout cannot be abandoned', () => {
+    expect(canTransitionPayout('SPECIFYING_DESTINATION', 'SUBMITTED')).toBe(false);
+    expect(canTransitionPayout('CONFIRMING_SCOPE', 'COMPLETED')).toBe(false);
+    const journey = confirmWithdrawalScope(
+      specifyPayoutDestination(
+        beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } }),
+        PAYOUT_DESTINATION,
+      ),
+      WITHDRAWAL_SCOPE,
+    );
+    const submitted = applyPayoutSubmissionResponse(journey, grantedResponse('intent_payout_2'));
+    expect(() => abandonPayoutJourney(submitted)).toThrow(/cannot be abandoned/);
+    expect(abandonPayoutJourney(journey).stateName).toBe('ABANDONED');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Journey 5 — Reconcile (payment outcome)
+// ---------------------------------------------------------------------------
+
+describe('reconcile-payment-outcome journey', () => {
+  it('ambiguity-first lifecycle: observation cannot be awaited before the ambiguity is RECORDED (with evidence)', () => {
+    const journey = beginReconcileJourney({ paymentRef: 'intent_pay_9', reconciliationCaseRef: 'case_1' });
+    expect(journey.stateName).toBe('TRACKING_IN_FLIGHT');
+    // TRACKING_IN_FLIGHT → PENDING_OBSERVATION is illegal: the ambiguity must
+    // be recorded first (the observation itself is evidence, INV-E02).
+    expect(canTransitionReconcile('TRACKING_IN_FLIGHT', 'PENDING_OBSERVATION')).toBe(false);
+    expect(() => awaitFurtherObservation(journey, asEvidenceArtifactRef('ev_1'))).toThrow(/not legal/);
+  });
+
+  it('the full ambiguity lifecycle with its evidence chain', () => {
+    const journey = beginReconcileJourney({ paymentRef: 'intent_pay_9', reconciliationCaseRef: 'case_1' });
+    const ambiguous = recordOutcomeUnknown(journey, asEvidenceArtifactRef('ev_ambiguity_1'));
+    expect(ambiguous.stateName).toBe('OUTCOME_UNKNOWN');
+    expect(ambiguous.attemptOutcome).toBe('OUTCOME_UNKNOWN');
+    expect(ambiguous.evidenceRefs).toContain('ev_ambiguity_1');
+
+    const pending = awaitFurtherObservation(ambiguous, asEvidenceArtifactRef('ev_observation_1'));
+    expect(pending.stateName).toBe('PENDING_OBSERVATION');
+
+    const ambiguousAgain = recordOutcomeUnknown(pending, asEvidenceArtifactRef('ev_ambiguity_2'));
+    expect(ambiguousAgain.stateName).toBe('OUTCOME_UNKNOWN');
+
+    const resolved = applyReconciliationResolution(
+      ambiguousAgain,
+      'RESOLVED_FULFILLED',
+      asEvidenceArtifactRef('ev_resolution_1'),
+    );
+    expect(resolved.stateName).toBe('RESOLVED_FULFILLED');
+    expect(resolved.terminal).toBe(true);
+    expect(resolved.evidenceRefs).toEqual([
+      'ev_ambiguity_1',
+      'ev_observation_1',
+      'ev_ambiguity_2',
+      'ev_resolution_1',
+    ]);
+  });
+
+  it('UNKNOWN never renders as failure (INV-X01, same mapTerminalStateToUi consumption)', () => {
+    expect(reconcileJourneyUiState('OUTCOME_UNKNOWN')).toBe(mapTerminalStateToUi('UNKNOWN'));
+    expect(reconcileJourneyUiState('PENDING_OBSERVATION')).toBe('reconciling');
+    expect(reconcileJourneyUiState('OUTCOME_UNKNOWN')).not.toBe('failed');
+    expect(reconcileJourneyUiState('TRACKING_IN_FLIGHT')).toBe('reconciling');
+    expect(reconcileJourneyUiState('RESOLVED_FULFILLED')).toBe('fulfilled');
+    expect(reconcileJourneyUiState('RESOLVED_FAILED')).toBe('failed');
+  });
+
+  it('terminal reconciliation states have no outgoing transitions; in-flight resolution is legal (authority observation)', () => {
+    expect(canTransitionReconcile('RESOLVED_FULFILLED', 'OUTCOME_UNKNOWN')).toBe(false);
+    expect(canTransitionReconcile('RESOLVED_FAILED', 'PENDING_OBSERVATION')).toBe(false);
+    // An unambiguous in-flight observation may resolve directly.
+    expect(canTransitionReconcile('TRACKING_IN_FLIGHT', 'RESOLVED_FULFILLED')).toBe(true);
+    const journey = beginReconcileJourney({ paymentRef: 'intent_pay_10' });
+    expect(
+      applyReconciliationResolution(journey, 'RESOLVED_FAILED', asEvidenceArtifactRef('ev_fail_1')).stateName,
+    ).toBe('RESOLVED_FAILED');
+  });
+
+  it('the observation mutation is available exactly in the ambiguity/observation states, with a fresh key (INV-F05)', () => {
+    const session = uxSession(productJourneyHarness(), 'reconcile-envelope');
+    const inFlight = beginReconcileJourney({ paymentRef: 'intent_pay_11' });
+    // No dead buttons: the in-flight state still shows the payment record.
+    expect(inFlight.actions.find((action) => action.actionId === 'view-payment-record')?.available).toBe(true);
+    expect(() => productJourneyMutationEnvelope(session, inFlight, 'request-fresh-observation')).toThrow(
+      /no action 'request-fresh-observation' exists in state TRACKING_IN_FLIGHT/,
+    );
+
+    const ambiguous = recordOutcomeUnknown(inFlight, asEvidenceArtifactRef('ev_amb_1'));
+    const first = productJourneyMutationEnvelope(session, ambiguous, 'request-fresh-observation');
+    const second = productJourneyMutationEnvelope(session, ambiguous, 'request-fresh-observation');
+    expect(first.method).toBe('POST');
+    expect(first.idempotencyKey).not.toBe(second.idempotencyKey);
+    expect((first.body as Record<string, unknown>)['correlationId']).toBe('intent_pay_11');
+
+    const pending = awaitFurtherObservation(ambiguous, asEvidenceArtifactRef('ev_obs_1'));
+    expect(productJourneyMutationEnvelope(session, pending, 'request-fresh-observation').method).toBe('POST');
+  });
+
+  it('the observation intent reaches the REAL api handler', async () => {
+    const session = uxSession(productJourneyHarness(), 'reconcile-test');
+    const ambiguous = recordOutcomeUnknown(
+      beginReconcileJourney({ paymentRef: 'intent_pay_12', reconciliationCaseRef: 'case_12' }),
+      asEvidenceArtifactRef('ev_amb_2'),
+    );
+    const response = await dispatchReconciliationObservation(session, ambiguous);
+    expect(response.status).toBe(200);
   });
 });
