@@ -37,3 +37,4 @@ export * from "./external-funds.js";
 export * from "./packs.js";
 export * from "./registry.js";
 export * from "./activation.js";
+export * from "./payouts.js";
