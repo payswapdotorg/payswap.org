@@ -179,3 +179,4 @@ export * from "./thunes.js";
 export * from "./adyen.js";
 export * from "./airwallex.js";
 export * from "./ebanx.js";
+export * from "./stellar.js";

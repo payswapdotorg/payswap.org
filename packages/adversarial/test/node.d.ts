@@ -14,8 +14,23 @@ declare module "node:crypto" {
     update(data: string): Hmac;
     digest(encoding: "hex"): string;
   }
+  export interface Hash {
+    update(data: Uint8Array): Hash;
+    digest(): Uint8Array;
+  }
+  export interface KeyObject {
+    export(options: { readonly format: "der"; readonly type: "spki" | "pkcs8" }): Uint8Array;
+  }
   export function createHmac(algorithm: "sha256" | "sha512", secret: string): Hmac;
   export function randomBytes(size: number): Buffer;
+  export function createHash(algorithm: "sha256"): Hash;
+  export function createPrivateKey(source: {
+    readonly key: Uint8Array;
+    readonly format: "der";
+    readonly type: "pkcs8";
+  }): KeyObject;
+  export function createPublicKey(privateKey: KeyObject): KeyObject;
+  export function sign(algorithm: null, data: Uint8Array, key: KeyObject): Uint8Array;
 }
 
 declare module "node:fs" {
