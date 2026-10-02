@@ -21,22 +21,12 @@
  },
  "frontier": [
   {
-   "id": "P3-W1-003",
-   "owner": "worker-1",
-   "status": "READY",
+   "id": "P3-W3-003",
+   "owner": "worker-3",
+   "status": "GATED",
    "depends_on": [
-    "P3-W1-001",
-    "P3-W2-002",
-    "P3-W3-002"
-   ]
-  },
-  {
-   "id": "P3-W2-003",
-   "owner": "worker-2",
-   "status": "READY",
-   "depends_on": [
-    "P3-W2-002",
-    "P3-W3-002"
+    "P3-W1-003",
+    "P3-W2-003"
    ]
   }
  ],
@@ -71,7 +61,24 @@
   "rollback_verified"
  ],
  "do_not_modify_phase_2_history": true,
- "active_work_orders": [],
+ "active_work_orders": [
+  {
+   "id": "P3-W1-003",
+   "owner": "worker-1",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W1-003",
+   "dispatch": "replay-session (operator directive 2026-10-02: workers dispatched from inside the replay only)"
+  },
+  {
+   "id": "P3-W2-003",
+   "owner": "worker-2",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W2-003",
+   "dispatch": "replay-session (operator directive 2026-10-02: workers dispatched from inside the replay only)"
+  }
+ ],
  "completed_work_orders": [
   {
    "id": "P3-W1-001",
@@ -120,5 +127,6 @@
   }
  ],
  "wave_1_status": "COMPLETE 2026-10-02 \u2014 public web foundation DEPLOYED (payswap-web.vercel.app) + UX design system (@payswap/design, You-platform reference extraction) + product IA & seven journey contracts (@payswap/ux 254/254). Full repo battery 2965/2965; root typecheck 0; verify:repo green; secret scan clean (only vault-ref/public-URL provenance class). Note: P3-W3-002 additionally requires P3-W1-002 + P3-W2-002 (sequential within Wave 2 per the operator graph).",
- "wave_2_status": "COMPLETE 2026-10-02 \u2014 ALL THREE ITEMS: P3-W1-002 auth/onboarding/connection + P3-W2-002 Command Center + P3-W3-002 payment/provider/local-rail journeys. Battery 3040/3040; deployed payswap-web.vercel.app. Wave 3 READY: P3-W1-003 (infrastructure hardening/free-tier cost controls) + P3-W2-003 (responsive/a11y/visual verification) parallel; P3-W3-003 (E2E certification + release) gated on both."
+ "wave_2_status": "COMPLETE 2026-10-02 \u2014 ALL THREE ITEMS: P3-W1-002 auth/onboarding/connection + P3-W2-002 Command Center + P3-W3-002 payment/provider/local-rail journeys. Battery 3040/3040; deployed payswap-web.vercel.app. Wave 3 READY: P3-W1-003 (infrastructure hardening/free-tier cost controls) + P3-W2-003 (responsive/a11y/visual verification) parallel; P3-W3-003 (E2E certification + release) gated on both.",
+ "wave_3_status": "ACTIVE 2026-10-02 -- P3-W1-003 + P3-W2-003 dispatched as replay sessions (operator directive: in-replay dispatch only). Phase 4 (universal-money-interface, architecture 1.6-frozen-2026-10-02) recorded by the operator on main and BLOCKED_UNTIL_COMPLETE on this wave. Stripe UX directive (2026-10-02, operator IM): Stripe is the primary UX benchmark, superseding the You-platform reference for UX research; the dedicated research worker is P4-W1-003 with user-assisted Google login through the replay."
 }
