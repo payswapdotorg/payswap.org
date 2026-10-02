@@ -1,4 +1,4 @@
-# BLOCKED RAILS — @payswap/rails (W1-005)
+# BLOCKED RAILS — @payswap/rails (W1-005; Stripe section updated P2-W2-001)
 
 Rails whose providers require credentials PaySwap does not currently hold.
 Per the real-network policy these rails are **NOT simulated**: their adapters
@@ -28,7 +28,57 @@ settlement effect is ever fabricated for these rails.
   `executeAction` throw `RailNotAuthorizedError` — no provider call, no
   fabricated outcome, no settlement effect.
 
-## 2. Mobile-money rail — MTN MoMo (collection / request-to-pay)
+## 2. Stripe PRODUCTION connector (`src/stripe.ts`, P2-W2-001) — credential
+   supplied, probe-verified, connector REAL; remaining preconditions honest
+
+The real Stripe connector (`StripeConnector` + `StripeProductionRail`) speaks
+the Stripe v1 REST API (pinned `Stripe-Version: 2025-08-27.basil`) over the
+injected HTTP transport. Status as of 2026-10-02:
+
+- **Credential: SUPPLIED and probe-verified** — operator batch 2026-10-02,
+  a Stripe test-mode secret key on account `acct_1FPs7UAkPdhgtN6I` (FR,
+  sole_prop, charges_enabled). Authentication VERIFIED by live probe
+  (spec/development-state/provider-probes-20261002.json). The repo/manifests
+  carry ONLY the control-plane reference: `PROVIDER_STRIPE_CREDENTIAL_REF` →
+  `vault://payswap/providers/stripe/test-20261002` — the sealed bundle
+  material opens exclusively through the P2-W1-001 CredentialBroker
+  connector-runtime path (never env values in deployments, never agent
+  context, never logs, never envelopes).
+- **Connector: REAL** — PaymentIntent / Refund / Dispute / Payout /
+  Subscription lifecycles mapped losslessly through ProviderStateEnvelope
+  (INV-C06); Stripe-Signature webhook verification with replay window and
+  (provider, eventId) dedupe; Idempotency-Key derived from the protocol key
+  (INV-F05) with 409 `idempotency_error` mapped to an error state, never a
+  silent success; mid-effect transport failures → OUTCOME_UNKNOWN (INV-X01,
+  never FAILED); balance/payouts as ExternalFundsPositionObservation ONLY
+  (INV-C09 — observations of provider-held funds, never custody).
+- **Remaining honest preconditions** (why this is still not a live rail):
+  1. The credential is **test-mode** (`livemode: false`): real money cannot
+     move; production requires a live-mode key AND an operator-authorized
+     activation through the phase-2 activation machine (P2-W1-001) with the
+     gates in spec/development-state/phase-2-state.json satisfied.
+  2. **No webhook endpoint is registered at Stripe yet** — the webhook
+     signing secret is present in the vault but unproven until an endpoint is
+     registered and a real signed event is received and verified end-to-end
+     (the verifier, replay window and dedupe are implemented and unit-tested;
+     the live delivery path is the remaining datum).
+  3. `payouts_enabled: false` on the account — payouts are OBSERVABLE
+     (GET /v1/payouts → ExternalFundsPositionObservation) but no payout can
+     execute on this account; PaySwap executes no payouts in any case
+     (non-custodial law — observation only).
+  4. Capability scope is OBSERVED, not assumed: `cartes_bancaires` pending
+     and `sepa_debit` inactive on this account (live GET /v1/account);
+     PayPal-on-Stripe ELIGIBLE per probe; **GHS non-routable** (negative
+     datum: "Stripe accounts in FR do not support ghs" — Ghana-local
+     collection routes via Paystack/Flutterwave/MTN).
+  5. PayPal-on-Stripe is a **distinct capability** from PayPal Direct
+     (different provider, capability id and settlement) — never conflated.
+- Until a precondition is lifted: the same fail-closed semantics as every
+  rail — no credential path → availability UNKNOWN (INV-C01/C02), health
+  DEGRADED/UNKNOWN with reasons, effectful operations throw
+  `RailNotAuthorizedError` before any provider call (INV-NC04).
+
+## 3. Mobile-money rail — MTN MoMo (collection / request-to-pay)
 
 - Adapter: `MtnMomoRail` + `MtnMomoClient` (`src/mobile-money.ts`).
 - Provider endpoints observed: `https://sandbox.momodeveloper.mtn.com`
