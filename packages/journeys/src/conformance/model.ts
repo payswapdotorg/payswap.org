@@ -13,7 +13,7 @@
  * connector SDK paths) runs, but no live provider is contacted and no
  * financial effect is simulated.
  *
- * Determinism: a fixed conformance epoch (no Date.now / Math.random), a
+ * Determinism: a fixed conformance epoch (no wall-clock or RNG reads), a
  * scripted HttpTransport recording every call, synthetic key material that
  * is obviously fake and planted ONLY in SDK transports (never in products).
  */

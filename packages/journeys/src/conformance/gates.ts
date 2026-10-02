@@ -205,11 +205,28 @@ export function runReconciliationGate(
   }
   const failures: string[] = [];
   refetched.forEach((reFetched, index) => {
+    // INV-X03 match key: (external id, revision). A provider object's
+    // lifecycle PROGRESSES on the same external id (pending → succeeded on
+    // one refund id) — matching by external id alone would pair a re-fetch
+    // of the COMPLETED observation against the PENDING envelope and report
+    // a false divergence. The revision (status-derived, per connector law:
+    // id + status) identifies the exact observation being re-fetched; a
+    // re-fetch that reproduces the same (id, revision) is the recovery
+    // proof, and a revision never observed is genuine divergence.
     const match = artifacts.envelopes.find(
-      (envelope) => envelope.object.externalId === reFetched.object.externalId,
+      (envelope) =>
+        envelope.object.externalId === reFetched.object.externalId &&
+        envelope.revision === reFetched.revision,
     );
     if (match === undefined) {
-      failures.push(`re-fetch[${index}]: external id '${reFetched.object.externalId}' not among the observed states`);
+      const idOnly = artifacts.envelopes.find(
+        (envelope) => envelope.object.externalId === reFetched.object.externalId,
+      );
+      failures.push(
+        idOnly === undefined
+          ? `re-fetch[${index}]: external id '${reFetched.object.externalId}' not among the observed states`
+          : `re-fetch[${index}]: (external id '${reFetched.object.externalId}', revision '${reFetched.revision}') not among the observed states (id observed at revision(s) '${artifacts.envelopes.filter((e) => e.object.externalId === reFetched.object.externalId).map((e) => e.revision).join("', '")}')`,
+      );
       return;
     }
     if (match.classification.family !== reFetched.classification.family) {
@@ -233,7 +250,7 @@ export function runReconciliationGate(
   return gate(
     "RECONCILIATION",
     true,
-    `${profile.providerName} ${artifacts.scenarioId}: ${refetched.length} re-fetch(es) reproduced the observed states by external id (INV-X03)`,
+    `${profile.providerName} ${artifacts.scenarioId}: ${refetched.length} re-fetch reproduction(s) of the observed states by external id (INV-X03)`,
   );
 }
 

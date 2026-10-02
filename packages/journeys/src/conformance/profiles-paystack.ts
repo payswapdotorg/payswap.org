@@ -120,20 +120,28 @@ export const paystackConformanceProfile: ProviderConformanceProfile = {
       // The SAME protocol idempotency key twice: the first initialize
       // succeeds; the second is Paystack's duplicate-reference answer →
       // PaystackDuplicateReferenceError — NEVER a silent second success.
+      // Stateful by CALL COUNT (the connector posts JSON bodies — a
+      // body-text matcher cannot distinguish the two submissions; the real
+      // provider distinguishes them server-side by the reference it has
+      // already stored).
+      let initializeCalls = 0;
       const transport = new ScriptedConformanceTransport((call) => {
-        if (call.body !== undefined && call.body.includes("reference=payswap%3Aidem-dup-1")) {
-          return {
-            status: 200,
-            bodyText: JSON.stringify({
-              status: true,
-              message: "Authorization URL created",
-              data: {
-                authorization_url: "https://checkout.paystack.com/conformance",
-                access_code: "ACC_CONFORMANCE_1",
-                reference: "payswap:idem-dup-1",
-              },
-            }),
-          };
+        if (call.url.includes("/v3/payment/initialize")) {
+          initializeCalls += 1;
+          if (initializeCalls === 1) {
+            return {
+              status: 200,
+              bodyText: JSON.stringify({
+                status: true,
+                message: "Authorization URL created",
+                data: {
+                  authorization_url: "https://checkout.paystack.com/conformance",
+                  access_code: "ACC_CONFORMANCE_1",
+                  reference: "payswap:idem-dup-1",
+                },
+              }),
+            };
+          }
         }
         return {
           status: 200,
@@ -279,7 +287,7 @@ function buildApplicability(): Readonly<Record<ConformanceScenarioId, Applicabil
       `${PAYSTACK_PAYMENT_INIT_CAPABILITY_ID} reference idempotency (the payment reference IS the key; duplicate reference class)`,
     ),
     WEBHOOK_LOSS: applicable(
-      "X-Paystack-Signature webhook ingestor + verify-by-reference re-fetch (INV-X03)",
+      "X-Paystack-Signature webhook ingestor + verify-by-reference re-fetch, INV-X03",
     ),
     PROVIDER_OUTAGE: applicable(
       "mid-initialize transport failure → OUTCOME_UNKNOWN (INV-X01; incident vocabulary)",

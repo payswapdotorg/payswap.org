@@ -36,6 +36,13 @@ const MAX_WORKSPACE_DEPS: readonly string[] = [
   "@payswap/participation",
   "@payswap/campaigns",
   "@payswap/certification",
+  // P2-W2-003 evolution: the cross-provider conformance suite drives the
+  // REAL connectors through their SDK surface (the framework base every
+  // connector implements — the authorization gate probes bare connectors;
+  // the duplicate probe invokes create()). The dependency is TYPE-ONLY in
+  // src (ConnectorSDK/SdkCallContext contracts) — adapters never gains a
+  // runtime composition path from journeys.
+  "@payswap/adapters",
 ];
 
 /**

@@ -661,6 +661,19 @@ const webhookLoss: ConformanceScenarioDefinition = {
     if (begin.kind !== "BEGIN") {
       throw new Error("webhook-loss settlement attempt replay");
     }
+    // The webhook never arrived => the external write's outcome is AMBIGUOUS.
+    // Advance the attempt PENDING -> IN_FLIGHT -> OUTCOME_UNKNOWN first: a
+    // reconciliation case exists FOR an ambiguity (INV-X03), so the attempt
+    // must already carry OUTCOME_UNKNOWN (INV-X01: never FAILED, never
+    // guessed) when the case opens. The ambiguity observation itself is
+    // evidence (INV-E02).
+    attempts.start("sa:conformance:webhook-loss", CONFORMANCE_EPOCH);
+    attempts.recordExternalOutcome(
+      "sa:conformance:webhook-loss",
+      "OUTCOME_UNKNOWN",
+      ["xev:conformance:webhook-loss:ambiguity"],
+      CONFORMANCE_EPOCH,
+    );
     const authority = new SettlementReconciliationAuthority(attempts);
     const evidenceGraph = new EvidenceGraph();
     const case_ = openWebhookLossCase(authority, {
@@ -713,7 +726,7 @@ const webhookLoss: ConformanceScenarioDefinition = {
         sameExternalId: firstExternalId === recovered.object.externalId,
       },
       notes: [
-        `recovered ${recovered.object.objectType}/${recovered.object.externalId} by external id re-fetch (INV-X03)`,
+        `recovered ${recovered.object.objectType}/${recovered.object.externalId} by external id re-fetch, INV-X03`,
         profile.honestyNote,
       ],
     };
@@ -1059,8 +1072,12 @@ const fallbackReAuthorization: ConformanceScenarioDefinition = {
       ],
       createdAt: new Date(Number(CONFORMANCE_EPOCH)).toISOString(),
     });
+    // The legal lifecycle (W1-003 law): OPEN → IN_ANALYSIS → resolution.
+    // The analysis step is the audit moment — the resolution record carries
+    // the who/when of the routing decision below.
+    const analyzed = transitionCoverageGapCase(gap, "IN_ANALYSIS");
     const resolved = transitionCoverageGapCase(
-      gap,
+      analyzed,
       "RESOLVED_BY_ROUTING",
       {
         resolvedAt: new Date(Number(CONFORMANCE_EPOCH + 1n)).toISOString(),

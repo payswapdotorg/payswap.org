@@ -27,3 +27,13 @@ export * from "./journeys/recurring-mandate.js";
 export * from "./journeys/refund-dispute.js";
 export * from "./journeys/multi-provider-fallback.js";
 export * from "./journeys/external-funds.js";
+// P2-W2-003: cross-provider lifecycle + conformance certification
+export * from "./conformance/model.js";
+export * from "./conformance/profile.js";
+export * from "./conformance/profile-support.js";
+export * from "./conformance/gates.js";
+export * from "./conformance/scenarios.js";
+export * from "./conformance/profiles-stripe.js";
+export * from "./conformance/profiles-paystack.js";
+export * from "./conformance/profiles-flutterwave.js";
+export * from "./conformance/runner.js";
