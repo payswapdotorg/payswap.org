@@ -1,4 +1,4 @@
-# BLOCKED RAILS — @payswap/rails (W1-005; Stripe P2-W2-001; Paystack/Flutterwave/MTN P2-W3-001)
+# BLOCKED RAILS — @payswap/rails (W1-005; Stripe P2-W2-001; Paystack/Flutterwave/MTN P2-W3-001; PayPal Direct P2-W1-002)
 
 Rails whose providers require credentials PaySwap does not currently hold.
 Per the real-network policy these rails are **NOT simulated**: their adapters
@@ -215,6 +215,73 @@ HTTP transport. Status as of 2026-10-02:
   can move); no webhook secret is proven against a live delivery yet (the
   verifier + ingestor are implemented and unit-tested; the dashboard
   endpoint registration and a real event are the remaining datum).
+
+## 6. PayPal Direct (`src/paypal-direct.ts`, P2-W1-002) — the honest BLOCKED state: credential ABSENT, connector REAL
+
+The real PayPal Direct connector (`PayPalDirectConnector` +
+`PayPalDirectProductionRail`) speaks the PayPal REST API over the injected
+HTTP transport (OAuth2 `POST /v1/oauth2/token` with Basic
+base64(client_id:client_secret); Orders v2 create/get/capture/authorize/void;
+Payments v2 authorization capture/void/reauthorize and capture refunds with
+statuses VERBATIM; SERVER-SIDE webhook verification via
+`POST /v1/notifications/verify-webhook-signature`; Payouts v1 READ-ONLY).
+Status as of 2026-10-02:
+
+- **Credential: ABSENT — no vault ref material exists** for PayPal Direct in
+  this deployment. The intended control-plane binding is
+  `PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF` →
+  `vault://payswap/providers/paypal-direct/sandbox-20261002` (the operator
+  batch of 2026-10-02 contains NO PayPal credential — Stripe's
+  PayPal-on-Stripe eligibility is a DIFFERENT provider datum and never
+  substitutes for it).
+- **Sandbox reachability datum (live, re-verified)**: the sandbox host
+  `https://api-m.sandbox.paypal.com` answers `HTTP 401`
+  (`{"error":"invalid_client"}`) on `POST /v1/oauth2/token` WITHOUT
+  credentials — endpoint REACHABLE, authorization ABSENT. Recorded as
+  `PAYPAL_DIRECT_SANDBOX_REACHABILITY_20261002` in `src/paypal-direct.ts`
+  and machine-checked in `test/live/paypal-direct.live.test.ts` (the probe
+  runs WITHOUT credentials; the authenticated probes skip cleanly).
+- **Access required**: a PayPal **developer app client credential pair**
+  (client_id + client_secret) for a connected merchant/account — sandbox OR
+  live — plus a **webhook id** from registering the notification endpoint at
+  the PayPal Developer Dashboard (Apps & Credentials → Live/Sandbox → app →
+  Webhooks). Production additionally requires the merchant's PayPal business
+  account activation for the payout/collection surface in scope.
+- **Who must grant it**: the merchant/account owner via the PayPal Developer
+  Dashboard (or PaySwap operations on their documented behalf) — the client
+  pair is provisioned by the app owner, never by the adapter.
+- **Until granted (fail-closed semantics — INV-NC04)**:
+  `availability()` is UNKNOWN (INV-C01/C02 — never AVAILABLE, never
+  UNAVAILABLE), `health()` reports DEGRADED (endpoint reachable,
+  authorization absent) or UNKNOWN (transport dead) with explicit reasons,
+  and EVERY effectful operation throws `RailNotAuthorizedError` BEFORE any
+  provider call. NO mock PayPal, NO simulated outcome, EVER.
+- **PayPal Direct ≠ Stripe PayPal (never conflated)**: Stripe's
+  `cap.rails.stripe.paypal_on_stripe` is a Stripe payment method (provider
+  `stripe`, Stripe credentials/API/settlement); PayPal Direct is its OWN
+  provider (`paypal_direct`, PayPal OAuth2 client pair, PayPal REST,
+  settlement at PayPal — external funds, INV-C09). The distinction is
+  encoded as data (`PAYPAL_DIRECT_VS_STRIPE_PAYPAL_DISTINCTION`) and
+  enforced by a runtime guard
+  (`assertPayPalDirectNotConflatedWithStripePayPal`) plus
+  selection-eligibility that requires an OBSERVED connected-instance
+  account scope — direct PayPal and Stripe PayPal are each selectable only
+  when their OWN connected instances are eligible.
+- **Payouts are OBSERVATION ONLY (INV-C09)**: the Payouts CREATE surface
+  (`POST /v1/payments/payouts`) is DELIBERATELY NOT IMPLEMENTED — PaySwap
+  never executes payouts on its own authority (non-custodial law). Batch
+  and item reads map to `ExternalFundsPositionObservation` + payout-status
+  envelopes with every item status VERBATIM (UNCLAIMED/CLAIMED/PROCESSING/
+  SUCCESS/FAILED/REVERSED/ONHOLD/BLOCKED/RETURNED). The generic
+  execution-side controls live in `@payswap/connectors` `src/payouts.ts`
+  (PayoutDestination explicit+external; the six-gate payout gate;
+  observation-vs-execution separation).
+- **Re-probe path**: provision the client pair (+ webhook id) into the
+  vault under the control-plane reference, re-run
+  `test/live/paypal-direct.live.test.ts` (the authenticated probes then
+  run: real OAuth2 token issuance → HEALTHY), then activate through the
+  phase-2 machine (P2-W1-001) with the observed account scope as
+  eligibility evidence.
 
 ## Not blocked (exercised against genuinely reachable public endpoints)
 

@@ -1,4 +1,4 @@
-# CREDENTIAL ROTATION — @payswap/rails (W1-005; Stripe production path P2-W2-001; MTN/Paystack/Flutterwave paths P2-W3-001)
+# CREDENTIAL ROTATION — @payswap/rails (W1-005; Stripe production path P2-W2-001; MTN/Paystack/Flutterwave paths P2-W3-001; PayPal Direct path P2-W1-002)
 
 Every rail adapter in this package declares its credential surface as
 **env-driven secret-store references**. No secret value is ever read into a
@@ -48,6 +48,7 @@ rotation auditable (INV-E02/E05) without ever exposing the secret.
 | Mobile money (MTN MoMo, control plane) | `PROVIDER_MTN_MOMO_CREDENTIAL_REF` | control-plane vault reference → sealed bundle (subscription key + API user + API key) | PaySwap ops via MTN developer portal + vault swap (below) | as above |
 | Flutterwave (production connector) | `PROVIDER_FLUTTERWAVE_CREDENTIAL_REF` | control-plane vault reference → sealed bundle | PaySwap ops via Flutterwave Dashboard + vault swap (below) | as above |
 | Paystack (production connector) | `PROVIDER_PAYSTACK_CREDENTIAL_REF` | control-plane vault reference → sealed bundle | PaySwap ops via Paystack Dashboard + vault swap (below) | as above |
+| PayPal Direct (production connector) | `PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF` | control-plane vault reference → sealed bundle (client_id + client_secret + registered webhook id — an OAuth2 client PAIR, never a single string) | PaySwap ops via PayPal Developer Dashboard + vault swap (below) | as above |
 | Crypto (Ethereum public JSON-RPC) | — (none: public endpoint) | — | — | endpoint documented in BLOCKED-RAILS.md |
 | FX (ECB reference rates) | — (none: public feed) | — | — | endpoint documented in BLOCKED-RAILS.md |
 
@@ -92,3 +93,48 @@ material directly under the same configuration key (the W1-005 rails
 convention): there the baseline is an HMAC fingerprint of the material (the
 material itself is never stored), and the same verify-before-revoke steps
 apply. Cadence: Stripe manual/rolling 90-day keys.
+
+## PayPal Direct rotation path (P2-W1-002 — swap-reference-then-verify)
+
+The PayPal Direct connector (`src/paypal-direct.ts`) resolves its credential
+EXCLUSIVELY through the P2-W1-001 control plane: the configuration key
+`PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF` is bound (at the vault, not in the
+repo) to a `vault://…` reference (intended:
+`vault://payswap/providers/paypal-direct/sandbox-20261002` — currently
+ABSENT; see BLOCKED-RAILS.md §6), and the sealed bundle — an OAuth2 client
+PAIR `{ clientId, clientSecret, webhookId? }` (a single string cannot carry
+a client pair and is refused) — opens only inside
+`CredentialBroker.withSealedBundle` with a registered `ConnectorRuntimeKey`.
+The connector acquires OAuth2 bearer tokens per credential frame
+(`POST /v1/oauth2/token`, Basic base64(client_id:client_secret), cached only
+until 30s before the provider-declared expiry). Rotation is
+**swap-reference-then-verify**:
+
+1. the NEW client pair (and, when the endpoint changes, the NEW registered
+   webhook id) is provisioned at the PayPal Developer Dashboard
+   (Apps & Credentials → the app's Live/Sandbox secrets) — never by the
+   adapter;
+2. the vault binding for `PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF` is swapped
+   to the new credential object (the connector re-resolves on EVERY provider
+   call and invalidates its cached OAuth2 token on rotation, so the swap is
+   picked up immediately, with no restart);
+3. `rotateCredentials` is invoked with an `AdapterExecutionAuthority` and an
+   idempotency key: the connector re-resolves, verifies the new reference
+   DIFFERS from the recorded baseline (fail-closed: an unchanged reference
+   refuses the rotation), records the AUDIT_LOG evidence and returns the new
+   opaque `newCredentialRef`;
+4. verification BEFORE revocation: the adapter confirms the new credential
+   serves a REAL OAuth2 token issuance (`health()` → a successful
+   `POST /v1/oauth2/token` answer). Only then is the OLD client pair
+   deactivated at PayPal — no rotation outage window;
+5. the authorization lineage is carried by the phase-2 control-plane records
+   (the provider-activation records behind
+   spec/development-state/phase-2-state.json); the rotation evidence node is
+   retained immutably (INV-E05).
+
+An env-resolved fallback exists for deployments that inject the RESOLVED
+bundle as a JSON object string under the same configuration key (the W1-005
+rails convention): there the baseline is an HMAC-SHA256 fingerprint of the
+pair (the material itself is never stored), and the same
+verify-before-revoke steps apply. Cadence: PayPal client secrets per the
+Developer Dashboard policy (regenerate on suspicion; no forced expiry).
