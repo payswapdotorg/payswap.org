@@ -15,8 +15,9 @@ declare module "node:crypto" {
     digest(encoding: "hex"): string;
   }
   export interface Hash {
-    update(data: Uint8Array): Hash;
+    update(data: string | Uint8Array): Hash;
     digest(): Uint8Array;
+    digest(encoding: "hex"): string;
   }
   export interface KeyObject {
     export(options: { readonly format: "der"; readonly type: "spki" | "pkcs8" }): Uint8Array;
@@ -25,12 +26,12 @@ declare module "node:crypto" {
   export function randomBytes(size: number): Buffer;
   export function createHash(algorithm: "sha256"): Hash;
   export function createPrivateKey(source: {
-    readonly key: Uint8Array;
+    readonly key: Uint8Array | Buffer;
     readonly format: "der";
     readonly type: "pkcs8";
   }): KeyObject;
   export function createPublicKey(privateKey: KeyObject): KeyObject;
-  export function sign(algorithm: null, data: Uint8Array, key: KeyObject): Uint8Array;
+  export function sign(algorithm: null, data: Uint8Array | Buffer, key: KeyObject): Uint8Array;
 }
 
 declare module "node:fs" {
@@ -76,8 +77,9 @@ declare class URLSearchParams {
   toString(): string;
 }
 
-declare class Buffer {
-  static from(input: string, encoding: string): Buffer;
+declare class Buffer extends Uint8Array {
+  static from(input: string | Uint8Array | Buffer, encoding?: string): Buffer;
+  static concat(list: readonly Uint8Array[]): Buffer;
   toString(encoding: string): string;
 }
 

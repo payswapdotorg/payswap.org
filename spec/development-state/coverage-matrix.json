@@ -2,8 +2,33 @@
   "schema_version": "1.0",
   "record_type": "coverage-matrix",
   "law": "Coverage is executable, not marketing metadata. A row exists only where probe evidence exists; eligibility/health derive from live probes or recorded provider facts, never from a provider's global marketing footprint. 'Available' is never shown because a provider exists globally.",
-  "dimensions": ["country", "merchant_domicile", "shopper_beneficiary", "method", "currency", "direction", "provider", "connected_capability_instance", "eligibility", "health", "regulatory_profile", "settlement_destination"],
-  "row_semantics": ["primary_route", "fallback_route", "incumbent_native_route", "direct_local_route", "actual_provider", "actual_rail", "credential_authorization_mode", "authorization_session_status", "evidence_freshness", "last_successful_probe", "known_limitations"],
+  "dimensions": [
+    "country",
+    "merchant_domicile",
+    "shopper_beneficiary",
+    "method",
+    "currency",
+    "direction",
+    "provider",
+    "connected_capability_instance",
+    "eligibility",
+    "health",
+    "regulatory_profile",
+    "settlement_destination"
+  ],
+  "row_semantics": [
+    "primary_route",
+    "fallback_route",
+    "incumbent_native_route",
+    "direct_local_route",
+    "actual_provider",
+    "actual_rail",
+    "credential_authorization_mode",
+    "authorization_session_status",
+    "evidence_freshness",
+    "last_successful_probe",
+    "known_limitations"
+  ],
   "evidence_base": "spec/development-state/provider-probes-20261002.json",
   "rows": [
     {
@@ -11,7 +36,19 @@
       "provider": "stripe",
       "authorization_mode": "SCOPED_API_CREDENTIAL (test)",
       "account": "acct_1FPs7UAkPdhgtN6I (FR, sole_prop)",
-      "methods": ["card", "klarna", "ideal", "p24", "sofort", "giropay", "eps", "bancontact", "blik", "link", "paypal_on_stripe"],
+      "methods": [
+        "card",
+        "klarna",
+        "ideal",
+        "p24",
+        "sofort",
+        "giropay",
+        "eps",
+        "bancontact",
+        "blik",
+        "link",
+        "paypal_on_stripe"
+      ],
       "currencies": "account-supported set (probed; usd/eur confirmed funded)",
       "eligibility": "ELIGIBLE (charges_enabled; capabilities active)",
       "health": "VERIFIED 2026-10-02 (authentication + balance + capability probes)",
@@ -24,8 +61,18 @@
       "route_id": "paystack-gh-local",
       "provider": "paystack",
       "authorization_mode": "SCOPED_API_CREDENTIAL (test)",
-      "methods": ["bank_transfer (ghipss)", "card", "mobile_money", "bank (pay_with_bank where offered)"],
-      "currencies": ["GHS", "NGN", "KES", "ZAR"],
+      "methods": [
+        "bank_transfer (ghipss)",
+        "card",
+        "mobile_money",
+        "bank (pay_with_bank where offered)"
+      ],
+      "currencies": [
+        "GHS",
+        "NGN",
+        "KES",
+        "ZAR"
+      ],
       "eligibility": "ELIGIBLE (bank rails enumerated: GHS ghipss banks; NGN 287; KES 54; ZAR 33)",
       "health": "VERIFIED 2026-10-02 (authenticated bank enumeration)",
       "connected_capability_instance": "PENDING Wave 1 (P2-W3-001)",
@@ -35,7 +82,12 @@
       "route_id": "flutterwave-multi-currency",
       "provider": "flutterwave",
       "authorization_mode": "SCOPED_API_CREDENTIAL (test)",
-      "methods": ["local_bank_transfer", "card", "mobile_money", "ussd (per account product enablement)"],
+      "methods": [
+        "local_bank_transfer",
+        "card",
+        "mobile_money",
+        "ussd (per account product enablement)"
+      ],
       "currencies": "31 wallet currencies probed (incl. GHS, NGN, KES, ZAR, XOF, XAF, UGX, TZS, RWF, ETB, ZMW, MWK, MZN, MAD, AED, EGP, MUR, USD, EUR, GBP)",
       "eligibility": "ELIGIBLE (wallet balances fetched across all 31 currencies)",
       "health": "VERIFIED 2026-10-02 (authenticated balances probe)",
@@ -47,8 +99,12 @@
       "route_id": "mtn-momo-gh-direct",
       "provider": "mtn_momo",
       "authorization_mode": "SCOPED_API_CREDENTIAL (sandbox)",
-      "methods": ["mobile_money (MTN Ghana)"],
-      "currencies": ["GHS"],
+      "methods": [
+        "mobile_money (MTN Ghana)"
+      ],
+      "currencies": [
+        "GHS"
+      ],
       "eligibility": "BLOCKED — subscription key rejected at the APIM gate (HTTP 401) across collection/disbursement/remittance products on 2026-10-02; API credentials never evaluated",
       "health": "UNKNOWN (fail-closed)",
       "connected_capability_instance": "NOT CRETABLE until a valid subscription key is supplied and live probes pass",
@@ -61,8 +117,8 @@
       "corridor": "GHS -> USDC (Stellar) -> KES",
       "eligibility": "READY — testnet account funded (9,999.99993 XLM), single signer = operator key, sequence live",
       "health": "VERIFIED 2026-10-02 (Horizon account probe)",
-      "connected_capability_instance": "PENDING the Wave-3 coverage-gap local-rail work order (P2-W1-003) (operator-directed)",
-      "known_limitations": "testnet only (operator: purely for testing); smart-contract deployment + USDC path to be proven end-to-end; never a production rail without operator production authorization"
+      "connected_capability_instance": "P2-W1-003: connector REAL + live-proven 2026-10-02 (sequence→sign→submit→observe round-trip on testnet; read surface public; write surface credential-gated via PROVIDER_STELLAR_TESTNET_CREDENTIAL_REF); USDC trustline leg pending change-trust (no trustline on the vault account as of 2026-10-02 — honest)",
+      "known_limitations": "testnet only (never a production rail without operator authorization); the USDC corridor leg requires a change-trust first; XLM self-payment is the proven external-effect vehicle"
     }
   ],
   "gap_cases": [

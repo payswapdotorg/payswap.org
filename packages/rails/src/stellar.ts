@@ -984,8 +984,8 @@ export function stellarRailCapabilityDefinition(): CapabilityDefinition {
     idempotency: {
       idempotent: false,
       keyScope: "REQUEST",
-      duplicateBehavior: "REJECTED_AS_DUPLICATE",
-      retryPolicy: "SAFE_TO_RETRY_AFTER_RECONCILIATION",
+      duplicateBehavior: "REJECTED",
+      retryPolicy: "REQUIRES_RECONCILIATION",
     },
     compensation: {
       compensable: false,
@@ -994,7 +994,10 @@ export function stellarRailCapabilityDefinition(): CapabilityDefinition {
     },
     requiredCustomerActions: [],
     providerVocabulary: {
-      actions: ["submit_payment", "submit_change_trust"],
+      actions: [
+        { action: "submit_payment", description: "submit a signed payment envelope to the public testnet ledger (real external effect)" },
+        { action: "submit_change_trust", description: "establish or re-establish an asset trustline (the USDC corridor leg)" },
+      ],
       states: [
         { providerState: "submitted", canonicalState: "async_processing:submitted", requiresCustomerAction: false, isTerminal: false },
         { providerState: "ledger_included", canonicalState: "other:ledger_included", requiresCustomerAction: false, isTerminal: false },
@@ -1019,12 +1022,14 @@ export function stellarRailCapabilityDefinition(): CapabilityDefinition {
     ],
     evidence: { produced: ["STATE_OBSERVATION", "EXECUTION"], required: [] },
     economics: {
-      feeModel: "PROVIDER_DEFINED",
-      limits: [{ dimension: "base_fee", value: "100 stroops per operation (testnet)" }],
+      feeModel: "PROVIDER_SCHEDULE",
+      limits: [
+        { dimension: "AMOUNT", description: "the base fee is 100 stroops per operation (testnet network schedule)" },
+      ],
       settlementImplications: "ledger inclusion is externally final (finality candidates only — protocol-owned finality)",
     },
     constraints: [
-      "testnet only — never a production rail without operator production authorization",
+      { kind: "REGULATORY", description: "testnet only — never a production rail without operator production authorization" },
     ],
   });
 }
@@ -1214,6 +1219,7 @@ export class StellarConnector extends ConnectorSDK {
 
   /** GET /accounts/{id} — the lossless account observation. */
   async observeAccount(accountId: string): Promise<StellarAccountObservation> {
+    requireStrKeyId(accountId, "accountId");
     const raw = await this.#horizonGet(`/accounts/${encodeURIComponent(accountId)}`);
     const balances = Array.isArray((raw as { balances?: unknown }).balances)
       ? ((raw as { balances: unknown[] }).balances ?? []).map(parseBalance)
@@ -1279,6 +1285,7 @@ export class StellarConnector extends ConnectorSDK {
     accountId: string,
     limit = 10,
   ): Promise<StellarPaymentObservation[]> {
+    requireStrKeyId(accountId, "accountId");
     if (!Number.isInteger(limit) || limit < 1 || limit > 200) {
       throw new ValidationError("payments limit must be an integer in 1..200");
     }
@@ -1753,8 +1760,11 @@ export class StellarConnector extends ConnectorSDK {
     try {
       response = await this.#http(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tx: envelope.envelopeBase64 }),
+        // Horizon's POST /transactions accepts ONLY form-encoded bodies
+        // (tx=<base64 XDR>); a JSON body answers HTTP 415
+        // unsupported_media_type (the live 2026-10-02 diagnostic datum).
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `tx=${encodeURIComponent(envelope.envelopeBase64)}`,
         timeoutMs: this.#timeoutMs,
       });
     } catch (cause) {
@@ -1907,6 +1917,7 @@ function parseBalance(raw: unknown): StellarBalanceObservation {
 
 function parsePaymentRecord(raw: unknown): StellarPaymentObservation {
   const record = (raw ?? {}) as Record<string, unknown>;
+  const { from: rawFrom } = record as { readonly from?: unknown };
   return Object.freeze({
     operationId: typeof record["id"] === "string" ? record["id"] : "",
     pagingToken: typeof record["paging_token"] === "string" ? record["paging_token"] : "",
@@ -1914,7 +1925,7 @@ function parsePaymentRecord(raw: unknown): StellarPaymentObservation {
     ...(typeof record["asset_code"] === "string" ? { assetCode: record["asset_code"] } : {}),
     ...(typeof record["asset_issuer"] === "string" ? { assetIssuer: record["asset_issuer"] } : {}),
     amount: typeof record["amount"] === "string" ? record["amount"] : "0",
-    from: typeof record["from"] === "string" ? record["from"] : "",
+    from: typeof rawFrom === "string" ? rawFrom : "",
     to: typeof record["to"] === "string" ? record["to"] : "",
     transactionHash: typeof record["transaction_hash"] === "string" ? record["transaction_hash"] : "",
     createdAt: typeof record["created_at"] === "string" ? record["created_at"] : "",

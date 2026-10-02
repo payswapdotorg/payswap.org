@@ -464,6 +464,38 @@ as observations (INV-C09). Status as of 2026-10-02:
   verification path is implemented and unit-tested — the live notification
   round-trip is the remaining datum once credentials exist.
 
+## Not blocked — the Stellar testnet local rail (`src/stellar.ts`, P2-W1-003)
+
+- **Stellar testnet (Horizon)**: public REST `https://horizon-testnet.stellar.org`
+  — the READ surface (accounts, payments, transactions) is PUBLIC data with
+  no credentials (probed reachable 2026-10-02, HTTP 200; re-verified live in
+  `test/live/stellar.live.test.ts`). Balances are
+  ExternalFundsPositionObservation ONLY (INV-C09 — never custody).
+- **The WRITE surface** (real external effect — signed TransactionEnvelope
+  submission) is credential-gated through the control plane:
+  `PROVIDER_STELLAR_TESTNET_CREDENTIAL_REF` → the vault bundle
+  {secretSeed, accountPublic, networkPassphrase}. The vault HOLDS the
+  operator-supplied testnet seed (account funded 9999.99993 XLM). Without
+  the credential the write surface fails closed BEFORE any network call
+  (INV-NC04). The seed exists only inside signing frames; it is never in
+  envelopes, evidence, errors or logs. The submission POST requires
+  `application/x-www-form-urlencoded` bodies (`tx=<base64>` — the live
+  2026-10-02 diagnostic datum; a JSON body answers HTTP 415).
+- **Zero dependencies**: the StrKey codec (base32 + CRC16-XModem), the
+  XDR transaction builder (payment + change-trust) and the ed25519
+  signing (PKCS#8 seed wrap → node:crypto) are implemented natively; the
+  REAL end-to-end proof executed 2026-10-02 on testnet: sequence fetch →
+  build+sign → submit (HTTP 200 accepted) → observed in the payments list
+  (the value-conserving self-payment round-trip).
+- **The GHS → USDC (Stellar testnet) → KES corridor** is represented as the
+  rails-side corridor case (the coverage-gap program's proof vehicle):
+  GHS collection via Paystack/Flutterwave (probe-verified bank rails), the
+  Stellar leg live on testnet (XLM self-payment proven; the USDC leg
+  requires a change-trust first — no trustline on the vault account as of
+  2026-10-02, honestly recorded), KES payout via the Paystack/Flutterwave
+  KES rails. The corridor cannot bypass the coverage matrix (the
+  capabilities-side CoverageGapCase + no-bypass law govern).
+
 ## Not blocked (exercised against genuinely reachable public endpoints)
 
 - **Crypto rail (Ethereum mainnet)**: public JSON-RPC
