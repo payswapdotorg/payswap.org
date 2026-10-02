@@ -90,3 +90,4 @@ export * from "./incidents.js";
 export * from "./stripe.js";
 export * from "./paystack.js";
 export * from "./flutterwave.js";
+export * from "./paypal-direct.js";
