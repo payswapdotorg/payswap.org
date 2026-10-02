@@ -803,6 +803,29 @@
   gap: var(--ps-space-2);
 }
 
+/* ============================== SkipLink ============================ */
+/* First focusable element: visually hidden until keyboard-focused. */
+
+.ps-skip-link {
+  position: absolute;
+  top: var(--ps-space-2);
+  left: var(--ps-space-2);
+  z-index: 1200;
+  padding: var(--ps-space-2) var(--ps-space-4);
+  background-color: var(--ps-accent);
+  color: var(--ps-on-accent);
+  font-size: var(--ps-text-sm);
+  font-weight: var(--ps-weight-medium);
+  text-decoration: none;
+  border-radius: var(--ps-radius-md);
+  box-shadow: var(--ps-shadow-2);
+  transform: translateY(-200%);
+}
+
+.ps-skip-link:focus {
+  transform: translateY(0);
+}
+
 /* ============================== Skeleton ============================ */
 /* LOADING only — never a substitute for absent data (honest-use contract). */
 

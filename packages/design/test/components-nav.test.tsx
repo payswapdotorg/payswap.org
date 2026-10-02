@@ -9,6 +9,7 @@ import {
   SidebarItem,
 } from "../src/components/Sidebar.js";
 import { Topbar } from "../src/components/Topbar.js";
+import { SkipLink } from "../src/components/SkipLink.js";
 import { Badge } from "../src/components/StatusPill.js";
 import { Button } from "../src/components/Button.js";
 
@@ -152,6 +153,29 @@ describe("SidebarDrawer", () => {
     await user.click(trigger);
     await user.click(document.querySelector(".ps-dialog-scrim") as HTMLElement);
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+/* ---------- SkipLink ---------- */
+
+describe("SkipLink", () => {
+  it("renders a skip link targeting the main content id", () => {
+    render(
+      <>
+        <SkipLink />
+        <main id="main-content" tabIndex={-1}>
+          body
+        </main>
+      </>,
+    );
+    const link = screen.getByRole("link", { name: "Skip to main content" });
+    expect(link).toHaveAttribute("href", "#main-content");
+    expect(link).toHaveClass("ps-skip-link");
+  });
+
+  it("supports a custom target", () => {
+    render(<SkipLink href="#custom-main" />);
+    expect(screen.getByRole("link", { name: /skip/i })).toHaveAttribute("href", "#custom-main");
   });
 });
 
