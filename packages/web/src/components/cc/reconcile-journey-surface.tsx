@@ -15,7 +15,7 @@
  */
 
 import { useState } from "react";
-import type { EvidenceArtifactRef, ReconcileJourney, ViewAction } from "@payswap/ux";
+import type { ReconcileJourney, ViewAction } from "@payswap/ux";
 import {
   asEvidenceArtifactRef,
   awaitFurtherObservation,

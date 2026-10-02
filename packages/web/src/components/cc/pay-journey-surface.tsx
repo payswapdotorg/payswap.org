@@ -79,7 +79,7 @@ function minorUnitsInput(value: string): string | null {
 }
 
 /** The provider customer-action panel — the tracked state verbatim. */
-function CustomerActionPanel({ journey }: { readonly journey: PayJourney }) {
+function CustomerActionPanel() {
   return (
     <Panel
       title="Provider customer action required"
@@ -175,7 +175,7 @@ export function PayJourneyView({
         </Panel>
       ) : null}
       {journey.stateName === "TRACKING" && journey.attemptOutcome === "AWAITING_CUSTOMER_ACTION" ? (
-        <CustomerActionPanel journey={journey} />
+        <CustomerActionPanel />
       ) : null}
       {journey.stateName === "RECONCILING" ? (
         <UnknownState
