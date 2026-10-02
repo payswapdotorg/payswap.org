@@ -1,4 +1,4 @@
-# BLOCKED RAILS — @payswap/rails (W1-005; Stripe P2-W2-001; Paystack/Flutterwave/MTN P2-W3-001)
+# BLOCKED RAILS — @payswap/rails (W1-005; Stripe P2-W2-001; Paystack/Flutterwave/MTN P2-W3-001; PayPal Direct P2-W1-002)
 
 Rails whose providers require credentials PaySwap does not currently hold.
 Per the real-network policy these rails are **NOT simulated**: their adapters
@@ -215,6 +215,71 @@ HTTP transport. Status as of 2026-10-02:
   can move); no webhook secret is proven against a live delivery yet (the
   verifier + ingestor are implemented and unit-tested; the dashboard
   endpoint registration and a real event are the remaining datum).
+
+## 6. PayPal Direct production connector (`src/paypal-direct.ts`, P2-W1-002) —
+   credential NOT supplied (no Wave-2 credentials held), connector REAL,
+   fail-closed
+
+The real PayPal Direct connector (`PayPalDirectConnector` +
+`PayPalDirectProductionRail`) speaks the native PayPal REST API (OAuth2
+client-credentials + v2 checkout orders + v2 payments
+authorizations/captures/refunds + the Payouts API) over the injected HTTP
+transport. It is a SEPARATE provider identity from "Stripe PayPal"
+(`paypal-direct` vs the stripe provider's `paypal_on_stripe` capability —
+different provider, different capability ids, different settlement; the two
+are selectable ONLY through their own ConnectedCapabilityInstance eligibility
+and are never interchangeable). Status as of 2026-10-02:
+
+- **Credential: NOT SUPPLIED** — the phase-2 fail-closed law applies ("no
+  Wave-2 credentials held"): PaySwap holds no PayPal client_id/client_secret
+  and no PayPal webhook id. The repo/manifests carry ONLY the control-plane
+  reference shape: `PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF` → a `vault://…`
+  reference (to be bound at the vault when a credential is granted; the
+  sealed bundle would carry the OAuth2 client-credentials pair and would
+  open exclusively through the P2-W1-001 CredentialBroker
+  connector-runtime path). Until then: availability is UNKNOWN
+  (INV-C01/C02), `health()` reports DEGRADED/UNKNOWN with explicit reasons,
+  and every effectful operation throws `RailNotAuthorizedError` BEFORE any
+  provider call (INV-NC04). NOTHING is simulated — no fake token endpoint,
+  no fabricated order/payout states.
+- **Connector: REAL** — the v2 checkout-order lifecycle
+  (CREATED/SAVED/APPROVED/COMPLETED/VOIDED verbatim;
+  PAYER_ACTION_REQUIRED as a first-class CustomerActionRequirement with the
+  approve link preserved), v2 authorizations (capture/reauthorize/void —
+  204-void contract honored), v2 captures and refunds (statuses verbatim,
+  seller-payable-breakdown reconciliation evidence preserved),
+  provider-side webhook verification (POST
+  /v1/notifications/verify-webhook-signature with transmission-id/time
+  correlation, tolerance window, replay dedupe and event-type mapping),
+  PayPal-Request-Id derived from the protocol key (duplicate submits map to
+  error/duplicate states, never silent success), mid-effect transport
+  failures → OUTCOME_UNKNOWN (INV-X01, never FAILED).
+- **Global payout controls (the honest laws)**: the payout destination is
+  EXTERNAL and EXPLICIT by construction (`destinationKind: "EXTERNAL"`,
+  recipient_type EMAIL/PAYPAL_ID); transfer-out authority is a SEPARATE
+  control-plane authorization (`assertTransferOutAuthorized` on an ACTIVE
+  ConnectedCapabilityInstance activation — connection scope alone never
+  authorizes debit); payout batch/item states are
+  ExternalFundsPositionObservation ONLY (INV-C09 — external funds in motion
+  toward the explicit external recipient, never custody, and NO balance
+  observation is fabricated: PayPal exposes no REST balance endpoint on
+  this surface).
+- **Country eligibility: FACTS ONLY, none held** — merchant/account-country
+  support is represented as eligibility facts on the connected instance
+  (`paypalDirectCountryEligibility`); with no connected-instance evidence
+  every country verdict is basis UNKNOWN — never assumed eligible, never
+  routable (INV-C05/INV-NC04).
+- **Who must grant access**: the PayPal account owner or PaySwap operations
+  through the PayPal Developer Dashboard (REST app credentials:
+  client_id + secret, `payments` + `payouts` scopes; plus the Payouts
+  eligibility on the account), delivered into the secret store bound to
+  `PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF` (see CREDENTIAL-ROTATION.md), and
+  a configured webhook id after endpoint registration.
+- **Live probes**: `test/live/paypal-direct.live.test.ts` is
+  credential-gated and SKIPS cleanly while unprovisioned (no network, no
+  fabricated outcome). The lift path is exactly the Stripe one: provision
+  the credential through the control plane, then re-run the live suite and
+  the phase-2 activation machine (P2-W1-001) gates.
 
 ## Not blocked (exercised against genuinely reachable public endpoints)
 

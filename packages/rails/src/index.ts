@@ -73,6 +73,26 @@
  *   provider calls refuse citing the recorded datum, and NO simulated
  *   substitute exists (lifted only by a successful authenticated re-probe).
  *
+ * - PayPal Direct production connector (`src/paypal-direct.ts`, P2-W1-002):
+ *   the REAL native PayPal REST adapter (a SEPARATE provider identity from
+ *   Stripe PayPal, never conflated) — OAuth2 client-credentials
+ *   (SCOPED_API_CREDENTIAL) over the P2-W1-001 control plane
+ *   (PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF → sealed bundle), v2 checkout
+ *   orders + v2 payments authorizations/captures/refunds and the Payouts
+ *   API mapped losslessly through ProviderStateEnvelope (INV-C06,
+ *   PAYER_ACTION_REQUIRED as a first-class customer action), provider-side
+ *   webhook verification (POST /v1/notifications/verify-webhook-signature
+ *   with transmission-id/time correlation, tolerance window, replay
+ *   dedupe), PayPal-Request-Id derived from the protocol key with
+ *   duplicate-submit mapped to error states, global payout controls
+ *   (destination EXTERNAL and EXPLICIT by construction, transfer-out
+ *   separately scoped through the control plane's assertTransferOutAuthorized,
+ *   item states as ExternalFundsPositionObservation ONLY — INV-C09, never
+ *   custody), country eligibility as connected-instance FACTS ONLY (zero
+ *   probe evidence held — UNKNOWN, never assumed), and fail-closed before
+ *   authorization (no credential = availability UNKNOWN,
+ *   RailNotAuthorizedError on effectful ops — INV-NC04).
+ *
  * NO SIMULATED SETTLEMENT: an adapter that cannot reach a real provider
  * fails or reports UNKNOWN — it never fabricates a settlement effect, and
  * no mock provider is reachable from any production path.
@@ -90,3 +110,4 @@ export * from "./incidents.js";
 export * from "./stripe.js";
 export * from "./paystack.js";
 export * from "./flutterwave.js";
+export * from "./paypal-direct.js";

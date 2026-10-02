@@ -251,6 +251,13 @@ export const RAIL_CREDENTIAL_ENV_VARS: readonly CredentialSourceDeclaration[] = 
     description:
       "Control-plane credential reference for the Paystack production connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle material opens only through the CredentialBroker connector-runtime path)",
   }),
+  Object.freeze({
+    railId: "rail.paypal-direct",
+    envVar: "PROVIDER_PAYPAL_DIRECT_CREDENTIAL_REF",
+    kind: "OAUTH",
+    description:
+      "Control-plane credential reference for the PayPal Direct production connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle carries the OAuth2 client_id/client_secret pair, opened only through the CredentialBroker connector-runtime path — SCOPED_API_CREDENTIAL, with CONNECTED_ACCOUNT partner-referral bundles supported where applicable)",
+  }),
 ]);
 
 /** Reads the secret-store reference for an env var, or undefined when absent. */
