@@ -24,15 +24,7 @@
     "AIRWALLEX",
     "EBANX"
   ],
-  "active_work_orders": [
-    {
-      "id": "P2-W3-003",
-      "owner": "worker-3",
-      "status": "ACTIVE",
-      "dispatched_at": "2026-10-02",
-      "branch": "work/P2-W3-003"
-    }
-  ],
+  "active_work_orders": [],
   "frontier": [
     {
       "id": "P2-W1-003",
@@ -58,11 +50,13 @@
     {
       "id": "P2-W3-003",
       "owner": "worker-3",
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "depends_on": [
         "P2-W1-003",
         "P2-W2-003"
-      ]
+      ],
+      "merged_at": "41bc5c6",
+      "verification": "battery 2668/2666 (baseline 2579 + 89 rollout tests); root typecheck 0; verify:repo green; secret byte-scan clean; release record reproducible (two runs byte-identical); all 11 acceptance lines delivered + tested"
     }
   ],
   "max_concurrent_workers": 3,
@@ -145,5 +139,19 @@
   ],
   "wave_1_status": "COMPLETE 2026-10-02 \u2014 control plane (P2-W1-001) + Stripe (P2-W2-001, live-verified 7/7) + MTN MoMo/Flutterwave/Paystack (P2-W3-001, live-verified 8/8; MTN MoMo honestly BLOCKED pending a valid subscription key); battery 2051/2051; no provider secret in Git",
   "wave_2_status": "COMPLETE 2026-10-02 \u2014 PayPal Direct + generic global payout controls (P2-W1-002: 93+38 tests, live 401 datum re-verified, payouts observation-only + six-gate control plane); Rapyd/dLocal/Thunes (P2-W2-002: 152 tests, Rapyd 401 + dLocal root-200 + Thunes GLOBALLY-NXDOMAIN honest data, coverage law executable, KYC/beneficiary preconditions); Adyen/Airwallex/EBANX (P2-W3-002: 149 tests, Adyen 401 + Airwallex 403 + EBANX 401 honest data, EBANX on the current integration-key + query-back path). No Wave-2 provider credential held \u2014 every connector REAL-mapped and fail-closed (INV-NC04) per BLOCKED-RAILS.md sections 6-12. Battery 2483/2483, root typecheck clean, verify:repo green, secret byte-scan clean. Resident-watch TL completion of worker deliveries (workers hit context deadlines after producing code \u2014 the established honest division).",
-  "wave_3_status": "IN PROGRESS \u2014 P2-W1-003 COMPLETE (coverage-gap case workflow with the five-cause classifier, narrowest-integration selection, direct-local onboarding with the browser-session isolation law, no-bypass executable law, sanctioned-market policy; Stellar testnet local rail with zero-dependency StrKey/XDR/ed25519, REAL live-proven testnet submission round-trip 2026-10-02, GHS\u2192USDC\u2192KES corridor representation; battery 2571/2571, root typecheck clean, verify:repo green, secret scan clean). P2-W2-003 dispatched next (cross-provider lifecycle/conformance certification); P2-W3-003 follows."
+  "wave_3_status": "IN PROGRESS \u2014 P2-W1-003 COMPLETE (coverage-gap case workflow with the five-cause classifier, narrowest-integration selection, direct-local onboarding with the browser-session isolation law, no-bypass executable law, sanctioned-market policy; Stellar testnet local rail with zero-dependency StrKey/XDR/ed25519, REAL live-proven testnet submission round-trip 2026-10-02, GHS\u2192USDC\u2192KES corridor representation; battery 2571/2571, root typecheck clean, verify:repo green, secret scan clean). P2-W2-003 dispatched next (cross-provider lifecycle/conformance certification); P2-W3-003 follows.",
+  "phase_complete": {
+    "status": "PHASE 2 COMPLETE \u2014 all waves (1, 2, 3) merged and certified",
+    "final_main": "41bc5c6",
+    "battery": 2668,
+    "closed_at": "2026-10-02",
+    "do_not_redispatch": true,
+    "evidence": [
+      "Wave 1: f184e12 (control plane + Stripe/Paystack/Flutterwave, CI green)",
+      "Wave 2: 2a7732d (7 more real connectors + payout controls, CI green)",
+      "Wave 3 W1-003: e446ef1 (coverage-gap program + Stellar testnet local rail live-proven)",
+      "Wave 3 W2-003: d536339 (cross-provider conformance certified: 39 pairs, 31 executed ALL PASS + 8 honest N/A)",
+      "Wave 3 W3-003: 41bc5c6 (production rollout release record + browser/operator verification)"
+    ]
+  }
 }
