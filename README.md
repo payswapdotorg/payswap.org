@@ -45,3 +45,12 @@ The bootstrap contains no mock financial implementation. Simulation is reserved 
 Run:
 
 npm run verify:repo
+
+
+## Phase 2 — Real Provider Activation
+
+The certified implementation phase is complete. Phase 2 activates real financial providers and closes executable geographic/payment-method coverage gaps.
+
+Start here: `docs/FINAL-TL-HANDOFF-PHASE-2-2026-10-02.md` and `spec/research/PROVIDER-COVERAGE-STRATEGY-2026-10-02.md`.
+
+Phase 2 frontier: P2-W1-001, P2-W2-001, P2-W3-001. Maximum concurrency remains three.

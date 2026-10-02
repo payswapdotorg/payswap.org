@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "phase": "2",
+  "name": "real-provider-activation-and-global-coverage",
+  "date": "2026-10-02",
+  "architecture_version": "1.5-frozen-2026-09-30",
+  "source_of_truth": "repository",
+  "previous_phase": {
+    "work_orders": "21/21 COMPLETE",
+    "historical_release": "73a26002a22064c5bcae4332be7e3bce494d0c13"
+  },
+  "operator_supplied_providers": [
+    "STRIPE",
+    "MTN_MOMO",
+    "FLUTTERWAVE",
+    "PAYSTACK"
+  ],
+  "required_additional_providers": [
+    "PAYPAL_DIRECT",
+    "RAPYD",
+    "DLOCAL",
+    "THUNES",
+    "ADYEN",
+    "AIRWALLEX",
+    "EBANX"
+  ],
+  "active_work_orders": [],
+  "frontier": [
+    {
+      "id": "P2-W1-001",
+      "owner": "worker-1",
+      "status": "READY",
+      "depends_on": []
+    },
+    {
+      "id": "P2-W2-001",
+      "owner": "worker-2",
+      "status": "READY",
+      "depends_on": []
+    },
+    {
+      "id": "P2-W3-001",
+      "owner": "worker-3",
+      "status": "READY",
+      "depends_on": []
+    }
+  ],
+  "max_concurrent_workers": 3,
+  "policy": {
+    "pairwise_disjoint": true,
+    "activate_only_from_frontier": true,
+    "no_secret_commit": true,
+    "no_simulated_financial_effect": true,
+    "provider_catalogue_never_authorizes": true,
+    "provider_state_lossless": true,
+    "historical_records_immutable": true
+  },
+  "gates": [
+    "vault_reference_bound",
+    "live_authentication_probe",
+    "connected_instance_scope_verified",
+    "capability_observation_verified",
+    "webhook_signature_verified",
+    "idempotency_verified",
+    "unknown_reconciliation_verified",
+    "provider_state_lossless_verified",
+    "evidence_lineage_verified",
+    "sandbox_conformance_verified",
+    "live_canary_authorized",
+    "coverage_matrix_updated",
+    "browser_real_path_verified"
+  ]
+}
