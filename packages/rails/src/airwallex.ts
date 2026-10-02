@@ -1725,7 +1725,12 @@ export class AirwallexConnector extends ConnectorSDK {
       };
     }
     try {
-      await this.#withCredentials(async () => undefined);
+      // The real probe: acquire the bearer token through the authenticated
+      // login (POST /api/v1/authentication/login) — no business object is
+      // touched.
+      await this.#withCredentials(async (credentials) => {
+        await this.#bearerToken(credentials);
+      });
       return { ...base, status: "HEALTHY", lastCheckedAt, degradedReasons: [] };
     } catch (error) {
       if (error instanceof RailTransportError) {
