@@ -88,7 +88,7 @@ export class RailProviderError extends PaySwapError {
 export type HttpTransport = (
   url: string,
   init: {
-    readonly method: "GET" | "POST";
+    readonly method: "GET" | "POST" | "DELETE";
     readonly headers: Readonly<Record<string, string>>;
     readonly body?: string;
     readonly timeoutMs?: number;
@@ -223,6 +223,13 @@ export const RAIL_CREDENTIAL_ENV_VARS: readonly CredentialSourceDeclaration[] = 
     kind: "PROVIDER_DEFINED",
     description: "Secret-store reference holding the provisioned MTN MoMo API user secret",
   }),
+  Object.freeze({
+    railId: "rail.stripe",
+    envVar: "PROVIDER_STRIPE_CREDENTIAL_REF",
+    kind: "API_KEY",
+    description:
+      "Control-plane credential reference for the Stripe production connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle material opens only through the CredentialBroker connector-runtime path)",
+  }),
 ]);
 
 /** Reads the secret-store reference for an env var, or undefined when absent. */
@@ -279,6 +286,12 @@ export interface RailEnvelopeInput {
   readonly actionRequired?: ProviderActionRequired;
   readonly failure?: ProviderFailureMetadata;
   readonly history?: readonly ProviderStateTransition[];
+  /**
+   * Provider-object-specific shareable-field surface (privacy metadata
+   * ONLY — never payload). Defaults to the package-wide surface so existing
+   * callers are unchanged; the Stripe connector passes its own field list.
+   */
+  readonly shareableFields?: readonly string[];
 }
 
 /**
@@ -304,7 +317,9 @@ export function railEnvelope(input: RailEnvelopeInput): ProviderStateEnvelope {
     privacy: {
       dataClassification: "PUBLIC",
       constraints: ["provider-technical-payload"],
-      shareableFields: ["status", "revision", "blockHash", "confirmations"],
+      shareableFields: [
+        ...(input.shareableFields ?? ["status", "revision", "blockHash", "confirmations"]),
+      ],
     },
     timestamps: { observedAt: input.observedAt },
     provenance: {

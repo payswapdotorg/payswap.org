@@ -1,4 +1,4 @@
-# CREDENTIAL ROTATION — @payswap/rails (W1-005)
+# CREDENTIAL ROTATION — @payswap/rails (W1-005; Stripe production path P2-W2-001)
 
 Every rail adapter in this package declares its credential surface as
 **env-driven secret-store references**. No secret value is ever read into a
@@ -44,9 +44,48 @@ rotation auditable (INV-E02/E05) without ever exposing the secret.
 | Mobile money (MTN MoMo) | `PAYSWAP_RAILS_MOMO_SUBSCRIPTION_KEY_REF` | subscription key | MTN developer portal | as above |
 | Mobile money (MTN MoMo) | `PAYSWAP_RAILS_MOMO_API_USER_REF` | API user id | MTN provisioning | as above |
 | Mobile money (MTN MoMo) | `PAYSWAP_RAILS_MOMO_API_KEY_REF` | API user secret | MTN provisioning | as above |
+| Stripe (production connector) | `PROVIDER_STRIPE_CREDENTIAL_REF` | control-plane vault reference → sealed bundle | PaySwap ops via Stripe Dashboard + vault swap (below) | `CredentialRotationResult.evidence` (AUDIT_LOG) + provider-activation records |
 | Crypto (Ethereum public JSON-RPC) | — (none: public endpoint) | — | — | endpoint documented in BLOCKED-RAILS.md |
 | FX (ECB reference rates) | — (none: public feed) | — | — | endpoint documented in BLOCKED-RAILS.md |
 
 The env-var names are exported programmatically as
 `RAIL_CREDENTIAL_ENV_VARS` (src/support.ts) so configuration surfaces can
 render the exact required declarations; the VALUES never enter package code.
+
+## Stripe production connector rotation path (swap-reference-then-verify)
+
+The production Stripe connector (`src/stripe.ts`, P2-W2-001) resolves its
+credential EXCLUSIVELY through the P2-W1-001 control plane: the configuration
+key `PROVIDER_STRIPE_CREDENTIAL_REF` is bound (at the vault, not in the repo)
+to a `vault://…` reference, and the sealed bundle material opens only inside
+`CredentialBroker.withSealedBundle` with a registered `ConnectorRuntimeKey` —
+material exists solely inside that callback frame. Rotation is
+**swap-reference-then-verify**:
+
+1. the NEW key is provisioned at Stripe (Dashboard → Developers → API keys;
+   restricted keys with the minimum scopes are the norm) — never by the
+   adapter;
+2. the vault binding for `PROVIDER_STRIPE_CREDENTIAL_REF` is swapped to the
+   new credential object (either the same `vault://` reference now resolves
+   the new bundle, or the binding moves to a new reference — the connector
+   re-resolves on EVERY provider call, so the swap is picked up immediately,
+   with no restart and no cached material);
+3. `rotateCredentials` is invoked with an `AdapterExecutionAuthority` and an
+   idempotency key: the connector re-resolves, verifies the new reference
+   DIFFERS from the recorded baseline (fail-closed: an unchanged reference
+   refuses the rotation), records the AUDIT_LOG evidence and returns the new
+   opaque `newCredentialRef`;
+4. verification BEFORE revocation: the adapter confirms the new credential
+   serves a successful authenticated read (`health()` → GET /v1/account).
+   Only then is the OLD key revoked at Stripe — no rotation outage window;
+5. the authorization lineage is carried by the phase-2 control-plane records
+   (the provider-activation records behind
+   spec/development-state/phase-2-state.json and the probe evidence in
+   provider-probes-20261002.json); the rotation evidence node is retained
+   immutably (INV-E05).
+
+An env-resolved fallback exists for deployments that inject the resolved key
+material directly under the same configuration key (the W1-005 rails
+convention): there the baseline is an HMAC fingerprint of the material (the
+material itself is never stored), and the same verify-before-revoke steps
+apply. Cadence: Stripe manual/rolling 90-day keys.
