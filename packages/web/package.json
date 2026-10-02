@@ -1,0 +1,36 @@
+{
+  "name": "@payswap/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Public product surface of PaySwap (Work Order P3-W1-001): the public website — product homepage, honest capabilities/coverage explorer over the recorded provider-probe evidence, security & non-custody page, developer entry, the honest authenticated entry boundary (/app) and the health endpoint. A consumer of the authoritative PaySwap API; holds no financial state of its own.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "^16.3.8",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
