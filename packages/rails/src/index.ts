@@ -39,6 +39,39 @@
  *   observed-not-assumed account capability scope, the PayPal-on-Stripe
  *   eligibility datum (distinct from PayPal Direct) and the GHS negative
  *   datum as a non-routable eligibility fact.
+ * - Paystack production connector (`src/paystack.ts`, P2-W3-001): the REAL
+ *   Paystack adapter — hosted payment initialization + verify lifecycle
+ *   (the reference preserved as the external id, statuses verbatim,
+ *   pending/abandoned/failed/success/paid/reversed classified, verify-timeout
+ *   never FAILED), X-Paystack-Signature HMAC-SHA512 webhook verification
+ *   (constant-time, raw-body, no fabricated timestamp scheme), bank
+ *   enumeration as capability/eligibility evidence (GHS ghipss/NGN/KES/ZAR
+ *   probe-verified), refunds, exact minor-unit amounts (kobo/pesewas/cents),
+ *   credentials through the control plane
+ *   (PROVIDER_PAYSTACK_CREDENTIAL_REF → sealed bundle), honest
+ *   unsupported-country states (UNKNOWN, never assumed).
+ * - Flutterwave production connector (`src/flutterwave.ts`, P2-W3-001): the
+ *   REAL Flutterwave v3 adapter — hosted-checkout transaction lifecycle
+ *   (numeric tx id + statuses verbatim: successful/failed/pending/reversed),
+ *   the 31-currency wallet observation (incl. the USDC/USDT/RLUSD stablecoin
+ *   wallets) as ExternalFundsPositionObservation ONLY (INV-C09 — never
+ *   custody, exact bigint major→minor conversion), verif-hash webhook
+ *   verification (constant-time secret compare — the scheme signs NO
+ *   payload), refunds where supported, credentials through the control
+ *   plane (PROVIDER_FLUTTERWAVE_CREDENTIAL_REF → sealed bundle),
+ *   eligibility from the probe-verified wallet currencies.
+ * - Mobile-money rail (`src/mobile-money.ts`): customer-action-required +
+ *   mandate semantics preserved; USSD/push patterns represented through
+ *   provider state, never flattened (INV-C06); EXTENDED (P2-W3-001) to the
+ *   real MTN MoMo API mapping — OAuth2 Basic token acquisition,
+ *   requesttopay lifecycle with X-Reference-Id idempotency and
+ *   X-Target-Environment, status-polling reconciliation (reason codes
+ *   verbatim), account balance as an ExternalFundsPositionObservation — and
+ *   the honest BLOCKED state: the 2026-10-02 probe recorded the sandbox
+ *   subscription key rejected at the APIM gate (HTTP 401, collection/
+ *   disbursement/remittance), so availability stays UNKNOWN, control-plane
+ *   provider calls refuse citing the recorded datum, and NO simulated
+ *   substitute exists (lifted only by a successful authenticated re-probe).
  *
  * NO SIMULATED SETTLEMENT: an adapter that cannot reach a real provider
  * fails or reports UNKNOWN — it never fabricates a settlement effect, and
@@ -55,3 +88,5 @@ export * from "./fx-source.js";
 export * from "./reconciliation-connectors.js";
 export * from "./incidents.js";
 export * from "./stripe.js";
+export * from "./paystack.js";
+export * from "./flutterwave.js";
