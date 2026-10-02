@@ -146,8 +146,22 @@ All 16 routes are directly reachable unauthenticated; each renders the shell
 | Route | Check | Method | Evidence |
 |---|---|---|---|
 | `/api/health` | 200 JSON; no viewport applies | **B** (fetch) | `manifest.json` entry |
-| `/app/nonsense` | 404 + the honest unmatched-path notice (deep links never silently redirect) | **B, L** | `evidence/probe-app-unknown--*.png` |
+| `/app/nonsense` | 404 + the honest unmatched-path notice | **B, L** | `evidence/probe-app-unknown--*.png` |
 | `/does-not-exist` | 404 + root not-found with a working "Back to home" link | **B, D, L** | `evidence/probe-root-404--*.png` |
+
+**Ground truth recorded (verified against BOTH the deployed build and a
+local production build of this source):** for a FULLY-unmatched `/app/*`
+path, Next.js 16 serves the ROOT `not-found.tsx` ("Page not found", which
+itself explains that Command Center deep links live under `/app`). The
+app-group `app/app/not-found.tsx` ("Unrecognized Command Center path")
+only renders for `notFound()` calls thrown inside a MATCHED `/app` segment
+— no live trigger exists today. Both notices are honest 404s with working
+links; the harness marker accepts the truthful union and records the
+behavior per run. The `app/not-found.tsx` docstring's broader claim
+("unmatched /app/* paths render this notice") is a semantic mismatch
+worth a future catch-all route decision — documented here for the TL, not
+changed unilaterally by this work order (no suite proves a defect: the
+404 rendered is honest and the deep-link inventory is fully intact).
 
 ## 5. Cross-cutting contracts (every route)
 
@@ -177,8 +191,16 @@ All 16 routes are directly reachable unauthenticated; each renders the shell
   component-contract level instead and listed for the TL's authenticated
   pass.
 - **B** ran in the Worker-2 sandbox against the deployed site at base
-  `8f6eedb`. Defect fixes made on this branch (see the work report) are
-  proven by the vitest suites; the TL re-runs `verify-visual.mjs` after
-  merge+redeploy to confirm them live:
+  `8f6eedb` — **56/56 route×viewport cells PASS, 0 console errors, 0
+  horizontal-overflow failures, 0 broken deep links** (see
+  `evidence/manifest.json`). A SECOND run verified a local production
+  build of this branch (which carries the defect fixes) into
+  `evidence-local/` — also 56/56 PASS, and the live skip-link keyboard
+  check records focus landing on `#main-content` (`activeId:
+  "main-content"`), proving defect fix D1 in a real browser.
+- Defect fixes made on this branch (see the work report) are proven by the
+  vitest suites and the local harness run; the TL re-runs
+  `verify-visual.mjs` after merge+redeploy to confirm them on the
+  deployment:
   `node packages/web/scripts/verify-visual.mjs` (env overrides:
   `VERIFY_VISUAL_BASE_URL`, `VERIFY_VISUAL_BROWSER`, `VERIFY_VISUAL_EVIDENCE_DIR`).

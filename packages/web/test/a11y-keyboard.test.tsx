@@ -367,7 +367,10 @@ describe("keyboard: Tabs roving tabindex (WAI-ARIA pattern)", () => {
 
   it("ArrowRight/ArrowLeft move focus AND selection with wrap; Home/End work", () => {
     render(<Tabs label="Sections" items={items} defaultValue="a" />);
-    const [a, b, c] = screen.getAllByRole("tab");
+    const tabs = screen.getAllByRole("tab");
+    const a = tabs[0]!;
+    const b = tabs[1]!;
+    const c = tabs[2]!;
     const tablist = screen.getByRole("tablist");
 
     fireEvent.keyDown(tablist, { key: "ArrowRight" });

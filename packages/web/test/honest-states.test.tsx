@@ -235,7 +235,7 @@ describe("honest states: loading is transport-level only", () => {
 
   it("Skeleton announces politely with a label", () => {
     const markup = renderToStaticMarkup(
-      <Skeleton count={3} label="Loading payments" />,
+      <Skeleton count={3} announce="Loading payments" />,
     );
     expect(markup).toContain('role="status"');
     expect(markup).toContain('aria-live="polite"');
@@ -247,8 +247,7 @@ describe("honest states: loading is transport-level only", () => {
 
 const INSTANCE_RECORD = {
   instanceId: asConnectedCapabilityInstanceId("inst_pay_1"),
-  providerName: "stripe",
-  capability: "payment.send" as const,
+  providerId: "stripe",
   connectedAt: "2026-10-02T12:00:00Z",
   state: "ACTIVE" as const,
 };

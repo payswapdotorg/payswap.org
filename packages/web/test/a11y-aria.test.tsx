@@ -321,10 +321,11 @@ describe("aria: live regions announce with the right politeness", () => {
 
   it("Skeleton loading is announced politely", () => {
     const markup = renderToStaticMarkup(
-      <Skeleton count={3} label="Payments" />,
+      <Skeleton count={3} announce="Loading payments" />,
     );
     expect(markup).toContain('role="status"');
     expect(markup).toContain('aria-live="polite"');
+    expect(markup).toContain("Loading payments");
   });
 });
 
