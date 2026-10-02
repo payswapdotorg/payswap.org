@@ -183,3 +183,23 @@ connector, applied to `PROVIDER_ADYEN_CREDENTIAL_REF`,
    (Adyen: the API key answers; Airwallex: a real login token issuance;
    EBANX: an authenticated /ws/query round-trip); only then is the OLD
    credential deactivated at the provider.
+
+## Stellar testnet local rail rotation (P2-W1-003)
+
+The vault bundle {secretSeed, accountPublic, networkPassphrase} rotates by
+the same swap-reference-then-verify pattern:
+1. generate/provision the NEW seed into the vault under a NEW reference
+   (the account must be funded and, for the USDC corridor leg, the
+   trustline re-established via the change-trust op);
+2. swap `PROVIDER_STELLAR_TESTNET_CREDENTIAL_REF` to the new reference
+   (the connector re-resolves per call — no restart);
+3. `rotateCredentials` verifies the new reference DIFFERS from the baseline
+   (fail-closed otherwise) and records the AUDIT_LOG evidence (INV-E05);
+4. verification BEFORE deactivation: a real value-conserving self-payment
+   round-trip on the new seed (the live suite's submission test);
+5. only then is the OLD seed abandoned (testnet keys carry no balance
+   custody — the observation law (INV-C09) holds for both).
+
+The network passphrase is consistency-checked at every submission: a bundle
+whose passphrase does not match the connector's network refuses BEFORE any
+network call (no cross-network signing, ever).
