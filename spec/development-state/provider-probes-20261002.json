@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "record_type": "provider-probe-evidence",
+  "phase": "REAL PROVIDER ACTIVATION + GLOBAL COVERAGE",
+  "record": "phase2-provider-probes",
+  "probedAt": "2026-10-02T06:37:38Z",
+  "operatorInput": "credential batch delivered 2026-10-02 (Stripe, MTN MoMo, Flutterwave, Paystack + Stellar testnet wallet, WhatsApp, Resend, OpenSanctions)",
+  "law": "operator input is NOT proof of integration; every verdict below derives from a live probe against the provider's real API; raw secrets live only in the operator vault (never in git)",
+  "probes": {
+    "stripe": {
+      "mode": "SCOPED_API_CREDENTIAL (test)",
+      "authentication": "VERIFIED",
+      "account": {
+        "id": "acct_1FPs7UAkPdhgtN6I",
+        "country": "FR",
+        "business_type": "sole_prop",
+        "created": "2019-10-04",
+        "charges_enabled": true,
+        "payouts_enabled": null,
+        "details_submitted": true,
+        "default_currency": "usd",
+        "livemode": false
+      },
+      "capabilities_active": [
+        "card_payments",
+        "transfers",
+        "bancontact",
+        "blik",
+        "eps",
+        "giropay",
+        "ideal",
+        "klarna",
+        "link",
+        "p24",
+        "sofort"
+      ],
+      "capabilities_other": {
+        "cartes_bancaires": "pending",
+        "sepa_debit": "inactive"
+      },
+      "balance_test": {
+        "available": [
+          {
+            "currency": "usd",
+            "amount": 6978366
+          },
+          {
+            "currency": "eur",
+            "amount": 14748
+          }
+        ]
+      },
+      "paypal_on_stripe_eligibility": {
+        "probe": "test-mode PaymentIntent payment_method_types=[paypal]",
+        "result": "ACCEPTED (pi_3UM04TAkPdhgtN6I0CQcJZZg created, then canceled)",
+        "verdict": "ELIGIBLE"
+      },
+      "ghs_eligibility": {
+        "probe": "test-mode PaymentIntent currency=ghs",
+        "result": "REJECTED: 'Stripe accounts in FR do not support ghs'",
+        "verdict": "NOT_ELIGIBLE (negative datum for coverage matrix; Ghana-local collection routes via Paystack/Flutterwave/MTN)"
+      },
+      "webhook_secret": "present in vault; unproven until a webhook endpoint is registered and an event received (Phase 2 Wave 1)"
+    },
+    "paystack": {
+      "mode": "SCOPED_API_CREDENTIAL (test)",
+      "authentication": "VERIFIED",
+      "bank_rails": {
+        "GHS": "ghipss rails live (e.g. Absa Bank Ghana, supports_transfer)",
+        "NGN": 287,
+        "KES": 54,
+        "ZAR": 33
+      },
+      "verdict": "ELIGIBLE for GH/NG/KE/ZA local collection",
+      "webhook_secret_note": "Paystack signs webhooks with HMAC-SHA512 using the secret key per public docs; operator-supplied webhook secret stored as auxiliary vault material"
+    },
+    "flutterwave": {
+      "mode": "SCOPED_API_CREDENTIAL (test)",
+      "authentication": "VERIFIED",
+      "wallet_currencies": 31,
+      "wallet_balances_nonzero": [
+        {
+          "currency": "USDC",
+          "amount": 1234.56
+        },
+        {
+          "currency": "USDT",
+          "amount": 789.01
+        },
+        {
+          "currency": "RLUSD",
+          "amount": 20004.01
+        }
+      ],
+      "fiat_wallets": [
+        "NGN",
+        "KES",
+        "GHS",
+        "USD",
+        "EUR",
+        "ZAR",
+        "BRL",
+        "XAF",
+        "XOF",
+        "MWK",
+        "EGP",
+        "AED",
+        "MAD",
+        "AUD",
+        "CAD",
+        "MYR",
+        "CNY",
+        "ZMW",
+        "INR",
+        "MUR",
+        "ETB",
+        "JPY",
+        "GBP",
+        "TZS",
+        "UGX",
+        "MZN",
+        "RWF"
+      ],
+      "verdict": "ELIGIBLE for pan-African + multi-currency collection; stablecoin wallets materially relevant to the Stellar USDC local-rail path"
+    },
+    "mtn_momo": {
+      "mode": "SCOPED_API_CREDENTIAL (sandbox)",
+      "authentication": "BLOCKED",
+      "detail": "subscription key rejected at the APIM gate (HTTP 401 'Access denied due to invalid subscription key') on collection, disbursement and remittance products; API-user/API-key never evaluated",
+      "verdict": "OPERATOR INPUT RECORDED, NOT INTEGRATION PROOF \u2014 connector work proceeds against the documented MTN MoMo API contract with fail-closed blocked-probe status; re-probe when a valid subscription key is supplied",
+      "environment": "sandbox"
+    },
+    "stellar_testnet": {
+      "mode": "PROVIDERLESS_RAIL / local rail (operator: purely for testing; cross-border GHS->USDC(Stellar)->KES proof vehicle)",
+      "authentication": "N/A (keypair custody, account-scoped)",
+      "account": {
+        "public_key": "GCLTVZUFMYRED23FTBF5Q6Y5Q7B6I7I3IUG3QABBQWJLYFMPHEMMMQ5X",
+        "funded": true,
+        "native_balance": "9999.99993 XLM",
+        "sequence": "17042687928565767",
+        "signers": 1,
+        "flags": "auth_required=false, auth_revocable=false, auth_immutable=false"
+      },
+      "verdict": "READY for contract deployment + USDC path testing"
+    },
+    "whatsapp": {
+      "mode": "platform notification service (not a payment rail)",
+      "authentication": "VERIFIED",
+      "number": {
+        "display": "+1 555-671-1861",
+        "verified_name": "Test Number",
+        "platform": "CLOUD_API",
+        "code_verification_status": "NOT_VERIFIED",
+        "quality_rating": "UNKNOWN",
+        "throughput": "STANDARD"
+      },
+      "verdict": "SANDBOX-GRADE VERIFIED"
+    },
+    "resend": {
+      "mode": "platform email service (not a payment rail)",
+      "authentication": "KEY AUTHENTICATES (restricted_api_key class)",
+      "detail": "key is send-restricted; /domains listing denied (expected); /send probe with onboarding@resend.dev denied (allowed sender domain unknown from this vantage)",
+      "verdict": "UNVERIFIED-SEND \u2014 needs the operator's verified sender domain; fail-closed until then"
+    },
+    "opensanctions": {
+      "mode": "AML/sanctions screening service (not a payment rail)",
+      "authentication": "VERIFIED",
+      "capability": "search/default returns PEP/sanction matches (probe: Sebastian Kurz -> Q2262885, role.pep)",
+      "verdict": "VERIFIED for screening integration"
+    }
+  },
+  "vaultReconciliation": {
+    "contract": "PROVIDER_<NAME>_CREDENTIAL_REF",
+    "refs": {
+      "PROVIDER_STRIPE_CREDENTIAL_REF": "vault://payswap/providers/stripe/test-20261002",
+      "PROVIDER_MTN_MOMO_CREDENTIAL_REF": "vault://payswap/providers/mtn-momo/sandbox-20261002",
+      "PROVIDER_FLUTTERWAVE_CREDENTIAL_REF": "vault://payswap/providers/flutterwave/test-20261002",
+      "PROVIDER_PAYSTACK_CREDENTIAL_REF": "vault://payswap/providers/paystack/test-20261002",
+      "PROVIDER_STELLAR_TESTNET_CREDENTIAL_REF": "vault://payswap/rails/stellar/testnet-20261002"
+    },
+    "rule": "vault objects hold the complete provider credential bundle; repo + manifests carry references only"
+  }
+}

@@ -24,12 +24,20 @@
     "AIRWALLEX",
     "EBANX"
   ],
-  "active_work_orders": [],
+  "active_work_orders": [
+    {
+      "id": "P2-W1-001",
+      "owner": "worker-1",
+      "status": "ACTIVE",
+      "activated_at": "2026-10-02",
+      "activation_evidence": "spec/development-state/provider-probes-20261002.json (vault refs reconciled, live probes executed 2026-10-02)"
+    }
+  ],
   "frontier": [
     {
       "id": "P2-W1-001",
       "owner": "worker-1",
-      "status": "READY",
+      "status": "ACTIVE",
       "depends_on": []
     },
     {
