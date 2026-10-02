@@ -167,3 +167,19 @@ a host change must be recorded as NEW verified `ThunesEndpointEvidence`
 dLocal note: the V2-HMAC-SHA256 canonicalization is confirmed live as
 part of the FIRST authenticated probe (the honest-uncertainty record in
 BLOCKED-RAILS.md §8); a rotation re-runs that confirmation.
+## Wave-2 provider-neutral connectors (P2-W3-002: Adyen, Airwallex, EBANX)
+
+The same swap-reference-then-verify pattern as every control-plane
+connector, applied to `PROVIDER_ADYEN_CREDENTIAL_REF`,
+`PROVIDER_AIRWALLEX_CREDENTIAL_REF`, `PROVIDER_EBANX_CREDENTIAL_REF`:
+
+1. provision the NEW credential into the vault under a NEW reference;
+2. swap the vault binding for the provider's config key (the connectors
+   re-resolve on every call — no restart);
+3. `rotateCredentials` with an `AdapterExecutionAuthority` + idempotency
+   key: the new reference must DIFFER from the recorded baseline
+   (fail-closed otherwise); AUDIT_LOG evidence retained (INV-E05);
+4. verification BEFORE revocation: a real authenticated health probe
+   (Adyen: the API key answers; Airwallex: a real login token issuance;
+   EBANX: an authenticated /ws/query round-trip); only then is the OLD
+   credential deactivated at the provider.

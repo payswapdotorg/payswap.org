@@ -379,6 +379,90 @@ Status as of 2026-10-02 — the HONEST blocked state:
   NO guessed host. The gate lifts ONLY through newer verified endpoint
   evidence supplied at construction (`endpointEvidence` with
   `status: "RESOLVED"` and the confirmed host) plus real credentials.
+## 10. Adyen production connector (`src/adyen.ts`, P2-W3-002) — credential ABSENT, endpoint reachable
+
+The real Adyen connector (`AdyenConnector` + `AdyenProductionRail`) speaks the
+Adyen Checkout API v70 over the injected HTTP transport (X-API-Key header):
+the lossless resultCode mapping (Authorised/Refused/Received/Pending/
+RedirectShopper/ChallengeShopper/IdentifyShopper/PresentToShopper/
+ConfirmationPending/Cancelled) with the shopper-action codes as first-class
+CustomerActionRequirement carrying the provider `action` object verbatim,
+POST /v70/payments/details completion, the asynchronous modification suite
+(captures/refunds/cancels/reversals — processing until webhook evidence),
+event codes preserved verbatim in evidence, the webhook verifier
+(base64 HMAC-SHA256 over the raw body, constant-time, (provider, eventId)
+dedupe), the deterministic reference (INV-F05), and payout as a DISTINCT
+observation-only family (INV-C09). Status as of 2026-10-02:
+
+- **Credential: ABSENT** — the vault holds NO Adyen material; the
+  control-plane reference `PROVIDER_ADYEN_CREDENTIAL_REF` has no sealed
+  bundle.
+- **Reachability (probed 2026-10-02, re-verified live)**:
+  `https://checkout-test.adyen.com/v70/paymentMethods` answers `HTTP 401`
+  WITHOUT credentials — endpoint REACHABLE, API key required (INV-C01/C02).
+- **Access required**: an Adyen **API key** (Client Certificate OR API key
+  authentication per the account's configuration) from the Customer Area,
+  plus the webhook shared secret (HMAC) for the live delivery confirmation.
+- **Who must grant it**: the merchant/account owner through the Adyen
+  Customer Area (Developers → API credentials).
+- **Until granted**: the fail-closed law (INV-NC04); local payment methods
+  and currencies are exposed ONLY when observed enabled on the connected
+  account (the work order's acceptance — never the marketing catalogue).
+
+## 11. Airwallex production connector (`src/airwallex.ts`, P2-W3-002) — credential ABSENT, endpoint reachable
+
+The real Airwallex connector (`AirwallexConnector` +
+`AirwallexProductionRail`) speaks the Airwallex API v1 over the injected
+HTTP transport (Basic base64(client_id:client_secret) login → Bearer
+token): payment-intent lifecycle with statuses verbatim
+(PENDING/AUTHORIZED/CAPTURED/FAILED/CANCELLED/EXPIRED/SETTLED), the
+X-Signature webhook verifier (hex HMAC-SHA256 over the raw body,
+constant-time, (provider, eventId) dedupe), request_id idempotency with a
+duplicate error class (INV-F05), balances as ExternalFundsPositionObservation
+ONLY (INV-C09), and payouts as a DISTINCT family with explicit
+beneficiaries. Status as of 2026-10-02:
+
+- **Credential: ABSENT** — no Airwallex client pair exists in the vault;
+  the control-plane reference `PROVIDER_AIRWALLEX_CREDENTIAL_REF` has no
+  sealed bundle.
+- **Reachability (probed 2026-10-02, re-verified live)**:
+  `https://api-demo.airwallex.com/api/v1/authentication/login` answers
+  `HTTP 403` WITHOUT credentials — endpoint REACHABLE, authentication
+  required (INV-C01/C02).
+- **Access required**: an Airwallex **client_id + client_secret** pair
+  (demo first, live after onboarding) plus the webhook signing secret.
+- **Who must grant it**: the merchant/account owner through the Airwallex
+  dashboard (Settings → API keys).
+- **Until granted**: the fail-closed law (INV-NC04).
+
+## 12. EBANX production connector (`src/ebanx.ts`, P2-W3-002) — credential ABSENT, endpoint reachable
+
+The real EBANX connector (`EbanxConnector` + `EbanxProductionRail`) speaks
+the CURRENT SUPPORTED SIGNING/AUTHENTICATION PATH — the integration-key
+Direct surface (`/ws/direct`, `/ws/query`, `/ws/refund`, T-Claim payouts)
+with QUERY-BACK webhook verification (a notification is never trusted as
+final evidence; the authoritative state comes from the /ws/query
+round-trip): two-letter statuses verbatim (PE/OP = pending/open with
+voucher-class customer action, CO = confirmed settled-external, CA =
+cancelled), refund statuses (RE/CO/CA), the merchant_payment_code
+deterministic derivation (INV-F05) with the duplicate error class, the
+country/method catalogue carried as DOCUMENTED_NOT_OBSERVED (never
+routable evidence — only connected-account observations are), and balances
+as observations (INV-C09). Status as of 2026-10-02:
+
+- **Credential: ABSENT** — no EBANX integration key exists in the vault;
+  the control-plane reference `PROVIDER_EBANX_CREDENTIAL_REF` has no
+  sealed bundle.
+- **Reachability (probed 2026-10-02, re-verified live)**:
+  `https://sandbox.ebanx.com/ws/query` answers `HTTP 401` WITHOUT
+  credentials — endpoint REACHABLE, integration key required (INV-C01/C02).
+- **Access required**: an EBANX **integration key** (sandbox first, live
+  after the merchant agreement) plus the notification URL registration.
+- **Who must grant it**: the merchant/account owner through the EBANX
+  merchant dashboard.
+- **Until granted**: the fail-closed law (INV-NC04); the query-back
+  verification path is implemented and unit-tested — the live notification
+  round-trip is the remaining datum once credentials exist.
 
 ## Not blocked (exercised against genuinely reachable public endpoints)
 
