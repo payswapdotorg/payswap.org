@@ -141,23 +141,32 @@ const nextConfig: NextConfig = {
     // scheme while the protocol packages stay untouched.
     const monorepoRoot = path.join(webRoot, "..", "..");
     const shim = path.join(webRoot, "src", "shims", "empty-module.ts");
-    const interfacesSrc = path.join(monorepoRoot, "packages", "interfaces", "src");
-    const aliased: Record<string, string> = {
-      [path.join(interfacesSrc, "webhooks.ts")]: shim,
-      [path.join(interfacesSrc, "approval.ts")]: shim,
-    };
-    // The conformance contract-test infrastructure (fixtures, HMAC helpers)
-    // is authority/test-plane only — never invoked by the web app.
-    const conformanceDir = path.join(interfacesSrc, "conformance");
-    for (const entry of fs.readdirSync(conformanceDir)) {
-      if (entry.endsWith(".ts")) {
-        aliased[path.join(conformanceDir, entry)] = shim;
+    // The interface modules below use node:crypto (authority-side HMAC /
+    // hashing / fixtures). The node: SCHEME cannot be read by the client
+    // and edge-server compilations, which reach these modules only through
+    // the @payswap/ux barrel's re-exports and never invoke them — so they
+    // are shimmed empty THERE. The server compilation reads node:crypto
+    // natively and keeps the REAL modules (the session plane's
+    // @payswap/api consumption stays intact).
+    if (config.name !== "server") {
+      const interfacesSrc = path.join(monorepoRoot, "packages", "interfaces", "src");
+      const aliased: Record<string, string> = {
+        [path.join(interfacesSrc, "webhooks.ts")]: shim,
+        [path.join(interfacesSrc, "approval.ts")]: shim,
+      };
+      // The conformance contract-test infrastructure (fixtures, HMAC
+      // helpers) is authority/test-plane only — never invoked by the app.
+      const conformanceDir = path.join(interfacesSrc, "conformance");
+      for (const entry of fs.readdirSync(conformanceDir)) {
+        if (entry.endsWith(".ts")) {
+          aliased[path.join(conformanceDir, entry)] = shim;
+        }
       }
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        ...aliased,
+      };
     }
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      ...aliased,
-    };
     return config;
   },
   // Deterministic build identity: same sources => same BUILD_ID.
