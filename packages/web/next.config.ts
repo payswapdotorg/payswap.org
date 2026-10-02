@@ -113,6 +113,62 @@ assertWebRoot(webRoot);
 const sourceDigest = computeSourceDigest(webRoot);
 
 const nextConfig: NextConfig = {
+  // The workspace protocol packages are consumed from source (TypeScript
+  // with .js extension imports). Transpiling them lets Next/Turbopack apply
+  // its ts resolution; without this the dev server and the Vercel build
+  // fail with "Module not found: Can't resolve './approval.js'".
+  transpilePackages: [
+    "@payswap/design",
+    "@payswap/ux",
+    "@payswap/api",
+    "@payswap/payment",
+    "@payswap/execution",
+    "@payswap/interfaces",
+  ],
+  outputFileTracingRoot: path.join(webRoot, "..", ".."),
+  // The workspace protocol packages are TypeScript ESM sources whose
+  // intra-package imports use the .js extension (correct for tsc
+  // NodeNext output). The bundler must apply TS's compile-time extension
+  // mapping (.js -> .ts/.tsx) when consuming them from source.
+  webpack: (config) => {
+    config.resolve.extensionAlias = {
+      ".js": [".ts", ".tsx", ".js"],
+    };
+    // The @payswap/ux barrel transitively re-exports the interfaces
+    // webhooks/approval modules (node:crypto, authority-side only). The
+    // web app never invokes them (verified), so their FILES are aliased to
+    // the local empty shim — keeping every compilation free of the node:
+    // scheme while the protocol packages stay untouched.
+    const monorepoRoot = path.join(webRoot, "..", "..");
+    const shim = path.join(webRoot, "src", "shims", "empty-module.ts");
+    // The interface modules below use node:crypto (authority-side HMAC /
+    // hashing / fixtures). The node: SCHEME cannot be read by the client
+    // and edge-server compilations, which reach these modules only through
+    // the @payswap/ux barrel's re-exports and never invoke them — so they
+    // are shimmed empty THERE. The server compilation reads node:crypto
+    // natively and keeps the REAL modules (the session plane's
+    // @payswap/api consumption stays intact).
+    if (config.name !== "server") {
+      const interfacesSrc = path.join(monorepoRoot, "packages", "interfaces", "src");
+      const aliased: Record<string, string> = {
+        [path.join(interfacesSrc, "webhooks.ts")]: shim,
+        [path.join(interfacesSrc, "approval.ts")]: shim,
+      };
+      // The conformance contract-test infrastructure (fixtures, HMAC
+      // helpers) is authority/test-plane only — never invoked by the app.
+      const conformanceDir = path.join(interfacesSrc, "conformance");
+      for (const entry of fs.readdirSync(conformanceDir)) {
+        if (entry.endsWith(".ts")) {
+          aliased[path.join(conformanceDir, entry)] = shim;
+        }
+      }
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        ...aliased,
+      };
+    }
+    return config;
+  },
   // Deterministic build identity: same sources => same BUILD_ID.
   generateBuildId: () => sourceDigest,
   env: {
