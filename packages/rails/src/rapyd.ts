@@ -1956,7 +1956,7 @@ export class RapydConnector extends ConnectorSDK {
         ),
       );
       return this.#sdkResult(
-        rapydPaymentEnvelope(data as RapydPaymentProviderObject, observedAt),
+        rapydPaymentEnvelope((data ?? {}) as RapydPaymentProviderObject, observedAt),
         `rapyd:read-payment:${request.paymentId}`,
       );
     }
@@ -1969,7 +1969,7 @@ export class RapydConnector extends ConnectorSDK {
         ),
       );
       return this.#sdkResult(
-        rapydPayoutEnvelope(data as RapydPayoutProviderObject, observedAt),
+        rapydPayoutEnvelope((data ?? {}) as RapydPayoutProviderObject, observedAt),
         `rapyd:read-payout:${request.payoutId}`,
       );
     }
@@ -2484,7 +2484,7 @@ export class RapydConnector extends ConnectorSDK {
         "wallet",
         material,
       ),
-    )) as RapydWalletProviderObject;
+    ) ?? {}) as RapydWalletProviderObject;
     const { observation, unconverted } = rapydWalletObservation({
       wallet,
       accountRef: `vault:${RAPYD_CREDENTIAL_CONFIG_KEY}`,
@@ -2677,7 +2677,15 @@ export class RapydConnector extends ConnectorSDK {
         httpStatus: response.status,
       });
     }
-    return body.data;
+    if (body === null || typeof body !== "object" || !("data" in body)) {
+      // A 2xx answer that is not the Rapyd { status, data } envelope is
+      // malformed — refuse rather than guess a payload shape (fail-closed).
+      throw new RailProviderError(
+        "rapyd response is malformed (expected { status, data })",
+        { path, httpStatus: response.status },
+      );
+    }
+    return body.data ?? null;
   }
 
   async #providerGet(path: string, callRef: string, material: RapydCredentialMaterial): Promise<unknown> {
