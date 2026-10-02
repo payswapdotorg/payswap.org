@@ -36,3 +36,4 @@ export * from "./observations.js";
 export * from "./external-funds.js";
 export * from "./packs.js";
 export * from "./registry.js";
+export * from "./activation.js";
