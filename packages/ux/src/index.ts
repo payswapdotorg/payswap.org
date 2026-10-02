@@ -45,3 +45,4 @@ export * from './incumbent-views.js';
 export * from './honest-states.js';
 export * from './messaging-adapters.js';
 export * from './product-ia.js';
+export * from './product-journeys.js';
