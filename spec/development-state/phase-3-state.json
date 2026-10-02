@@ -1,73 +1,77 @@
 {
-  "schema_version": "1.0",
-  "phase": "3",
-  "name": "public-product-surface-and-low-cost-deployment",
-  "date": "2026-10-02",
-  "frozen_financial_architecture": "1.5-frozen-2026-09-30",
-  "previous_phase": {
-    "phase": "2",
-    "status": "COMPLETE",
-    "final_main": "b807f136da8e384dfa7e80f8afc7249926bca308"
+ "schema_version": "1.0",
+ "phase": "3",
+ "name": "public-product-surface-and-low-cost-deployment",
+ "date": "2026-10-02",
+ "frozen_financial_architecture": "1.5-frozen-2026-09-30",
+ "previous_phase": {
+  "phase": "2",
+  "status": "COMPLETE",
+  "final_main": "b807f136da8e384dfa7e80f8afc7249926bca308"
+ },
+ "source_of_truth": "repository",
+ "reference_ui": "https://you-platform.vercel.app",
+ "infrastructure": {
+  "hosting": "VERCEL",
+  "database": "NEON_POSTGRESQL",
+  "object_storage": "CLOUDFLARE_R2",
+  "queue": "UPSTASH_REDIS",
+  "email": "OPTIONAL_RESEND",
+  "research": "OPTIONAL_APIFY"
+ },
+ "frontier": [],
+ "max_concurrent_workers": 3,
+ "policy": {
+  "pairwise_disjoint": true,
+  "protocol_architecture_frozen": true,
+  "no_parallel_financial_authority": true,
+  "no_simulated_financial_effect": true,
+  "raw_credentials_never_agent": true,
+  "browser_session_isolated_from_agent": true,
+  "provider_catalogue_never_authorizes": true,
+  "unknown_not_failed": true,
+  "external_funds_not_custody": true,
+  "free_low_cost_bias": true
+ },
+ "gates": [
+  "public_ui_deployed",
+  "api_runtime_separated",
+  "you_platform_reference_reviewed",
+  "real_authentication_verified",
+  "provider_connection_verified",
+  "local_rail_browser_path_verified",
+  "real_payment_journey_verified",
+  "unknown_reconciliation_ui_verified",
+  "responsive_verified",
+  "accessibility_verified",
+  "console_error_free",
+  "no_secret_artifacts",
+  "free_low_cost_budget_verified",
+  "production_release_reproducible",
+  "rollback_verified"
+ ],
+ "do_not_modify_phase_2_history": true,
+ "active_work_orders": [
+  {
+   "id": "P3-W1-001",
+   "owner": "worker-1",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W1-001"
   },
-  "source_of_truth": "repository",
-  "reference_ui": "https://you-platform.vercel.app",
-  "infrastructure": {
-    "hosting": "VERCEL",
-    "database": "NEON_POSTGRESQL",
-    "object_storage": "CLOUDFLARE_R2",
-    "queue": "UPSTASH_REDIS",
-    "email": "OPTIONAL_RESEND",
-    "research": "OPTIONAL_APIFY"
+  {
+   "id": "P3-W2-001",
+   "owner": "worker-2",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W2-001"
   },
-  "frontier": [
-    {
-      "id": "P3-W1-001",
-      "owner": "worker-1",
-      "status": "READY",
-      "depends_on": []
-    },
-    {
-      "id": "P3-W2-001",
-      "owner": "worker-2",
-      "status": "READY",
-      "depends_on": []
-    },
-    {
-      "id": "P3-W3-001",
-      "owner": "worker-3",
-      "status": "READY",
-      "depends_on": []
-    }
-  ],
-  "max_concurrent_workers": 3,
-  "policy": {
-    "pairwise_disjoint": true,
-    "protocol_architecture_frozen": true,
-    "no_parallel_financial_authority": true,
-    "no_simulated_financial_effect": true,
-    "raw_credentials_never_agent": true,
-    "browser_session_isolated_from_agent": true,
-    "provider_catalogue_never_authorizes": true,
-    "unknown_not_failed": true,
-    "external_funds_not_custody": true,
-    "free_low_cost_bias": true
-  },
-  "gates": [
-    "public_ui_deployed",
-    "api_runtime_separated",
-    "you_platform_reference_reviewed",
-    "real_authentication_verified",
-    "provider_connection_verified",
-    "local_rail_browser_path_verified",
-    "real_payment_journey_verified",
-    "unknown_reconciliation_ui_verified",
-    "responsive_verified",
-    "accessibility_verified",
-    "console_error_free",
-    "no_secret_artifacts",
-    "free_low_cost_budget_verified",
-    "production_release_reproducible",
-    "rollback_verified"
-  ],
-  "do_not_modify_phase_2_history": true
+  {
+   "id": "P3-W3-001",
+   "owner": "worker-3",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W3-001"
+  }
+ ]
 }
