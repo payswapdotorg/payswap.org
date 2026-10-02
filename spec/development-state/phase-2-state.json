@@ -26,31 +26,39 @@
   ],
   "active_work_orders": [
     {
-      "id": "P2-W1-001",
-      "owner": "worker-1",
+      "id": "P2-W2-001",
+      "owner": "worker-2",
       "status": "ACTIVE",
       "activated_at": "2026-10-02",
-      "activation_evidence": "spec/development-state/provider-probes-20261002.json (vault refs reconciled, live probes executed 2026-10-02)"
+      "activation_evidence": "P2-W1-001 merged at the control-plane base; live Stripe probe evidence spec/development-state/provider-probes-20261002.json"
     }
   ],
   "frontier": [
     {
       "id": "P2-W1-001",
       "owner": "worker-1",
-      "status": "ACTIVE",
-      "depends_on": []
+      "status": "COMPLETE",
+      "depends_on": [],
+      "completed_at": "2026-10-02",
+      "branch": "work/P2-W1-001",
+      "verification": "typecheck green; battery 1941/1941 (rc=0); verify:repo green; secret-hygiene byte-scan clean (one real-value fixture leak caught by the gate and purged to synthetic values before merge)"
     },
     {
       "id": "P2-W2-001",
       "owner": "worker-2",
-      "status": "READY",
-      "depends_on": []
+      "status": "ACTIVE",
+      "depends_on": [
+        "P2-W1-001"
+      ]
     },
     {
       "id": "P2-W3-001",
       "owner": "worker-3",
       "status": "READY",
-      "depends_on": []
+      "depends_on": [
+        "P2-W1-001"
+      ],
+      "activation_deferred_reason": "pairwise-disjoint law: shares rails shared surfaces (support.ts credential registry, BLOCKED-RAILS.md, CREDENTIAL-ROTATION.md, barrel) with P2-W2-001 \u2014 activates immediately after the Stripe connector merges"
     }
   ],
   "max_concurrent_workers": 3,
@@ -86,5 +94,13 @@
     "browser_session_isolation_verified",
     "reauthentication_step_up_verified",
     "local_rail_external_effect_verified"
+  ],
+  "completed_work_orders": [
+    {
+      "id": "P2-W1-001",
+      "owner": "worker-1",
+      "completed_at": "2026-10-02",
+      "branch": "work/P2-W1-001"
+    }
   ]
 }
