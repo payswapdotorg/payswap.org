@@ -216,10 +216,13 @@ export function decodeStrKey(value: string, expectedVersion: number): Uint8Array
   }
   const [version, ...rest] = decoded;
   const payload = Uint8Array.from(rest.slice(0, 32));
-  const checksum = ((decoded[33] ?? 0) << 8) | (decoded[34] ?? 0);
-  if (version !== expectedVersion) {
+  // The CRC16-XModem checksum is appended LITTLE-ENDIAN (low byte first).
+  const checksum = ((decoded[34] ?? 0) << 8) | (decoded[33] ?? 0);
+  // The StrKey version byte is the version number shifted left by 3
+  // (0x30 = 'G'-prefixed ed25519 public keys, 0x90 = 'S'-prefixed seeds).
+  if (version !== (expectedVersion << 3) || (version & 0x07) !== 0) {
     throw new ValidationError(
-      `StrKey version byte ${version} does not match the expected ${expectedVersion}`,
+      `StrKey version byte ${version} does not match the expected ${expectedVersion} (wire form ${expectedVersion << 3})`,
     );
   }
   const expectedChecksum = crc16xmodem(decoded.subarray(0, 33));
@@ -240,11 +243,11 @@ export function encodeStrKey(version: number, payload: Uint8Array): string {
     throw new ValidationError("StrKey version must be a byte");
   }
   const data = new Uint8Array(35);
-  data[0] = version;
+  data[0] = version << 3;
   data.set(payload, 1);
   const checksum = crc16xmodem(data.subarray(0, 33));
-  data[33] = (checksum >>> 8) & 0xff;
-  data[34] = checksum & 0xff;
+  data[33] = checksum & 0xff;
+  data[34] = (checksum >>> 8) & 0xff;
   return base32Encode(data);
 }
 
