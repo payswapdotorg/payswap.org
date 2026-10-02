@@ -1,5 +1,6 @@
-"use client";
-
+// NOTE: deliberately NOT "use client" — this hook wraps React's useId,
+// which is SSR-safe and works in BOTH server and client components.
+// Panel (a server-compatible presentational component) consumes it.
 import { useId as useReactId } from "react";
 
 /**
