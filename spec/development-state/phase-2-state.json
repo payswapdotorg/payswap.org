@@ -24,7 +24,15 @@
     "AIRWALLEX",
     "EBANX"
   ],
-  "active_work_orders": [],
+  "active_work_orders": [
+    {
+      "id": "P2-W3-003",
+      "owner": "worker-3",
+      "status": "ACTIVE",
+      "dispatched_at": "2026-10-02",
+      "branch": "work/P2-W3-003"
+    }
+  ],
   "frontier": [
     {
       "id": "P2-W1-003",
@@ -50,7 +58,7 @@
     {
       "id": "P2-W3-003",
       "owner": "worker-3",
-      "status": "READY",
+      "status": "ACTIVE",
       "depends_on": [
         "P2-W1-003",
         "P2-W2-003"
