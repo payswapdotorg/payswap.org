@@ -60,18 +60,51 @@
  *   payload), refunds where supported, credentials through the control
  *   plane (PROVIDER_FLUTTERWAVE_CREDENTIAL_REF → sealed bundle),
  *   eligibility from the probe-verified wallet currencies.
- * - Mobile-money rail (`src/mobile-money.ts`): customer-action-required +
- *   mandate semantics preserved; USSD/push patterns represented through
- *   provider state, never flattened (INV-C06); EXTENDED (P2-W3-001) to the
- *   real MTN MoMo API mapping — OAuth2 Basic token acquisition,
- *   requesttopay lifecycle with X-Reference-Id idempotency and
- *   X-Target-Environment, status-polling reconciliation (reason codes
- *   verbatim), account balance as an ExternalFundsPositionObservation — and
- *   the honest BLOCKED state: the 2026-10-02 probe recorded the sandbox
- *   subscription key rejected at the APIM gate (HTTP 401, collection/
- *   disbursement/remittance), so availability stays UNKNOWN, control-plane
- *   provider calls refuse citing the recorded datum, and NO simulated
- *   substitute exists (lifted only by a successful authenticated re-probe).
+ * - Adyen production connector (`src/adyen.ts`, P2-W3-002): the REAL
+ *   Adyen Checkout API v70 adapter — every resultCode preserved verbatim
+ *   (Authorised/Refused/Received/Pending/ConfirmationPending/
+ *   RedirectShopper/ChallengeShopper/IdentifyShopper/PresentToShopper/
+ *   Cancelled; action objects ride the state verbatim behind first-class
+ *   customer-action states), asynchronous modifications (captures/refunds/
+ *   cancels/reversals stay processing until webhook evidence), merchant-
+ *   observed payment-method eligibility (POST /v70/paymentMethods —
+ *   OBSERVED, never assumed), the documented base64(HMAC-SHA256) raw-body
+ *   webhook verification with (provider, eventId) dedupe, reference +
+ *   Idempotency-Key derivation (INV-F05), payouts as the DISTINCT
+ *   observation-only family (INV-C09 — PaySwap executes no Adyen payout),
+ *   credentials through the control plane (PROVIDER_ADYEN_CREDENTIAL_REF)
+ *   — ABSENT in this deployment, so the rail fails closed with the
+ *   recorded HTTP 401 reachability datum.
+ * - Airwallex production connector (`src/airwallex.ts`, P2-W3-002): the
+ *   REAL Airwallex API v1 adapter — Basic base64(client_id:client_secret)
+ *   login + bearer, payment-intent statuses verbatim
+ *   (PENDING/AUTHORIZED/CAPTURED/SETTLED/FAILED/CANCELLED/EXPIRED),
+ *   observed payment-method eligibility (GET /api/v1/payment_methods/
+ *   current), the DISTINCT payout family (POST /api/v1/payouts/create with
+ *   an EXPLICIT beneficiary), balances as ExternalFundsPositionObservation
+ *   ONLY (INV-C09), X-Signature hex(HMAC-SHA256) raw-body webhook
+ *   verification with (provider, eventId) dedupe, request_id idempotency
+ *   (INV-F05) with the AirwallexDuplicateRequestIdError provider error
+ *   class, credentials through the control plane
+ *   (PROVIDER_AIRWALLEX_CREDENTIAL_REF) — ABSENT, fail-closed with the
+ *   recorded HTTP 403 reachability datum.
+ * - EBANX production connector (`src/ebanx.ts`, P2-W3-002): the REAL EBANX
+ *   /ws Direct API adapter on the CURRENT SUPPORTED signing/authentication
+ *   path — the integration_key authenticates every request as a JSON body
+ *   parameter; webhook notifications are verified by QUERY-BACK (POST
+ *   /ws/query is the authoritative evidence; the notification itself is
+ *   never trusted); two-letter payment statuses verbatim (PE/OP/CO/CA with
+ *   voucher types like boleto as first-class customer-action states
+ *   carrying the voucher URL), refunds with explicit partial amounts
+ *   (RE/CO/CA verbatim), the DISTINCT payout family (T-Claims with
+ *   explicit per-country payee/bank details), balances as
+ *   ExternalFundsPositionObservation ONLY (INV-C09),
+ *   merchant_payment_code idempotency (INV-F05) with the
+ *   EbanxDuplicateMerchantPaymentCodeError provider error class, documented
+ *   country/method catalogue recorded as DOCUMENTED_NOT_OBSERVED (never an
+ *   eligibility assertion), credentials through the control plane
+ *   (PROVIDER_EBANX_CREDENTIAL_REF) — ABSENT, fail-closed with the
+ *   recorded HTTP 401 reachability datum.
  *
  * NO SIMULATED SETTLEMENT: an adapter that cannot reach a real provider
  * fails or reports UNKNOWN — it never fabricates a settlement effect, and
@@ -90,3 +123,6 @@ export * from "./incidents.js";
 export * from "./stripe.js";
 export * from "./paystack.js";
 export * from "./flutterwave.js";
+export * from "./adyen.js";
+export * from "./airwallex.js";
+export * from "./ebanx.js";
