@@ -1,15 +1,20 @@
 "use client";
 
 /**
- * The Payout journey surface (P3-W2-002) — the certified PayoutJourney
- * contract as a live UI.
+ * The Payout journey surface (P3-W2-002; end-to-end continuity by
+ * P3-W3-002) — the certified PayoutJourney contract as a live UI.
  *
  * Fail-closed by contract (law: explicit destination required before ANY
  * submission): the journey begins WITHOUT a destination and WITHOUT a
  * withdrawal scope; the submit action stays unavailable until both are
  * explicitly present. The withdrawal scope is single-use and bound to the
  * destination — a connection is never blanket withdrawal authority. The
- * destination is an external-funds OBSERVATION (never custody).
+ * destination is an external-funds OBSERVATION (never custody). Submission
+ * dispatches through the REAL authenticated transport
+ * (/api/journeys/dispatch → the authoritative PaySwap API) with the answer
+ * folded VERBATIM; UNKNOWN renders the DEDICATED reconciliation journey
+ * (never failure) and the provider customer-action state renders verbatim
+ * with the reauth journey reachable.
  */
 
 import { useState } from "react";
@@ -18,6 +23,7 @@ import { useRouter } from "next/navigation";
 import type { PayoutDestinationRef, PayoutJourney, ViewAction } from "@payswap/ux";
 import {
   abandonPayoutJourney,
+  applyPayoutSubmissionResponse,
   asPayoutDestinationRef,
   beginPayoutJourney,
   confirmWithdrawalScope,
@@ -36,7 +42,9 @@ import {
   UnknownState,
 } from "@payswap/design";
 
-import { JourneyActionList, SESSION_NOT_WIRED_REASON } from "./journey-actions";
+import { JourneyActionList } from "./journey-actions";
+import { ReconcileJourneySurface } from "./reconcile-journey-surface";
+import { dispatchJourneyApiCommand } from "@/lib/cc/journey-dispatch";
 
 type PayoutPhase =
   | { readonly kind: "COMPOSING" }
@@ -105,14 +113,19 @@ export function PayoutJourneyFacts({ journey }: { readonly journey: PayoutJourne
 
 export function PayoutJourneySurface({
   autoStart,
+  csrfToken,
 }: {
   readonly autoStart: boolean;
+  /** The live session's CSRF echo (undefined in the marked preview — no mutations). */
+  readonly csrfToken?: string;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<PayoutPhase>({ kind: "COMPOSING" });
   const [amountMinor, setAmountMinor] = useState("");
   const [currency, setCurrency] = useState("USD");
   const [error, setError] = useState<string | null>(null);
+  const [dispatchNote, setDispatchNote] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   // Destination form (SPECIFYING_DESTINATION).
   const [destinationKind, setDestinationKind] = useState<(typeof DESTINATION_KINDS)[number]>("BANK_ACCOUNT");
@@ -186,6 +199,48 @@ export function PayoutJourneySurface({
     }
   }
 
+  async function submitPayout(action: ViewAction): Promise<void> {
+    if (pending) {
+      return;
+    }
+    setPending(true);
+    setError(null);
+    setDispatchNote(null);
+    try {
+      const result = await dispatchJourneyApiCommand("payout", action, csrfToken);
+      if (result.kind === "response") {
+        try {
+          setPhase((current) =>
+            current.kind === "JOURNEY"
+              ? {
+                  kind: "JOURNEY",
+                  journey: applyPayoutSubmissionResponse(
+                    current.journey,
+                    result.response,
+                  ),
+                }
+              : current,
+          );
+          if (result.response.kind === "error") {
+            const errorBody = result.response.body.error;
+            setDispatchNote(
+              `The PaySwap API answered verbatim — ${errorBody.code} (${errorBody.category}), HTTP ${result.response.status}: ${errorBody.message}. The journey records the error exactly; nothing was submitted.`,
+            );
+          }
+          return;
+        } catch {
+          setError(
+            "The contract refused to fold the API's answer — the journey state is unchanged.",
+          );
+          return;
+        }
+      }
+      setError(result.message);
+    } finally {
+      setPending(false);
+    }
+  }
+
   function onAction(action: ViewAction): void {
     if (phase.kind !== "JOURNEY") {
       return;
@@ -206,9 +261,10 @@ export function PayoutJourneySurface({
       case "confirm-withdrawal-scope":
         confirmScope();
         return;
-      case "submit-payout":
-        setError(SESSION_NOT_WIRED_REASON);
+      case "submit-payout": {
+        void submitPayout(action);
         return;
+      }
       case "abandon-payout":
         setPhase({ kind: "JOURNEY", journey: abandonPayoutJourney(journey) });
         return;
@@ -363,6 +419,27 @@ export function PayoutJourneySurface({
               </div>
             </Panel>
           ) : null}
+          {phase.journey.stateName === "TRACKING" &&
+          phase.journey.attemptOutcome === "AWAITING_CUSTOMER_ACTION" ? (
+            <Panel
+              title="Provider customer action required"
+              description="The provider is waiting for YOUR action — the tracked state, verbatim (AWAITING_CUSTOMER_ACTION), never reinterpreted."
+              headingLevel={3}
+              actions={<StatusPill tone="attention">Awaiting customer action</StatusPill>}
+            >
+              <p className="text-sm leading-6 text-stone-700">
+                The payout is parked until you complete the provider&rsquo;s
+                required step on the provider&rsquo;s own surface — credentials
+                never cross. If the step-up expires or requires
+                reauthorization, the{" "}
+                <Link href="/reauth" className="font-semibold text-emerald-800 underline">
+                  reauthorization journey
+                </Link>{" "}
+                preserves the lineage and resumes execution under the fresh
+                authorization.
+              </p>
+            </Panel>
+          ) : null}
           {phase.journey.stateName === "RECONCILING" ? (
             <UnknownState
               title="Outcome unknown — reconciling"
@@ -373,6 +450,32 @@ export function PayoutJourneySurface({
                 </Link>
               }
             />
+          ) : null}
+          {phase.journey.stateName === "RECONCILING" ? (
+            <ReconcileJourneySurface
+              paymentRef={`payout:${phase.journey.amount.currency}:${phase.journey.destination?.destinationRef ?? "unspecified"}`}
+              evidenceRefs={phase.journey.evidenceRefs.map((ref) => String(ref))}
+              ambiguityEvidenceRef={
+                phase.journey.evidenceRefs.length > 0
+                  ? String(phase.journey.evidenceRefs[phase.journey.evidenceRefs.length - 1])
+                  : undefined
+              }
+              csrfToken={csrfToken}
+            />
+          ) : null}
+          {pending ? (
+            <p className="cc-actions__reason" role="status">
+              Dispatching the payout submission to the authoritative PaySwap
+              API…
+            </p>
+          ) : null}
+          {dispatchNote !== null ? (
+            <p
+              className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
+              role="status"
+            >
+              {dispatchNote}
+            </p>
           ) : null}
           {phase.journey.stateName === "COMPLETED" ? (
             <EmptyState

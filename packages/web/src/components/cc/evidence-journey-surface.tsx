@@ -12,7 +12,12 @@
 
 import { useState } from "react";
 import type { EvidenceArtifactEntry, EvidenceJourney, ViewAction } from "@payswap/ux";
-import { backToEvidenceList, beginEvidenceInspection, inspectEvidenceArtifact } from "@payswap/ux";
+import {
+  asEvidenceArtifactRef,
+  backToEvidenceList,
+  beginEvidenceInspection,
+  inspectEvidenceArtifact,
+} from "@payswap/ux";
 import { EmptyState, KeyValue, Panel, StatusPill } from "@payswap/design";
 
 import { JourneyActionList } from "./journey-actions";
@@ -20,14 +25,27 @@ import { JourneyActionList } from "./journey-actions";
 export function EvidenceJourneySurface({
   actionRef,
   artifacts,
+  initialArtifactRef,
 }: {
   /** The external financial action the evidence belongs to. */
   readonly actionRef: string;
   readonly artifacts: readonly EvidenceArtifactEntry[];
+  /** A deep-linked artifact to inspect immediately (evidence continuity). */
+  readonly initialArtifactRef?: string;
 }) {
-  const [journey, setJourney] = useState<EvidenceJourney>(() =>
-    beginEvidenceInspection({ actionRef, artifacts }),
-  );
+  const [journey, setJourney] = useState<EvidenceJourney>(() => {
+    const seeded = beginEvidenceInspection({ actionRef, artifacts });
+    if (initialArtifactRef === undefined) {
+      return seeded;
+    }
+    try {
+      // The deep link inspects an existing artifact: the fold refuses any
+      // ref not in the derived list (fail-closed — no invented inspection).
+      return inspectEvidenceArtifact(seeded, asEvidenceArtifactRef(initialArtifactRef));
+    } catch {
+      return seeded;
+    }
+  });
 
   function onAction(action: ViewAction): void {
     if (action.actionId.startsWith("inspect-artifact:")) {

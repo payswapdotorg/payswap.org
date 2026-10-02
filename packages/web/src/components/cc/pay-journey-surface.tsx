@@ -1,19 +1,25 @@
 "use client";
 
 /**
- * The Pay journey surface (P3-W2-002) — the certified PayJourney contract as
- * a live UI.
+ * The Pay journey surface (P3-W2-002; end-to-end continuity by P3-W3-002) —
+ * the certified PayJourney contract as a live UI.
  *
  * Laws honored structurally:
  * - capability selection ONLY from connected instances (the options derive
  *   from authority records passed in by the server; the catalogue is never
  *   an execution surface — comparison-only route candidates say so);
- * - submission ONLY when the journey contract allows (the submit action's
- *   own `available` flag; today it additionally requires the session plane
- *   the parallel work stream owns — rendered as the honest unavailable
- *   reason, never a fake success);
+ * - submission dispatches through the REAL authenticated transport
+ *   (/api/journeys/dispatch → the authoritative PaySwap API) and the answer
+ *   folds VERBATIM through the contract — the deployed runtime's honest
+ *   401/403 session answer renders as the honest state, never a fake
+ *   success (no simulated financial effect is reachable from here);
  * - UNKNOWN is reconciliation, NEVER failure: OUTCOME_UNKNOWN folds to
- *   RECONCILING and renders the UnknownState language (INV-X01);
+ *   RECONCILING, renders the UnknownState language (INV-X01) and the
+ *   DEDICATED ReconcileJourney surface (ambiguity-recorded → observation →
+ *   resolution — resolution only from authority);
+ * - the provider customer-action state renders verbatim when tracked
+ *   (AWAITING_CUSTOMER_ACTION), with the reauth/customer-action journey
+ *   reachable from this surface;
  * - amounts are exact minor units (INV-F01) — the input is a minor-unit
  *   integer, never parsed from a formatted currency string.
  */
@@ -29,6 +35,7 @@ import type {
 } from "@payswap/ux";
 import {
   abandonPayJourney,
+  applyPaymentSubmissionResponse,
   beginPayJourney,
   selectPayCapability,
 } from "@payswap/ux";
@@ -43,7 +50,9 @@ import {
   UnknownState,
 } from "@payswap/design";
 
-import { JourneyActionList, SESSION_NOT_WIRED_REASON } from "./journey-actions";
+import { JourneyActionList } from "./journey-actions";
+import { ReconcileJourneySurface } from "./reconcile-journey-surface";
+import { dispatchJourneyApiCommand } from "@/lib/cc/journey-dispatch";
 
 type PayPhase =
   | { readonly kind: "COMPOSING" }
@@ -69,6 +78,30 @@ function minorUnitsInput(value: string): string | null {
   return trimmed.replace(/^0+(?=\d)/, "");
 }
 
+/** The provider customer-action panel — the tracked state verbatim. */
+function CustomerActionPanel({ journey }: { readonly journey: PayJourney }) {
+  return (
+    <Panel
+      title="Provider customer action required"
+      description="The provider is waiting for YOUR action — the tracked state, verbatim (AWAITING_CUSTOMER_ACTION), never reinterpreted."
+      headingLevel={3}
+      actions={<StatusPill tone="attention">Awaiting customer action</StatusPill>}
+    >
+      <p className="text-sm leading-6 text-stone-700">
+        The external action is parked until you complete the provider&rsquo;s
+        required step on the provider&rsquo;s own surface — PaySwap never
+        completes it for you, and credentials never cross. If the step-up
+        expires or requires reauthorization, the{" "}
+        <Link href="/reauth" className="font-semibold text-emerald-800 underline">
+          reauthorization journey
+        </Link>{" "}
+        preserves the lineage and resumes execution under the fresh
+        authorization.
+      </p>
+    </Panel>
+  );
+}
+
 /** The live-journey view (every state except composing) — exported for tests. */
 export function PayJourneyView({
   journey,
@@ -78,6 +111,15 @@ export function PayJourneyView({
   readonly onAction: (action: ViewAction) => void;
 }) {
   const statePill = STATE_PILLS[journey.stateName] ?? { tone: "unknown" as const, label: journey.stateName };
+  const paymentRef = journey.submittedIntentId ?? journey.request.correlationId ?? `pay:${journey.request.amount.currency}`;
+  const lastEvidenceRef =
+    journey.evidenceRefs.length > 0
+      ? String(journey.evidenceRefs[journey.evidenceRefs.length - 1] ?? "")
+      : null;
+  const evidenceHref =
+    lastEvidenceRef !== null && lastEvidenceRef.length > 0
+      ? `/app/evidence?action=${encodeURIComponent(paymentRef)}&artifact=${encodeURIComponent(lastEvidenceRef)}`
+      : `/app/evidence?action=${encodeURIComponent(paymentRef)}`;
   return (
     <>
       <div>
@@ -132,12 +174,15 @@ export function PayJourneyView({
           </ul>
         </Panel>
       ) : null}
+      {journey.stateName === "TRACKING" && journey.attemptOutcome === "AWAITING_CUSTOMER_ACTION" ? (
+        <CustomerActionPanel journey={journey} />
+      ) : null}
       {journey.stateName === "RECONCILING" ? (
         <UnknownState
           title="Outcome unknown — reconciling"
           description="Absence of knowledge is not failure. Reconciliation is authoritative for ambiguous external effects (INV-X03); the external write is never blindly retried (INV-X02)."
           action={
-            <Link className="ps-button ps-button--sm ps-button--secondary" href="/app/evidence">
+            <Link className="ps-button ps-button--sm ps-button--secondary" href={evidenceHref}>
               View the evidence recorded so far
             </Link>
           }
@@ -146,8 +191,27 @@ export function PayJourneyView({
       {journey.stateName === "FAILED" ? (
         <Panel title="Failed" description="The failure reason comes from protocol evidence, not inference. Retry only as a NEW intent with a fresh idempotency key.">
           <p className="cc-actions__reason">
-            The failure evidence is preserved on the journey — view it from the
-            actions below.
+            The failure evidence is preserved on the journey —{" "}
+            <Link
+              href={evidenceHref}
+              className="font-semibold text-emerald-800 underline"
+            >
+              inspect the failure evidence
+            </Link>
+            .
+          </p>
+        </Panel>
+      ) : null}
+      {journey.stateName === "COMPLETED" ? (
+        <Panel title="Completed" description="Completion is an externally observed effect with its evidence preserved on the journey.">
+          <p className="cc-actions__reason">
+            <Link
+              href={evidenceHref}
+              className="font-semibold text-emerald-800 underline"
+            >
+              Inspect the completion evidence
+            </Link>
+            .
           </p>
         </Panel>
       ) : null}
@@ -161,6 +225,7 @@ export function PayJourneySurface({
   routabilityChecks,
   routeCandidates,
   autoStart,
+  csrfToken,
 }: {
   /** Authority records of connected instances (empty until the connect plane ships). */
   readonly connectedInstances: readonly ConnectedCapabilityInstanceRecord[];
@@ -169,12 +234,16 @@ export function PayJourneySurface({
   /** Route candidates for review (catalogue entries render comparison-only). */
   readonly routeCandidates: readonly RouteCandidate[];
   readonly autoStart: boolean;
+  /** The live session's CSRF echo (undefined in the marked preview — no mutations). */
+  readonly csrfToken?: string;
 }) {
   const [phase, setPhase] = useState<PayPhase>({ kind: "COMPOSING" });
   const [amountMinor, setAmountMinor] = useState("");
   const [currency, setCurrency] = useState("GHS");
   const [recipient, setRecipient] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [dispatchNote, setDispatchNote] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   const canCompose =
     minorUnitsInput(amountMinor) !== null && recipient.trim().length > 0 && /^[A-Z]{3}$/.test(currency);
@@ -194,6 +263,48 @@ export function PayJourneySurface({
         routabilityChecks,
       }),
     });
+  }
+
+  async function submitPayment(action: ViewAction): Promise<void> {
+    if (pending) {
+      return;
+    }
+    setPending(true);
+    setError(null);
+    setDispatchNote(null);
+    try {
+      const result = await dispatchJourneyApiCommand("pay", action, csrfToken);
+      if (result.kind === "response") {
+        try {
+          setPhase((current) =>
+            current.kind === "JOURNEY"
+              ? {
+                  kind: "JOURNEY",
+                  journey: applyPaymentSubmissionResponse(
+                    current.journey,
+                    result.response,
+                  ),
+                }
+              : current,
+          );
+          if (result.response.kind === "error") {
+            const errorBody = result.response.body.error;
+            setDispatchNote(
+              `The PaySwap API answered verbatim — ${errorBody.code} (${errorBody.category}), HTTP ${result.response.status}: ${errorBody.message}. The journey records the error exactly; nothing was submitted.`,
+            );
+          }
+          return;
+        } catch {
+          setError(
+            "The contract refused to fold the API's answer — the journey state is unchanged.",
+          );
+          return;
+        }
+      }
+      setError(result.message);
+    } finally {
+      setPending(false);
+    }
   }
 
   function onAction(action: ViewAction): void {
@@ -239,12 +350,10 @@ export function PayJourneySurface({
       case "retry-as-new-intent":
         setPhase({ kind: "COMPOSING" });
         return;
-      case "submit-payment":
-        // The dispatch itself requires a JourneySession (the parallel
-        // session plane). The action's availability already reflects the
-        // contract's rules; without a session we never reach a live submit.
-        setError(SESSION_NOT_WIRED_REASON);
+      case "submit-payment": {
+        void submitPayment(action);
         return;
+      }
       default:
         // Tracking refreshes and evidence views are real navigations; the
         // honest outcome folds below.
@@ -321,7 +430,39 @@ export function PayJourneySurface({
           </div>
         </Panel>
       ) : (
-        <PayJourneyView journey={phase.journey} onAction={onAction} />
+        <>
+          <PayJourneyView journey={phase.journey} onAction={onAction} />
+          {pending ? (
+            <p className="cc-actions__reason" role="status">
+              Dispatching the payment submission to the authoritative PaySwap
+              API…
+            </p>
+          ) : null}
+          {dispatchNote !== null ? (
+            <p
+              className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
+              role="status"
+            >
+              {dispatchNote}
+            </p>
+          ) : null}
+          {phase.journey.stateName === "RECONCILING" ? (
+            <ReconcileJourneySurface
+              paymentRef={
+                phase.journey.submittedIntentId ??
+                phase.journey.request.correlationId ??
+                `pay:${phase.journey.request.amount.currency}`
+              }
+              evidenceRefs={phase.journey.evidenceRefs.map((ref) => String(ref))}
+              ambiguityEvidenceRef={
+                phase.journey.evidenceRefs.length > 0
+                  ? String(phase.journey.evidenceRefs[phase.journey.evidenceRefs.length - 1])
+                  : undefined
+              }
+              csrfToken={csrfToken}
+            />
+          ) : null}
+        </>
       )}
     </div>
   );

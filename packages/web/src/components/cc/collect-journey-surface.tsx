@@ -16,7 +16,8 @@ import type { CollectJourney, ConnectedCapabilityInstanceRecord, ViewAction } fr
 import { abandonCollectJourney, beginCollectJourney, deriveShareableRequest } from "@payswap/ux";
 import { Button, EmptyState, Field, Input, KeyValue, Panel, StatusPill } from "@payswap/design";
 
-import { JourneyActionList, SESSION_NOT_WIRED_REASON } from "./journey-actions";
+import { JourneyActionList } from "./journey-actions";
+import { dispatchJourneyApiCommand } from "@/lib/cc/journey-dispatch";
 
 type CollectPhase =
   | { readonly kind: "COMPOSING" }
@@ -108,10 +109,13 @@ export function CollectJourneyView({
 export function CollectJourneySurface({
   collectCapableInstances,
   autoStart,
+  csrfToken,
 }: {
   /** Authority records of instances that permit collecting (empty until the connect plane ships). */
   readonly collectCapableInstances: readonly ConnectedCapabilityInstanceRecord[];
   readonly autoStart: boolean;
+  /** The live session's CSRF echo (undefined in the marked preview — no mutations). */
+  readonly csrfToken?: string;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<CollectPhase>({ kind: "COMPOSING" });
@@ -119,6 +123,8 @@ export function CollectJourneySurface({
   const [currency, setCurrency] = useState("GHS");
   const [payer, setPayer] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [dispatchNote, setDispatchNote] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
   const canCompose = minorUnitsInput(amountMinor) !== null && payer.trim().length > 0 && /^[A-Z]{3}$/.test(currency);
   function begin(): void {
@@ -138,6 +144,34 @@ export function CollectJourneySurface({
     });
   }
 
+  async function createRequest(action: ViewAction): Promise<void> {
+    if (pending) {
+      return;
+    }
+    setPending(true);
+    setError(null);
+    setDispatchNote(null);
+    try {
+      const result = await dispatchJourneyApiCommand("collect", action, csrfToken);
+      if (result.kind === "response") {
+        if (result.response.kind === "error") {
+          const errorBody = result.response.body.error;
+          setDispatchNote(
+            `The PaySwap API answered verbatim — ${errorBody.code} (${errorBody.category}), HTTP ${result.response.status}: ${errorBody.message}. The journey records the error exactly; no request was created.`,
+          );
+          return;
+        }
+        setDispatchNote(
+          "The PaySwap API accepted the collect-request command — its envelope is preserved verbatim; the request reference arrives from the authority record.",
+        );
+        return;
+      }
+      setError(result.message);
+    } finally {
+      setPending(false);
+    }
+  }
+
   function onAction(action: ViewAction): void {
     if (phase.kind !== "JOURNEY") {
       return;
@@ -149,9 +183,10 @@ export function CollectJourneySurface({
       return;
     }
     switch (action.actionId) {
-      case "create-collect-request":
-        setError(SESSION_NOT_WIRED_REASON);
+      case "create-collect-request": {
+        void createRequest(action);
         return;
+      }
       case "abandon-collect":
         setPhase({ kind: "JOURNEY", journey: abandonCollectJourney(journey) });
         return;
@@ -226,7 +261,23 @@ export function CollectJourneySurface({
           </div>
         </Panel>
       ) : (
-        <CollectJourneyView journey={phase.journey} onAction={onAction} />
+        <>
+          <CollectJourneyView journey={phase.journey} onAction={onAction} />
+          {pending ? (
+            <p className="cc-actions__reason" role="status">
+              Dispatching the collect-request command to the authoritative
+              PaySwap API…
+            </p>
+          ) : null}
+          {dispatchNote !== null ? (
+            <p
+              className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
+              role="status"
+            >
+              {dispatchNote}
+            </p>
+          ) : null}
+        </>
       )}
     </div>
   );
