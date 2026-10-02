@@ -238,7 +238,7 @@ export function CommandCenter({
                   <span className="font-mono">{resolved.path}</span> is a
                   valid deep link — it renders now, survives a hard refresh,
                   and will serve the authenticated{" "}
-                  {resolved.active?.label.toLowerCase() ?? "section"} view
+                  {resolved.active?.label.toLowerCase() ?? "section"}{" "}
                   when authentication ships.
                   {resolved.active
                     ? ` ${resolved.active.label} will show: ${resolved.active.description}`
