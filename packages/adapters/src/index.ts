@@ -24,3 +24,4 @@ export * from "./rail-adapter.js";
 export * from "./psp-connector.js";
 export * from "./external-systems.js";
 export * from "./webhooks.js";
+export * from "./credential-broker.js";
