@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "record_type": "web-release",
+  "workOrder": "P3-W1-001",
+  "package": "@payswap/web",
+  "release": {
+    "date": "2026-10-02",
+    "commit": "c7a3856709d5fc5bdf98ebb70660aa2718e7c750",
+    "buildId": "dba11b45080e6786",
+    "buildIdScheme": "sha256 over the sorted packages/web build inputs (src/ + public/ + package.json + postcss.config.mjs + next.config.ts), truncated to 16 hex — same sources always produce the same build id",
+    "buildIdVerifiedAgainstSources": true
+  },
+  "vercelProject": {
+    "name": "payswap-web",
+    "rootDirectory": "packages/web",
+    "framework": "nextjs",
+    "deploymentUrls": {
+      "production": "https://payswap-web.vercel.app",
+      "preview": "https://payswap-6056skcol-ekonplacidegmailcoms-projects.vercel.app"
+    },
+    "deploymentUrlsNote": "placeholders by design — the TL performs the actual `vercel` deployment at the review gate (one command from packages/web with the payswap-web project linked); re-run this driver with the live URLs as arguments to record them"
+  },
+  "apiRuntimeSeparation": {
+    "law": "the web surface is a CONSUMER of the authoritative PaySwap API — it holds no financial state of its own",
+    "webProject": "payswap-web",
+    "apiRuntimeProject": "payswap",
+    "apiRuntimeProjectRole": "the existing Vercel project that hosts the authoritative API/runtime — NOT touched by a web release",
+    "apiBaseUrlEnvVar": "NEXT_PUBLIC_PAYSWAP_API_URL",
+    "apiBaseUrlValue": null,
+    "apiBaseUrlNote": "referenced by name only — the value is supplied per environment (production API host for production, preview API host for preview) at deployment time, never stored in git"
+  },
+  "healthEndpoint": "/api/health",
+  "routes": [
+    "/",
+    "/capabilities",
+    "/security",
+    "/developers",
+    "/app (authenticated entry boundary — honest gate; every /app/* deep link resolves and is hard-refresh safe)",
+    "/api/health"
+  ],
+  "digest": "fnv1a64:795b935514ebeb52"
+}
