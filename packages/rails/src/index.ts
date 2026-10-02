@@ -72,6 +72,43 @@
  *   disbursement/remittance), so availability stays UNKNOWN, control-plane
  *   provider calls refuse citing the recorded datum, and NO simulated
  *   substitute exists (lifted only by a successful authenticated re-probe).
+ * - Rapyd production connector (`src/rapyd.ts`, P2-W2-002): the REAL
+ *   Rapyd v1 adapter — salt/timestamp HMAC-SHA256 request signing (the
+ *   documented canonicalization implemented verbatim), pay-in and payout
+ *   as SEPARATE coverage families observed only from the connected
+ *   account, KYC/document requirement fields as capability PRECONDITIONS,
+ *   explicit beneficiary requirements, ACT/CLO/ERR/EXP statuses verbatim
+ *   with payment_method_data.next_action as customer-action-required
+ *   first-class, wallet observation as ExternalFundsPositionObservation
+ *   ONLY (INV-C09), the salt/timestamp webhook verifier, deterministic
+ *   client references (INV-F05), credentials through the control plane
+ *   (PROVIDER_RAPYD_CREDENTIAL_REF → sealed bundle), fail-closed on the
+ *   absent credential (the recorded 2026-10-02 sandbox 401 reachability
+ *   datum).
+ * - dLocal production connector (`src/dlocal.ts`, P2-W2-002): the REAL
+ *   dLocal v6 adapter — V2-HMAC-SHA256 authentication (X-Login/X-Trans-
+ *   Key/X-Date + the documented signature string, honest uncertainty
+ *   recorded), the full 11-status payment vocabulary verbatim
+ *   (PAID=settled-external, CHARGEBACK=dispute family, the provider's
+ *   ERROR kept distinct from transport OUTCOME_UNKNOWN), refunds/cancel/
+ *   payouts, coverage-as-preconditions from payment-methods/v2, the
+ *   X-Signature raw-body webhook verifier, deterministic tracking ids
+ *   (INV-F05), credentials through the control plane
+ *   (PROVIDER_DLOCAL_CREDENTIAL_REF → sealed bundle), fail-closed on the
+ *   absent credential (the recorded host-reachable datum).
+ * - Thunes production connector (`src/thunes.ts`, P2-W2-002): the
+ *   documented Thunes V2 adapter mapped faithfully — payers/countries/
+ *   services coverage observation, quotes, transaction lifecycle
+ *   (CREATED/IN_PROGRESS/HELD/CONFIRMED/RECONCILED/CANCELED/FAILED/
+ *   RETURNED verbatim; HELD = the compliance-review customer-action
+ *   family; CONFIRMED/RECONCILED = settled-external), explicit per-payer
+ *   beneficiary requirements as preconditions, the documented V2
+ *   api-key authentication and HMAC webhook pattern — with the HONEST
+ *   datum that BOTH documented API hosts are GLOBALLY NXDOMAIN (probed
+ *   2026-10-02, THUNES_UNRESOLVABLE_ENDPOINT_20261002): availability
+ *   UNKNOWN with provenance and every provider-calling operation refuses
+ *   citing the datum until the operator confirms the current host (no
+ *   simulated substitute; the MTN MoMo honest-BLOCKED pattern).
  *
  * NO SIMULATED SETTLEMENT: an adapter that cannot reach a real provider
  * fails or reports UNKNOWN — it never fabricates a settlement effect, and
@@ -90,3 +127,6 @@ export * from "./incidents.js";
 export * from "./stripe.js";
 export * from "./paystack.js";
 export * from "./flutterwave.js";
+export * from "./rapyd.js";
+export * from "./dlocal.js";
+export * from "./thunes.js";
