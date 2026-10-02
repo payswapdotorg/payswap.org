@@ -1,0 +1,176 @@
+/*
+ * Command Center shell layout (P3-W2-002).
+ *
+ * Composition CSS ONLY — every color/spacing/radius/text token comes from
+ * @payswap/design's tokens.css (var(--ps-*)); no new palette values are
+ * introduced here (no indigo/blue anywhere, by construction). The design
+ * system ships the sidebar/topbar/palette/state primitives; this file only
+ * composes them into the app shell grid and adds the few shell-specific
+ * affordances (mobile trigger, preview banner, gate container).
+ */
+
+.cc-shell {
+  display: flex;
+  min-height: calc(100vh - 132px); /* root layout header + footer allowance */
+  align-items: stretch;
+  background-color: var(--ps-bg);
+  color: var(--ps-fg);
+}
+
+.cc-shell__main {
+  flex: 1;
+  min-width: 0; /* no horizontal overflow at 390px (law 8) */
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-shell__content {
+  flex: 1;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--ps-space-6) var(--ps-space-4) var(--ps-space-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-6);
+}
+
+@media (min-width: 640px) {
+  .cc-shell__content {
+    padding: var(--ps-space-8) var(--ps-space-6) var(--ps-space-12);
+  }
+}
+
+/* ---- mobile navigation trigger (<lg, pairs with the design drawer) ---- */
+
+.cc-shell__menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-md);
+  background-color: var(--ps-surface);
+  color: var(--ps-fg);
+  cursor: pointer;
+}
+
+.cc-shell__menu:focus-visible {
+  outline: 2px solid var(--ps-focus);
+  outline-offset: 2px;
+}
+
+@media (min-width: 1024px) {
+  .cc-shell__menu {
+    display: none;
+  }
+}
+
+/* ---- the marked preview banner (never mistaken for a session) ---- */
+
+.cc-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ps-space-2) var(--ps-space-3);
+  padding: var(--ps-space-3) var(--ps-space-4);
+  border: 1px dashed var(--ps-amber-400);
+  border-radius: var(--ps-radius-md);
+  background-color: var(--ps-amber-50);
+  color: var(--ps-amber-800);
+  font-size: var(--ps-text-sm);
+}
+
+.cc-preview__label {
+  font-weight: var(--ps-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: var(--ps-text-xs);
+}
+
+/* ---- gate / section scaffolding ---- */
+
+.cc-section-heading {
+  margin: 0;
+  font-size: var(--ps-text-2xl);
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: -0.01em;
+  color: var(--ps-fg);
+}
+
+.cc-section-intro {
+  margin: 0;
+  max-width: 46rem;
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-base);
+  line-height: 1.6;
+}
+
+.cc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-5);
+}
+
+.cc-grid {
+  display: grid;
+  gap: var(--ps-space-5);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .cc-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Role switcher (a real form — works without JavaScript). */
+
+.cc-role-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ps-space-2);
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+}
+
+.cc-role-form__select {
+  min-height: 2rem;
+}
+
+.cc-gate-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ps-space-3);
+  margin-top: var(--ps-space-5);
+}
+
+.cc-gate-links a {
+  color: var(--ps-accent-emphasis);
+  font-weight: var(--ps-weight-medium);
+}
+
+/* Journey action list (each action honest: works or states its reason). */
+
+.cc-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cc-actions__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ps-space-2) var(--ps-space-3);
+}
+
+.cc-actions__reason {
+  color: var(--ps-fg-subtle);
+  font-size: var(--ps-text-sm);
+}
