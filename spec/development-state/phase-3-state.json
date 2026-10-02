@@ -19,18 +19,7 @@
   "email": "OPTIONAL_RESEND",
   "research": "OPTIONAL_APIFY"
  },
- "frontier": [
-  {
-   "id": "P3-W3-002",
-   "owner": "worker-3",
-   "status": "READY",
-   "depends_on": [
-    "P3-W1-001",
-    "P3-W1-002",
-    "P3-W2-002"
-   ]
-  }
- ],
+ "frontier": [],
  "max_concurrent_workers": 3,
  "policy": {
   "pairwise_disjoint": true,
@@ -62,7 +51,15 @@
   "rollback_verified"
  ],
  "do_not_modify_phase_2_history": true,
- "active_work_orders": [],
+ "active_work_orders": [
+  {
+   "id": "P3-W3-002",
+   "owner": "worker-3",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W3-002"
+  }
+ ],
  "completed_work_orders": [
   {
    "id": "P3-W1-001",
