@@ -1,4 +1,4 @@
-# CREDENTIAL ROTATION — @payswap/rails (W1-005; Stripe production path P2-W2-001)
+# CREDENTIAL ROTATION — @payswap/rails (W1-005; Stripe production path P2-W2-001; MTN/Paystack/Flutterwave paths P2-W3-001)
 
 Every rail adapter in this package declares its credential surface as
 **env-driven secret-store references**. No secret value is ever read into a
@@ -45,6 +45,9 @@ rotation auditable (INV-E02/E05) without ever exposing the secret.
 | Mobile money (MTN MoMo) | `PAYSWAP_RAILS_MOMO_API_USER_REF` | API user id | MTN provisioning | as above |
 | Mobile money (MTN MoMo) | `PAYSWAP_RAILS_MOMO_API_KEY_REF` | API user secret | MTN provisioning | as above |
 | Stripe (production connector) | `PROVIDER_STRIPE_CREDENTIAL_REF` | control-plane vault reference → sealed bundle | PaySwap ops via Stripe Dashboard + vault swap (below) | `CredentialRotationResult.evidence` (AUDIT_LOG) + provider-activation records |
+| Mobile money (MTN MoMo, control plane) | `PROVIDER_MTN_MOMO_CREDENTIAL_REF` | control-plane vault reference → sealed bundle (subscription key + API user + API key) | PaySwap ops via MTN developer portal + vault swap (below) | as above |
+| Flutterwave (production connector) | `PROVIDER_FLUTTERWAVE_CREDENTIAL_REF` | control-plane vault reference → sealed bundle | PaySwap ops via Flutterwave Dashboard + vault swap (below) | as above |
+| Paystack (production connector) | `PROVIDER_PAYSTACK_CREDENTIAL_REF` | control-plane vault reference → sealed bundle | PaySwap ops via Paystack Dashboard + vault swap (below) | as above |
 | Crypto (Ethereum public JSON-RPC) | — (none: public endpoint) | — | — | endpoint documented in BLOCKED-RAILS.md |
 | FX (ECB reference rates) | — (none: public feed) | — | — | endpoint documented in BLOCKED-RAILS.md |
 

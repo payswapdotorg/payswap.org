@@ -230,6 +230,27 @@ export const RAIL_CREDENTIAL_ENV_VARS: readonly CredentialSourceDeclaration[] = 
     description:
       "Control-plane credential reference for the Stripe production connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle material opens only through the CredentialBroker connector-runtime path)",
   }),
+  Object.freeze({
+    railId: "rail.mobile_money.mtn_momo",
+    envVar: "PROVIDER_MTN_MOMO_CREDENTIAL_REF",
+    kind: "API_KEY",
+    description:
+      "Control-plane credential reference for the MTN MoMo connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle carries the subscription key + API user + API key, opened only through the CredentialBroker connector-runtime path)",
+  }),
+  Object.freeze({
+    railId: "rail.flutterwave",
+    envVar: "PROVIDER_FLUTTERWAVE_CREDENTIAL_REF",
+    kind: "API_KEY",
+    description:
+      "Control-plane credential reference for the Flutterwave production connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle material opens only through the CredentialBroker connector-runtime path)",
+  }),
+  Object.freeze({
+    railId: "rail.paystack",
+    envVar: "PROVIDER_PAYSTACK_CREDENTIAL_REF",
+    kind: "API_KEY",
+    description:
+      "Control-plane credential reference for the Paystack production connector (P2-W1-001 vocabulary: vault://… reference bound to the config key; the sealed bundle material opens only through the CredentialBroker connector-runtime path)",
+  }),
 ]);
 
 /** Reads the secret-store reference for an env var, or undefined when absent. */
