@@ -25,12 +25,16 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ApiResponse } from '@payswap/api';
-import { mapTerminalStateToUi } from '@payswap/interfaces';
+import { mapTerminalStateToUi, validateRequestEnvelope } from '@payswap/interfaces';
 import type { ErrorCategory } from '@payswap/interfaces';
 import type { Mandate, PermissionGrant } from '@payswap/trust';
 import { issueGrant, principalRef } from '@payswap/trust';
 
-import type { ConnectProviderJourney, PayJourney } from '../src/product-journeys.js';
+import { PAYMENT_JOURNEY_STATES } from '../src/journeys.js';
+import { PROVENANCE_STRENGTH_ORDER } from '../src/incumbent-views.js';
+import { navItemById } from '../src/product-ia.js';
+import type { ProductNavItemId } from '../src/product-ia.js';
+import type { ConnectProviderJourney, PayJourney, ProductJourney, ProductJourneyId } from '../src/product-journeys.js';
 import {
   abandonCollectJourney,
   abandonPayJourney,
@@ -39,6 +43,8 @@ import {
   applyCollectRequestResponse,
   applyConnectionAuthorizationOutcome,
   applyConnectionInitiationResponse,
+  applyExecutionResumedResponse,
+  applyReauthorizationRequestResponse,
   applyPayOutcome,
   applyPayReconciliationResolution,
   applyPaymentSubmissionResponse,
@@ -50,20 +56,27 @@ import {
   asConnectedCapabilityInstanceId,
   asEvidenceArtifactRef,
   asPayoutDestinationRef,
+  asReauthorizationRef,
   attachBrowserSession,
   awaitFurtherObservation,
+  backToEvidenceList,
   beginCollectJourney,
   beginCollectTracking,
   beginConnectProvider,
+  beginEvidenceInspection,
   beginPayJourney,
   beginPayoutJourney,
+  beginReauthorization,
   beginReconcileJourney,
+  beginTrustedSurfaceReauthorization,
   browseProviderCatalogue,
   canTransitionCollect,
   canTransitionConnectProvider,
+  canTransitionEvidence,
   canTransitionPay,
   canTransitionPayout,
   canTransitionReconcile,
+  canTransitionReauth,
   chooseProvider,
   collectFulfillmentUiState,
   confirmConnectionApproval,
@@ -72,22 +85,33 @@ import {
   confirmWithdrawalScope,
   CONNECT_PROVIDER_TRANSITIONS,
   deriveCatalogueOptions,
+  deriveEvidenceList,
   deriveShareableRequest,
   dispatchCollectRequest,
   dispatchInitiateConnection,
   dispatchPaymentSubmission,
   dispatchPayoutSubmission,
   dispatchProductJourneyAction,
+  dispatchReauthorizationRequest,
   dispatchReconciliationObservation,
+  dispatchResumeExecution,
+  inspectEvidenceArtifact,
+  JOURNEY_NAV_BINDINGS,
+  journeysForNavItem,
   markRequestShared,
   PAY_TRANSITIONS,
+  PRODUCT_JOURNEY_IDS,
+  PRODUCT_JOURNEY_STATES,
   productJourneyMutationEnvelope,
+  productJourneyStateHasLiveActions,
   reenterPayoutDestinationSelection,
   reconcileJourneyUiState,
+  recordFreshAuthorization,
   recordOutcomeUnknown,
   routeCandidateIsExecutable,
   selectPayCapability,
   specifyPayoutDestination,
+  strongestEvidenceEntry,
   trackedOutcomeUiState,
 } from '../src/product-journeys.js';
 import { approvalArtifactRef, completeApprovalOnTrustedSurface } from '../src/trusted-approvals.js';
@@ -1143,5 +1167,448 @@ describe('reconcile-payment-outcome journey', () => {
     );
     const response = await dispatchReconciliationObservation(session, ambiguous);
     expect(response.status).toBe(200);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Journey 6 — Evidence
+// ---------------------------------------------------------------------------
+
+const EVIDENCE_ARTIFACTS = [
+  {
+    artifactRef: asEvidenceArtifactRef('ev_browser_1'),
+    summary: 'browser-local screenshot of the checkout',
+    provenance: { source: 'BROWSER_LOCAL' as const },
+  },
+  {
+    artifactRef: asEvidenceArtifactRef('ev_user_1'),
+    summary: 'user-reported payment confirmation',
+    provenance: { source: 'USER_REPORT' as const },
+  },
+  {
+    artifactRef: asEvidenceArtifactRef('ev_connector_1'),
+    summary: 'connector observation of the external charge',
+    provenance: { source: 'CONNECTED_INSTANCE' as const, systemName: 'stripe' },
+  },
+  {
+    artifactRef: asEvidenceArtifactRef('ev_provider_1'),
+    summary: 'preserved provider state envelope',
+    provenance: { source: 'PROVIDER_ENVELOPE' as const, systemName: 'psp-one' },
+  },
+];
+
+describe('evidence journey', () => {
+  it('provenance strength is consumed from incumbent-views (INV-E04 order); the list renders strongest-first', () => {
+    const entries = deriveEvidenceList(EVIDENCE_ARTIFACTS);
+    expect(entries.map((entry) => entry.artifactRef)).toEqual([
+      'ev_provider_1',
+      'ev_connector_1',
+      'ev_user_1',
+      'ev_browser_1',
+    ]);
+    expect(entries[0]?.provenanceLabel.strength).toBe('AUTHENTICATED_PROVIDER_RECORD');
+    expect(entries[1]?.provenanceLabel.strength).toBe('CONNECTOR_OBSERVED');
+    expect(entries[2]?.provenanceLabel.strength).toBe('USER_REPORTED');
+    expect(entries[3]?.provenanceLabel.strength).toBe('UNVERIFIED_BROWSER_ARTIFACT');
+
+    // The strongest entry is what a resolution claim may rest on.
+    const strongest = strongestEvidenceEntry(EVIDENCE_ARTIFACTS);
+    expect(strongest?.artifactRef).toBe('ev_provider_1');
+  });
+
+  it('a browser-local artifact is never stronger than its authenticated provenance (INV-E04)', () => {
+    const entries = deriveEvidenceList(EVIDENCE_ARTIFACTS);
+    const browser = entries.find((entry) => entry.artifactRef === 'ev_browser_1');
+    const connector = entries.find((entry) => entry.artifactRef === 'ev_connector_1');
+    const provider = entries.find((entry) => entry.artifactRef === 'ev_provider_1');
+    expect(browser !== undefined && connector !== undefined && provider !== undefined).toBe(true);
+    if (browser !== undefined && connector !== undefined && provider !== undefined) {
+      expect(browser.rank).toBeLessThan(connector.rank);
+      expect(connector.rank).toBeLessThan(provider.rank);
+      // The INV-E04 strength order is the consumed one.
+      expect(PROVENANCE_STRENGTH_ORDER.indexOf(browser.provenanceLabel.strength)).toBe(0);
+      expect(PROVENANCE_STRENGTH_ORDER.indexOf(provider.provenanceLabel.strength)).toBe(
+        PROVENANCE_STRENGTH_ORDER.length - 1,
+      );
+    }
+  });
+
+  it('the strongest entry is deterministic on rank ties (artifact-ref order)', () => {
+    const tied = strongestEvidenceEntry([
+      {
+        artifactRef: asEvidenceArtifactRef('ev_tie_b'),
+        summary: 'tied connector observation',
+        provenance: { source: 'CONNECTED_INSTANCE' as const },
+      },
+      {
+        artifactRef: asEvidenceArtifactRef('ev_tie_a'),
+        summary: 'another tied connector observation',
+        provenance: { source: 'CONNECTED_INSTANCE' as const },
+      },
+    ]);
+    expect(tied?.artifactRef).toBe('ev_tie_a');
+  });
+
+  it('inspect and return; unknown artifacts fail closed; the journey is READ-ONLY (no API_COMMAND action in any state)', () => {
+    const listing = beginEvidenceInspection({ actionRef: 'intent_pay_20', artifacts: EVIDENCE_ARTIFACTS });
+    expect(listing.stateName).toBe('LISTING');
+    expect(listing.actions.every((action) => action.kind !== 'API_COMMAND')).toBe(true);
+
+    const inspecting = inspectEvidenceArtifact(listing, asEvidenceArtifactRef('ev_provider_1'));
+    expect(inspecting.stateName).toBe('INSPECTING_ARTIFACT');
+    expect(inspecting.inspectedArtifactRef).toBe('ev_provider_1');
+    expect(inspecting.actions.every((action) => action.kind !== 'API_COMMAND')).toBe(true);
+
+    const back = backToEvidenceList(inspecting);
+    expect(back.stateName).toBe('LISTING');
+
+    expect(() => inspectEvidenceArtifact(listing, asEvidenceArtifactRef('ev_unknown'))).toThrow(
+      /not among the evidence entries/,
+    );
+    expect(canTransitionEvidence('LISTING', 'LISTING')).toBe(false);
+    expect(() => backToEvidenceList(listing)).toThrow(/not legal/);
+  });
+
+  it('an empty evidence list is honest (no dead buttons, no strongest entry)', () => {
+    const listing = beginEvidenceInspection({ actionRef: 'intent_pay_21', artifacts: [] });
+    expect(listing.entries).toEqual([]);
+    expect(listing.strongest).toBeUndefined();
+    expect(listing.actions.find((action) => action.actionId === 'view-provenance-strength-order')?.available).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Journey 7 — Reauth
+// ---------------------------------------------------------------------------
+
+const REAUTH_LINEAGE = {
+  intentId: 'intent_original_1',
+  attemptId: 'att_original_1',
+  commandHash: 'cmdhash_1',
+  originalCommandType: 'payments.intent.create',
+  amount: { currency: 'USD', minorUnits: '5000' },
+};
+
+function begunReauthJourney() {
+  return beginReauthorization({ trigger: 'EXPIRED', lineage: REAUTH_LINEAGE });
+}
+
+describe('reauthorize journey', () => {
+  it('the full cycle through the REAL api handler preserves the lineage verbatim at every step', async () => {
+    const session = uxSession(productJourneyHarness(), 'reauth-test');
+    const expired = begunReauthJourney();
+    expect(expired.stateName).toBe('AUTHORIZATION_EXPIRED');
+    expect(expired.terminal).toBe(false);
+    expect(expired.lineage).toEqual(REAUTH_LINEAGE);
+
+    // The fresh-authorization request reaches the REAL api handler.
+    const requested = await dispatchReauthorizationRequest(session, expired);
+    expect(requested.response.status).toBe(202);
+    expect(requested.journey.stateName).toBe('CUSTOMER_ACTION_REQUIRED');
+    expect(requested.journey.approval?.requestHash).toBeDefined();
+    expect(requested.journey.lineage).toEqual(REAUTH_LINEAGE);
+
+    // The trusted browser surface.
+    const reauthorizing = beginTrustedSurfaceReauthorization(requested.journey);
+    expect(reauthorizing.stateName).toBe('REAUTHORIZING_ON_TRUSTED_SURFACE');
+    expect(reauthorizing.lineage).toEqual(REAUTH_LINEAGE);
+
+    // The fresh authorization is recorded with BOTH opaque references.
+    const fresh = recordFreshAuthorization(reauthorizing, {
+      authorizationRef: asReauthorizationRef('reauth_ref_1'),
+      evidenceRef: asEvidenceArtifactRef('ev_fresh_auth_1'),
+    });
+    expect(fresh.stateName).toBe('FRESH_AUTHORIZATION_RECORDED');
+    expect(fresh.freshAuthorization?.authorizationRef).toBe('reauth_ref_1');
+    expect(fresh.freshAuthorization?.evidenceRef).toBe('ev_fresh_auth_1');
+    expect(fresh.lineage).toEqual(REAUTH_LINEAGE);
+
+    // The resume mutation carries the lineage correlation + the new
+    // authorization reference, and a fresh idempotency key.
+    const envelope = productJourneyMutationEnvelope(session, fresh, 'resume-execution');
+    expect(envelope.method).toBe('POST');
+    expect(envelope.idempotencyKey).toBeDefined();
+    const body = envelope.body as Record<string, unknown>;
+    expect(body['commandType']).toBe('payments.intent.create');
+    expect(body['correlationId']).toBe('intent_original_1');
+    expect(body['reauthorizationRef']).toBe('reauth_ref_1');
+
+    const resumed = await dispatchResumeExecution(session, fresh);
+    expect(resumed.response.status).toBe(200);
+    expect(resumed.journey.stateName).toBe('EXECUTION_RESUMED');
+    expect(resumed.journey.terminal).toBe(true);
+    expect(resumed.journey.resumedIntentId).toBeDefined();
+    expect(resumed.journey.lineage).toEqual(REAUTH_LINEAGE);
+    // The lineage stays inspectable after the resume (old intent, new authorization).
+    expect(resumed.journey.actions.find((action) => action.actionId === 'view-lineage')?.available).toBe(true);
+  });
+
+  it('execution cannot resume before a fresh authorization is recorded (illegal at every earlier state)', async () => {
+    const expired = begunReauthJourney();
+    const requested = applyReauthorizationRequestResponse(
+      expired,
+      approvalRequiredResponse({ requestHash: 'hash-reauth-1', expiresAt: '2026-10-02T01:00:00Z' }),
+    );
+    const reauthorizing = beginTrustedSurfaceReauthorization(requested);
+    const session = uxSession(productJourneyHarness(), 'reauth-illegal');
+    for (const journey of [expired, requested, reauthorizing]) {
+      expect(journey.actions.find((action) => action.actionId === 'resume-execution')).toBeUndefined();
+      await expect(dispatchResumeExecution(session, journey)).rejects.toThrow(/resume-execution/);
+    }
+    expect(canTransitionReauth('AUTHORIZATION_EXPIRED', 'EXECUTION_RESUMED')).toBe(false);
+    expect(canTransitionReauth('CUSTOMER_ACTION_REQUIRED', 'FRESH_AUTHORIZATION_RECORDED')).toBe(false);
+    expect(() => applyExecutionResumedResponse(reauthorizing, grantedResponse('x'))).toThrow(
+      /recorded fresh authorization/,
+    );
+  });
+
+  it('the trigger is carried (EXPIRED vs STEP_UP_REQUIRED) with honest guidance', () => {
+    const expired = begunReauthJourney();
+    expect(expired.trigger).toBe('EXPIRED');
+    const stepUp = beginReauthorization({ trigger: 'STEP_UP_REQUIRED', lineage: REAUTH_LINEAGE });
+    expect(stepUp.trigger).toBe('STEP_UP_REQUIRED');
+    expect(expired.actions.find((action) => action.actionId === 'view-why-reauth-needed')?.label).toContain('expired');
+    expect(stepUp.actions.find((action) => action.actionId === 'view-why-reauth-needed')?.label).toContain('step-up');
+  });
+
+  it('a bare grant in response to the reauthorization request is an honest contract error; a resume approval parks with the artifact path', () => {
+    const expired = begunReauthJourney();
+    expect(() => applyReauthorizationRequestResponse(expired, grantedResponse('x'))).toThrow(
+      /expected to produce an approval request or an error/,
+    );
+    const errored = applyReauthorizationRequestResponse(expired, errorResponse('AUTHORIZATION', 'session_expired', 'expired'));
+    expect(errored.stateName).toBe('AUTHORIZATION_EXPIRED');
+    expect(errored.error?.code).toBe('session_expired');
+
+    const fresh = recordFreshAuthorization(
+      beginTrustedSurfaceReauthorization(
+        applyReauthorizationRequestResponse(
+          expired,
+          approvalRequiredResponse({ requestHash: 'hash-reauth-2', expiresAt: '2026-10-02T01:00:00Z' }),
+        ),
+      ),
+      { authorizationRef: asReauthorizationRef('reauth_ref_2'), evidenceRef: asEvidenceArtifactRef('ev_2') },
+    );
+    const parked = applyExecutionResumedResponse(
+      fresh,
+      approvalRequiredResponse({ requestHash: 'hash-resume-1', expiresAt: '2026-10-02T02:00:00Z' }),
+    );
+    expect(parked.stateName).toBe('FRESH_AUTHORIZATION_RECORDED');
+    expect(parked.approval?.requestHash).toBe('hash-resume-1');
+    // The resume re-dispatch then carries the approval artifact reference.
+    const envelope = productJourneyMutationEnvelope(uxSession(productJourneyHarness(), 'reauth-approval'), parked, 'resume-execution');
+    expect((envelope.body as Record<string, unknown>)['approvalArtifactRef']).toBe(approvalArtifactRef('hash-resume-1'));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Cross-cutting contracts — state table, no dead buttons, idempotency, nav
+// ---------------------------------------------------------------------------
+
+function drivenConnectProviderJourneys(): ProductJourney[] {
+  const idle = beginConnectProvider({ catalogue: CATALOGUE });
+  const browsing = browseProviderCatalogue(idle);
+  const initiating = chooseProvider(browsing, 'stripe');
+  const awaiting = applyConnectionInitiationResponse(initiating, grantedResponse('intent_drive_c_1'));
+  const connected = applyConnectionAuthorizationOutcome(awaiting, {
+    instanceId: asConnectedCapabilityInstanceId('inst_drive_1'),
+    providerId: 'stripe',
+    connectedAt: '2026-10-02T00:00:00Z',
+    state: 'ACTIVE',
+  });
+  const expired = applyConnectionAuthorizationOutcome(awaiting, {
+    instanceId: asConnectedCapabilityInstanceId('inst_drive_1'),
+    providerId: 'stripe',
+    connectedAt: '2026-10-02T00:00:00Z',
+    state: 'EXPIRED',
+  });
+  const revoked = applyConnectionAuthorizationOutcome(connected, {
+    instanceId: asConnectedCapabilityInstanceId('inst_drive_1'),
+    providerId: 'stripe',
+    connectedAt: '2026-10-02T00:00:00Z',
+    state: 'REVOKED',
+  });
+  return [idle, browsing, initiating, awaiting, connected, expired, revoked];
+}
+
+function drivenPayJourneys(): ProductJourney[] {
+  const selecting = begunPayJourney();
+  const reviewing = selectPayCapability(selecting, asConnectedCapabilityInstanceId('inst_momo_gh_1'), []);
+  const awaiting = applyPaymentSubmissionResponse(
+    reviewing,
+    approvalRequiredResponse({ requestHash: 'hash-drive-pay', expiresAt: '2026-10-02T01:00:00Z' }),
+  );
+  const submitted = applyPaymentSubmissionResponse(reviewing, grantedResponse('intent_drive_p_1'));
+  const tracking = applyPayOutcome(submitted, 'IN_FLIGHT');
+  const reconciling = applyPayOutcome(submitted, 'OUTCOME_UNKNOWN');
+  const completed = applyPayOutcome(submitted, 'SUCCEEDED');
+  const failed = applyPayOutcome(submitted, 'FAILED');
+  const abandoned = abandonPayJourney(selecting);
+  return [selecting, reviewing, awaiting, submitted, tracking, reconciling, completed, failed, abandoned];
+}
+
+function drivenCollectJourneys(): ProductJourney[] {
+  const composing = beginCollectJourney({
+    amount: { currency: 'GHS', minorUnits: '25000' },
+    payer: 'customer:ama',
+    collectCapableInstances: CONNECTED_INSTANCES,
+  });
+  const created = applyCollectRequestResponse(composing, grantedResponse('intent_drive_c_1'));
+  const shared = markRequestShared(created);
+  const tracking = beginCollectTracking(shared);
+  const fulfilled = applyCollectFulfillment(tracking, 'FULFILLED');
+  const expired = applyCollectFulfillment(tracking, 'EXPIRED');
+  const cancelled = applyCollectFulfillment(tracking, 'CANCELLED');
+  const abandoned = abandonCollectJourney(composing);
+  return [composing, created, shared, tracking, fulfilled, expired, cancelled, abandoned];
+}
+
+function drivenPayoutJourneys(): ProductJourney[] {
+  const specifying = beginPayoutJourney({ amount: { currency: 'USD', minorUnits: '250000' } });
+  const confirming = confirmWithdrawalScope(
+    specifyPayoutDestination(specifying, PAYOUT_DESTINATION),
+    WITHDRAWAL_SCOPE,
+  );
+  const awaiting = applyPayoutSubmissionResponse(
+    confirming,
+    approvalRequiredResponse({ requestHash: 'hash-drive-payout', expiresAt: '2026-10-02T01:00:00Z' }),
+  );
+  const submitted = applyPayoutSubmissionResponse(confirming, grantedResponse('intent_drive_po_1'));
+  const tracking = applyPayoutOutcome(submitted, 'PENDING');
+  const reconciling = applyPayoutOutcome(submitted, 'OUTCOME_UNKNOWN');
+  const completed = applyPayoutOutcome(submitted, 'SUCCEEDED');
+  const failed = applyPayoutOutcome(submitted, 'FAILED');
+  const abandoned = abandonPayoutJourney(specifying);
+  return [specifying, confirming, awaiting, submitted, tracking, reconciling, completed, failed, abandoned];
+}
+
+function drivenReconcileJourneys(): ProductJourney[] {
+  const inFlight = beginReconcileJourney({ paymentRef: 'intent_drive_r_1' });
+  const ambiguous = recordOutcomeUnknown(inFlight, asEvidenceArtifactRef('ev_drive_1'));
+  const pending = awaitFurtherObservation(ambiguous, asEvidenceArtifactRef('ev_drive_2'));
+  const resolvedFulfilled = applyReconciliationResolution(ambiguous, 'RESOLVED_FULFILLED', asEvidenceArtifactRef('ev_drive_3'));
+  const resolvedFailed = applyReconciliationResolution(pending, 'RESOLVED_FAILED', asEvidenceArtifactRef('ev_drive_4'));
+  return [inFlight, ambiguous, pending, resolvedFulfilled, resolvedFailed];
+}
+
+function drivenEvidenceJourneys(): ProductJourney[] {
+  const listing = beginEvidenceInspection({ actionRef: 'intent_drive_e_1', artifacts: EVIDENCE_ARTIFACTS });
+  const inspecting = inspectEvidenceArtifact(listing, asEvidenceArtifactRef('ev_provider_1'));
+  return [listing, inspecting];
+}
+
+function drivenReauthJourneys(): ProductJourney[] {
+  const expired = begunReauthJourney();
+  const customerAction = applyReauthorizationRequestResponse(
+    expired,
+    approvalRequiredResponse({ requestHash: 'hash-drive-reauth', expiresAt: '2026-10-02T01:00:00Z' }),
+  );
+  const reauthorizing = beginTrustedSurfaceReauthorization(customerAction);
+  const fresh = recordFreshAuthorization(reauthorizing, {
+    authorizationRef: asReauthorizationRef('reauth_drive_1'),
+    evidenceRef: asEvidenceArtifactRef('ev_drive_reauth_1'),
+  });
+  const resumed = applyExecutionResumedResponse(fresh, grantedResponse('intent_drive_ra_1'));
+  return [expired, customerAction, reauthorizing, fresh, resumed];
+}
+
+function allDrivenProductJourneys(): readonly ProductJourney[] {
+  return [
+    ...drivenConnectProviderJourneys(),
+    ...drivenPayJourneys(),
+    ...drivenCollectJourneys(),
+    ...drivenPayoutJourneys(),
+    ...drivenReconcileJourneys(),
+    ...drivenEvidenceJourneys(),
+    ...drivenReauthJourneys(),
+  ];
+}
+
+describe('cross-cutting product journey contracts', () => {
+  it('the declared state table matches the driven journeys exactly (states AND terminal flags)', () => {
+    const driven = allDrivenProductJourneys();
+    const seen = new Map<string, Set<string>>();
+    for (const journey of driven) {
+      const spec = PRODUCT_JOURNEY_STATES.find((candidate) => candidate.journeyId === journey.journeyId);
+      expect(spec, `journey ${journey.journeyId} is declared in the state table`).toBeDefined();
+      const entry = spec?.states.find((candidate) => candidate.stateName === journey.stateName);
+      expect(
+        entry,
+        `state ${journey.stateName} of ${journey.journeyId} is declared in the state table`,
+      ).toBeDefined();
+      expect(journey.terminal).toBe(entry?.terminal);
+      const states = seen.get(journey.journeyId) ?? new Set<string>();
+      states.add(journey.stateName);
+      seen.set(journey.journeyId, states);
+    }
+    // Every declared state is exercised by the drivers above.
+    for (const spec of PRODUCT_JOURNEY_STATES) {
+      for (const entry of spec.states) {
+        expect(
+          seen.get(spec.journeyId)?.has(entry.stateName),
+          `${spec.journeyId}:${entry.stateName} is driven by the contract tests`,
+        ).toBe(true);
+      }
+    }
+    // The product journey ids are distinct from the payment journeys' ids
+    // (consume-don't-duplicate: a second journey family, not a shadow of one).
+    const paymentIds = PAYMENT_JOURNEY_STATES.map((spec) => spec.journeyId);
+    for (const journeyId of PRODUCT_JOURNEY_IDS) {
+      expect(paymentIds).not.toContain(journeyId);
+    }
+  });
+
+  it('no dead buttons: every driven state of every product journey declares at least one available action', () => {
+    for (const journey of allDrivenProductJourneys()) {
+      expect(
+        productJourneyStateHasLiveActions(journey),
+        `${journey.journeyId}:${journey.stateName} has live actions`,
+      ).toBe(true);
+    }
+  });
+
+  it('every available API_COMMAND mutation in every driven state is a VALIDATED envelope with a fresh idempotency key (INV-F05)', () => {
+    const session = uxSession(productJourneyHarness(), 'cross-cutting');
+    let mutationsChecked = 0;
+    for (const journey of allDrivenProductJourneys()) {
+      for (const action of journey.actions) {
+        if (action.kind !== 'API_COMMAND' || !action.available || action.apiCommand === undefined) {
+          continue;
+        }
+        const first = productJourneyMutationEnvelope(session, journey, action.actionId);
+        expect(validateRequestEnvelope(first).ok).toBe(true);
+        if (action.apiCommand.method === 'POST') {
+          expect(typeof first.idempotencyKey).toBe('string');
+          const second = productJourneyMutationEnvelope(session, journey, action.actionId);
+          expect(second.idempotencyKey).not.toBe(first.idempotencyKey);
+        } else {
+          // Reads never carry a key (only mutations do).
+          expect(first.idempotencyKey).toBeUndefined();
+        }
+        mutationsChecked += 1;
+      }
+    }
+    // The driven corpus really exercises the mutation machinery.
+    expect(mutationsChecked).toBeGreaterThan(5);
+  });
+
+  it('the journeys bind to REAL navigation items (Wave-2 binding points, consumed from product-ia)', () => {
+    for (const [journeyId, navItemId] of Object.entries(JOURNEY_NAV_BINDINGS)) {
+      expect(() => navItemById(navItemId as ProductNavItemId)).not.toThrow();
+      expect(journeysForNavItem(navItemId as ProductNavItemId)).toContain(journeyId as ProductJourneyId);
+    }
+    expect(journeysForNavItem('payments')).toEqual(['pay', 'reconcile-payment-outcome']);
+    expect(journeysForNavItem('capabilities')).toEqual(['connect-provider']);
+    expect(journeysForNavItem('evidence')).toEqual(['evidence']);
+    // Fail-closed on unknown nav ids (delegated to navItemById).
+    expect(() => journeysForNavItem('no-such-item' as ProductNavItemId)).toThrow(/unknown navigation item/);
+  });
+
+  it('no driven product journey value carries credential-material field names (runtime scan, law 4)', () => {
+    for (const journey of allDrivenProductJourneys()) {
+      expect(CREDENTIAL_MATERIAL_KEY_PATTERN.test(JSON.stringify(journey)), `${journey.journeyId} is clean`).toBe(
+        false,
+      );
+    }
   });
 });

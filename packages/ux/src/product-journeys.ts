@@ -3021,6 +3021,14 @@ export function beginTrustedSurfaceReauthorization(journey: ReauthJourney): Reau
 /**
  * Fold: record the FRESH authorization (opaque reference + evidence
  * reference — both required). The lineage is carried verbatim.
+ *
+ * The fresh authorization CONSUMES the customer-action approval folded at
+ * the reauthorization request: completing authorization on the trusted
+ * surface is what PRODUCES this record, so the pending approval is cleared
+ * here — the resume envelope must not carry the stale authorization-request
+ * artifact (the api handler rejects unknown artifacts). A resume that
+ * itself requires approval parks through `applyExecutionResumedResponse`,
+ * which folds a NEW approval for the resume re-dispatch.
  */
 export function recordFreshAuthorization(
   journey: ReauthJourney,
@@ -3032,8 +3040,9 @@ export function recordFreshAuthorization(
     journey.stateName,
     'FRESH_AUTHORIZATION_RECORDED',
   );
+  const { approval: _consumedByFreshAuthorization, ...journeyWithoutApproval } = journey;
   return finishReauth({
-    ...journey,
+    ...journeyWithoutApproval,
     stateName: 'FRESH_AUTHORIZATION_RECORDED',
     freshAuthorization: Object.freeze({ ...fresh }),
   });
