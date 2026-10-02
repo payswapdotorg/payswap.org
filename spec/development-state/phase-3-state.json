@@ -62,22 +62,7 @@
   "rollback_verified"
  ],
  "do_not_modify_phase_2_history": true,
- "active_work_orders": [
-  {
-   "id": "P3-W1-002",
-   "owner": "worker-1",
-   "status": "ACTIVE",
-   "activated_at": "2026-10-02",
-   "branch": "work/P3-W1-002"
-  },
-  {
-   "id": "P3-W2-002",
-   "owner": "worker-2",
-   "status": "ACTIVE",
-   "activated_at": "2026-10-02",
-   "branch": "work/P3-W2-002"
-  }
- ],
+ "active_work_orders": [],
  "completed_work_orders": [
   {
    "id": "P3-W1-001",
@@ -105,7 +90,26 @@
    "branch": "work/P3-W3-001",
    "completed_at": "2026-10-02",
    "verification": "merged after 5a2e83e; @payswap/ux battery 254/254 + typecheck clean; product-ia.ts (surface map, grouped nav, eight-role derivation, route model, 32 tests) + the seven journey contracts (222 tests; reauth approval-consumption live-bug found by execution and fixed); IA artifact spec/phase-3/research/product-ia-2026-10-02.md"
+  },
+  {
+   "id": "P3-W1-002",
+   "owner": "worker-1",
+   "status": "COMPLETE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W1-002",
+   "completed_at": "2026-10-02",
+   "verification": "merged; @payswap/web 100/100 total battery; typecheck clean; build rc=0 (webpack, zero warnings). The real session plane (@payswap/api SessionManager, scrypt constant-time verification, bound double-submit CSRF, exponential-backoff rate limiter, httpOnly/Secure/SameSite cookies, fail-closed unconfigured state with env NAMES only), sign-in/sign-out/session route handlers, the session-aware api-client (verbatim error surfacing), onboarding, the connection plane consuming the W3-001 contracts (catalogue-never-authorizes, opaque BrowserSessionRef only, honest not-bound authorization surface), reauth journey. DEPLOYED and browser-verified: /signin renders the honest not-configured state with the doctrine line; /connect gates on session with the public-evidence pointer. Acceptance tests cover scrypt/CSRF/cookie contract, open-redirect sanitization, credential-never-echoed."
+  },
+  {
+   "id": "P3-W2-002",
+   "owner": "worker-2",
+   "status": "COMPLETE",
+   "activated_at": "2026-10-02",
+   "branch": "work/P3-W2-002",
+   "completed_at": "2026-10-02",
+   "verification": "merged; @payswap/web 100/100 total battery; typecheck clean; build rc=0. The Command Center: role-derived shell from the certified product-ia (all eight roles), \u2318K command palette with real ACTIONS (journey starts) + GO-TO sections, Overview with REAL /v1/health + /v1/capabilities wiring to the deployed API (honest error/retry), Activity inbox feed, Payments/Collections/Payouts journey surfaces (connected-instances-only, explicit-destination fail-closed, UNKNOWN-as-reconciliation), Capabilities four-state view with external-funds-observation framing, Evidence INV-E04, Settings with the session seam; no dead navigation (every section resolves or renders its honest reason). DEPLOYED and browser-verified: all sections 200, palette functional, mobile 390px no-overflow, zero console errors."
   }
  ],
- "wave_1_status": "COMPLETE 2026-10-02 \u2014 public web foundation DEPLOYED (payswap-web.vercel.app) + UX design system (@payswap/design, You-platform reference extraction) + product IA & seven journey contracts (@payswap/ux 254/254). Full repo battery 2965/2965; root typecheck 0; verify:repo green; secret scan clean (only vault-ref/public-URL provenance class). Note: P3-W3-002 additionally requires P3-W1-002 + P3-W2-002 (sequential within Wave 2 per the operator graph)."
+ "wave_1_status": "COMPLETE 2026-10-02 \u2014 public web foundation DEPLOYED (payswap-web.vercel.app) + UX design system (@payswap/design, You-platform reference extraction) + product IA & seven journey contracts (@payswap/ux 254/254). Full repo battery 2965/2965; root typecheck 0; verify:repo green; secret scan clean (only vault-ref/public-URL provenance class). Note: P3-W3-002 additionally requires P3-W1-002 + P3-W2-002 (sequential within Wave 2 per the operator graph).",
+ "wave_2_status": "COMPLETE 2026-10-02 (parallel pair) \u2014 authentication/onboarding/connection UX (P3-W1-002) + Command Center implementation (P3-W2-002) merged, certified and DEPLOYED (payswap-web.vercel.app, all routes 200, honest states throughout). Full repo battery 3011/3011; root typecheck 0; verify:repo green; secret scan clean. TL merge-gate fixes: the build integration (webpack extensionAlias, use-client directives, node-scheme isolation shims), the SSR-safe useId un-marking (Panel), universal crypto.randomUUID in the client chain, csrf constants split. P3-W3-002 (payment/provider/local-rail journeys) is now READY \u2014 the final Wave 2 item, sequential."
 }
