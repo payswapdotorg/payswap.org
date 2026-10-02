@@ -348,7 +348,7 @@ function ebanxCapabilityDefinition(input: {
     compensation: {
       compensable: false,
       cancellation: "UNTIL_SETTLEMENT",
-      partialExecution: { possible: true, granularity: "AMOUNT", onPartial: "DISCLOSED" },
+      partialExecution: { possible: true, granularity: "STAGED", onPartial: "DISCLOSED" },
     },
     ...(input.requiredCustomerActions !== undefined && input.requiredCustomerActions.length > 0
       ? {
@@ -986,8 +986,8 @@ function ebanxBalanceEntries(response: unknown): readonly {
   }
   const record = response as Readonly<Record<string, unknown>>;
   const reserved = new Set(["status", "status_message", "success"]);
-  // Shape 1: a currency → amount record (top level or under `balances`).
-  for (const container of [record, record["balances"]]) {
+  // Shape 1: a currency → amount record (top level or under `balances`/`balance`).
+  for (const container of [record, record["balances"], record["balance"]]) {
     if (container !== null && typeof container === "object" && !Array.isArray(container)) {
       const entries: { readonly currency: unknown; readonly amount: unknown }[] = [];
       for (const [key, value] of Object.entries(container as Record<string, unknown>)) {
@@ -1649,6 +1649,11 @@ export class EbanxConnector extends ConnectorSDK {
           : {}),
       });
     } catch (error) {
+      // Fail-closed authorization refusals propagate (INV-NC04): they are
+      // connector-state failures, not query-back verdicts.
+      if (error instanceof RailNotAuthorizedError) {
+        throw error;
+      }
       return {
         verification: {
           valid: false,
@@ -2133,7 +2138,11 @@ export class EbanxConnector extends ConnectorSDK {
     // refusals (the documented /ws behavior) — the message is preserved.
     if (body !== null && typeof body === "object" && body.status === "ERROR") {
       const message = body.status_message ?? "provider error";
-      if (/merchant_payment_code.*already|already.*merchant_payment_code|duplicate.*merchant_payment_code/i.test(message)) {
+      if (
+        /merchant[_\s-]*payment[_\s-]*code.*(already|duplicat|exist)|(already|duplicat|exist).*merchant[_\s-]*payment[_\s-]*code/i.test(
+          message,
+        )
+      ) {
         throw new EbanxDuplicateMerchantPaymentCodeError(
           `ebanx rejected a duplicate merchant_payment_code: ${message}`,
           { path, httpStatus: response.status },
