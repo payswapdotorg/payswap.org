@@ -7,15 +7,22 @@ import {
   isPreviewMode,
   parseRolePreference,
   resolveCcSession,
+  resolveCcSessionFromContext,
   SESSION_SEAM_CONTRACT,
 } from "../src/lib/cc/session-seam";
 import { deriveCcRenderState } from "../src/lib/cc/render-state";
+import { buildWebSessionPlane, InjectedWebClock } from "../src/lib/session/web-session";
+import { hashPassword } from "../src/lib/session/password";
 
 /**
- * P3-W2-002 — the session seam: honestly not-wired today (no session can
- * exist, so none is claimed), the role preference parses fail-closed, and
- * the render-state derivation gates exactly as designed (no role → gate;
- * role preference → marked preview; authenticated session → nav role).
+ * P3-W3-002 — the session seam is WIRED to the real P3-W1-002 session plane:
+ * an unconfigured deployment resolves honestly not-wired (the ambient test
+ * env has no session env vars), the pure mapping turns a configured plane's
+ * valid session into `authenticated` (opaque principal + ISO expiry) and its
+ * absent/expired cookie into `unauthenticated` with the plane's own
+ * fail-closed reason, and the render-state derivation gates exactly as
+ * designed (no role → gate; role preference → marked preview; authenticated
+ * session → nav role).
  */
 
 const NOT_WIRED = { status: "not-wired" as const, reason: "…" };
@@ -23,17 +30,74 @@ const AUTHED = {
   status: "authenticated" as const,
   principal: { principal: "user_1", role: "developer" as const },
 };
-const UNAUTH = { status: "unauthenticated" as const };
+const UNAUTH = { status: "unauthenticated" as const, reason: "EXPIRED" };
+
+const NOW_MS = 1_800_000_000_000;
+
+async function configuredContextWithSession(
+  valid: boolean,
+): Promise<Parameters<typeof resolveCcSessionFromContext>[0]> {
+  const passwordHash = await hashPassword("correct horse battery staple");
+  const seed = JSON.stringify([
+    { email: "owner@example.test", displayName: "Owner", passwordHash },
+  ]);
+  const plane = await buildWebSessionPlane({
+    seedUsersRaw: seed,
+    signingKeyRaw: "test-signing-key-at-least-32-characters",
+    clock: new InjectedWebClock(() => NOW_MS),
+  });
+  if (!plane.configured) {
+    throw new Error("plane unexpectedly unconfigured");
+  }
+  if (!valid) {
+    return {
+      configured: true,
+      session: { valid: false, reason: "EXPIRED" },
+      plane,
+    };
+  }
+  const outcome = await plane.signIn("owner@example.test", "correct horse battery staple");
+  if (outcome.status !== "ok") {
+    throw new Error("sign-in unexpectedly failed");
+  }
+  return {
+    configured: true,
+    session: plane.lookup(outcome.sessionToken),
+    plane,
+    csrfToken: plane.csrfTokenFor(outcome.sessionToken),
+  };
+}
 
 describe("session seam", () => {
-  it("resolves honestly not-wired with the documented contract", async () => {
+  it("resolves honestly not-wired when the ambient plane is unconfigured (the test env sets no session vars)", async () => {
     const session = await resolveCcSession();
     expect(session.status).toBe("not-wired");
     if (session.status === "not-wired") {
-      expect(session.reason).toMatch(/not yet wired/i);
+      expect(session.reason).toMatch(/not configured in this deployment/i);
     }
     expect(SESSION_SEAM_CONTRACT.mergePoint).toBe("resolveCcSession()");
     expect(SESSION_SEAM_CONTRACT.provider).toMatch(/P3-W1-002/);
+    expect(SESSION_SEAM_CONTRACT.currentState).toMatch(/wired/i);
+  });
+
+  it("maps a configured plane's VALID session to authenticated (opaque principal, ISO expiry)", async () => {
+    const context = await configuredContextWithSession(true);
+    const session = resolveCcSessionFromContext(context);
+    expect(session.status).toBe("authenticated");
+    if (session.status === "authenticated") {
+      expect(session.principal.principal).toContain("owner@example.test");
+      expect(session.principal.role).toBeUndefined();
+      expect(session.principal.expiresAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    }
+  });
+
+  it("maps a configured plane's EXPIRED cookie to unauthenticated with the plane's own reason (reauth continuity)", async () => {
+    const context = await configuredContextWithSession(false);
+    const session = resolveCcSessionFromContext(context);
+    expect(session.status).toBe("unauthenticated");
+    if (session.status === "unauthenticated") {
+      expect(session.reason).toBe("EXPIRED");
+    }
   });
 
   it("parses the role cookie fail-closed", () => {
@@ -86,7 +150,7 @@ describe("session seam", () => {
 
 describe("session seam honest helpers re-export", () => {
   it("exposes the honest session line derivations", () => {
-    expect(deriveCcSessionHonest(NOT_WIRED)).toMatch(/not wired/i);
+    expect(deriveCcSessionHonest(NOT_WIRED)).toMatch(/not configured/i);
     expect(deriveCcSessionHonest(UNAUTH)).toBe("Not signed in");
     expect(deriveCcSessionHonest(AUTHED)).toMatch(/Signed in/);
   });
