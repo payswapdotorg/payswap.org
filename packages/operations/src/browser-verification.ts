@@ -38,6 +38,7 @@ import {
 } from "@payswap/ux";
 
 import { contentDigest } from "./digest.js";
+import { collectSecretShapedStrings } from "./provider-activation.js";
 
 /** The terminal-state type of the UX honest-state view, derived type-level. */
 export type TerminalUiState = Parameters<typeof renderTerminalHonestView>[0];
@@ -123,7 +124,12 @@ export interface BrowserJourneyContract {
   readonly journeyId: string;
   readonly title: string;
   /** Which @payswap/ux view-model family backs the browser surface. */
-  readonly source: "UX_PAYMENT_JOURNEY" | "W1_007_CERTIFICATION_JOURNEY";
+  readonly source:
+    | "UX_PAYMENT_JOURNEY"
+    | "W1_007_CERTIFICATION_JOURNEY"
+    | "PROVIDER_REAL_PATH_JOURNEY"
+    | "LOCAL_RAIL_USER_AUTHORIZED_JOURNEY"
+    | "EXPIRED_SESSION_JOURNEY";
   /** The information-architecture surface hosting the journey. */
   readonly surface: string;
   /** Must declare exactly the six required checks. */
@@ -134,6 +140,24 @@ export interface BrowserJourneyContract {
     readonly evidenceId: string;
     readonly strength: typeof SCREENSHOT_EVIDENCE_STRENGTH;
   };
+  /**
+   * P2-W3-003: present on provider-rollout contracts — the REAL
+   * API/protocol/provider path the journey drives (never a simulated
+   * substitute).
+   */
+  readonly realPath?: RealPathDescriptor;
+  /**
+   * P2-W3-003: present on provider-backed contracts — secret-bearing form
+   * fields, cookies and session material stay inside the secure
+   * browser/credential boundary (opaque references only in artifacts).
+   */
+  readonly credentialBoundary?: "SECURE_BROWSER_OR_VAULT_ONLY";
+  /**
+   * P2-W3-003: present on the expired-session contract — an expired
+   * session produces an EXPLICIT reauthentication / customer-action-
+   * required state (never a silent re-login or fabricated continuation).
+   */
+  readonly expiredSessionHandling?: ExpiredSessionHandling;
 }
 
 // ---------------------------------------------------------------------------
@@ -627,99 +651,7 @@ export function checkBrowserJourneyContracts(
   }
 
   for (const contract of contracts) {
-    // 2. the six checks, exactly
-    const missing = BROWSER_VERIFICATION_CHECKS.filter(
-      (check) => !contract.requiredChecks.includes(check),
-    );
-    if (missing.length > 0) {
-      violations.push({
-        journeyId: contract.journeyId,
-        check: "required-checks",
-        detail: `missing required checks: ${missing.join(", ")}`,
-      });
-    }
-
-    // 3. key interactions exist in the declared state table
-    if (contract.keyInteractions.length === 0) {
-      violations.push({
-        journeyId: contract.journeyId,
-        check: "key-interactions",
-        detail: "contract declares no key interaction",
-      });
-    }
-    if (contract.source === "UX_PAYMENT_JOURNEY") {
-      const spec = PAYMENT_JOURNEY_STATES.find(
-        (candidate) => candidate.journeyId === contract.journeyId,
-      );
-      if (spec !== undefined) {
-        const stateNames = new Set(spec.states.map((state) => state.stateName));
-        for (const interaction of contract.keyInteractions) {
-          if (!stateNames.has(interaction.expectedJourneyState)) {
-            violations.push({
-              journeyId: contract.journeyId,
-              check: "key-interactions",
-              detail: `expected state '${interaction.expectedJourneyState}' is not in the journey's declared state table`,
-            });
-          }
-        }
-      }
-    }
-    for (const interaction of contract.keyInteractions) {
-      if (!interaction.correlatedProtocolId) {
-        violations.push({
-          journeyId: contract.journeyId,
-          check: "key-interactions",
-          detail: `interaction '${interaction.interactionId}' declares no correlated protocol ID`,
-        });
-      }
-    }
-
-    // 4. UNKNOWN renders as reconciling with the path surfaced
-    if (contract.unknownHandling.applies) {
-      if (
-        contract.unknownHandling.rendersAs !== "reconciling" ||
-        !contract.unknownHandling.reconciliationPathSurfaced
-      ) {
-        violations.push({
-          journeyId: contract.journeyId,
-          check: "unknown-handling",
-          detail: "UNKNOWN must render as reconciling with the reconciliation path surfaced (INV-X01)",
-        });
-      }
-    }
-
-    // 5. INV-E04 evidence-strength ceiling
-    if (contract.screenshotArtifact.strength !== SCREENSHOT_EVIDENCE_STRENGTH) {
-      violations.push({
-        journeyId: contract.journeyId,
-        check: "evidence-strength",
-        detail: "screenshot artifact strength must be BROWSER_UNAUTHENTICATED_PROVENANCE (INV-E04)",
-      });
-    }
-
-    // 6. every TERMINAL state referenced by the contracts renders honestly
-    //    through the @payswap/ux honest-state layer (non-terminal UX journey
-    //    states are covered by the state-table check above).
-    for (const interaction of contract.keyInteractions) {
-      if (!isTerminalUiState(interaction.expectedJourneyState)) {
-        continue;
-      }
-      const rendered = renderTerminalHonestView(interaction.expectedJourneyState);
-      if (rendered.uiState === "failed" && interaction.expectedJourneyState === "UNKNOWN") {
-        violations.push({
-          journeyId: contract.journeyId,
-          check: "honest-rendering",
-          detail: "UNKNOWN rendered as failure — must render reconciling (INV-X01)",
-        });
-      }
-      if (interaction.expectedJourneyState === "UNKNOWN" && rendered.tone === "negative") {
-        violations.push({
-          journeyId: contract.journeyId,
-          check: "honest-rendering",
-          detail: "UNKNOWN rendered with negative tone — must be neutral/reconciling (INV-X01)",
-        });
-      }
-    }
+    violations.push(...contractRuleViolations(contract));
   }
 
   // collect which terminal states actually rendered (for the report)
@@ -738,6 +670,109 @@ export function checkBrowserJourneyContracts(
     violations,
     verifiedTerminalStates: [...verifiedTerminalStates].sort(),
   };
+}
+
+/**
+ * The per-contract rule checks (2-6 of the checker above), shared with the
+ * P2-W3-003 provider-rollout coverage checker so every contract family is
+ * held to the SAME six-check/state-table/INV-X01/INV-E04 rules.
+ */
+function contractRuleViolations(contract: BrowserJourneyContract): ContractViolation[] {
+  const violations: ContractViolation[] = [];
+  // 2. the six checks, exactly
+  const missing = BROWSER_VERIFICATION_CHECKS.filter(
+    (check) => !contract.requiredChecks.includes(check),
+  );
+  if (missing.length > 0) {
+    violations.push({
+      journeyId: contract.journeyId,
+      check: "required-checks",
+      detail: `missing required checks: ${missing.join(", ")}`,
+    });
+  }
+
+  // 3. key interactions exist in the declared state table
+  if (contract.keyInteractions.length === 0) {
+    violations.push({
+      journeyId: contract.journeyId,
+      check: "key-interactions",
+      detail: "contract declares no key interaction",
+    });
+  }
+  if (contract.source === "UX_PAYMENT_JOURNEY") {
+    const spec = PAYMENT_JOURNEY_STATES.find(
+      (candidate) => candidate.journeyId === contract.journeyId,
+    );
+    if (spec !== undefined) {
+      const stateNames = new Set(spec.states.map((state) => state.stateName));
+      for (const interaction of contract.keyInteractions) {
+        if (!stateNames.has(interaction.expectedJourneyState)) {
+          violations.push({
+            journeyId: contract.journeyId,
+            check: "key-interactions",
+            detail: `expected state '${interaction.expectedJourneyState}' is not in the journey's declared state table`,
+          });
+        }
+      }
+    }
+  }
+  for (const interaction of contract.keyInteractions) {
+    if (!interaction.correlatedProtocolId) {
+      violations.push({
+        journeyId: contract.journeyId,
+        check: "key-interactions",
+        detail: `interaction '${interaction.interactionId}' declares no correlated protocol ID`,
+      });
+    }
+  }
+
+  // 4. UNKNOWN renders as reconciling with the path surfaced
+  if (contract.unknownHandling.applies) {
+    if (
+      contract.unknownHandling.rendersAs !== "reconciling" ||
+      !contract.unknownHandling.reconciliationPathSurfaced
+    ) {
+      violations.push({
+        journeyId: contract.journeyId,
+        check: "unknown-handling",
+        detail: "UNKNOWN must render as reconciling with the reconciliation path surfaced (INV-X01)",
+      });
+    }
+  }
+
+  // 5. INV-E04 evidence-strength ceiling
+  if (contract.screenshotArtifact.strength !== SCREENSHOT_EVIDENCE_STRENGTH) {
+    violations.push({
+      journeyId: contract.journeyId,
+      check: "evidence-strength",
+      detail: "screenshot artifact strength must be BROWSER_UNAUTHENTICATED_PROVENANCE (INV-E04)",
+    });
+  }
+
+  // 6. every TERMINAL state referenced by the contracts renders honestly
+  //    through the @payswap/ux honest-state layer (non-terminal UX journey
+  //    states are covered by the state-table check above).
+  for (const interaction of contract.keyInteractions) {
+    if (!isTerminalUiState(interaction.expectedJourneyState)) {
+      continue;
+    }
+    const rendered = renderTerminalHonestView(interaction.expectedJourneyState);
+    if (rendered.uiState === "failed" && interaction.expectedJourneyState === "UNKNOWN") {
+      violations.push({
+        journeyId: contract.journeyId,
+        check: "honest-rendering",
+        detail: "UNKNOWN rendered as failure — must render reconciling (INV-X01)",
+      });
+    }
+    if (interaction.expectedJourneyState === "UNKNOWN" && rendered.tone === "negative") {
+      violations.push({
+        journeyId: contract.journeyId,
+        check: "honest-rendering",
+        detail: "UNKNOWN rendered with negative tone — must be neutral/reconciling (INV-X01)",
+      });
+    }
+  }
+  return violations;
 }
 
 // ---------------------------------------------------------------------------
@@ -776,7 +811,24 @@ export function recordBrowserVerificationRun(
     readonly checks: readonly CheckResult[];
   }[],
 ): BrowserVerificationReport {
-  const assembled: JourneyVerificationRun[] = runs.map((run) => {
+  const assembled = assembleJourneyRuns(runs);
+  const body = { suiteId: "payswap.browser-verification" as const, runs: assembled };
+  return {
+    ...body,
+    workOrder: "W3-007",
+    passed: assembled.every((run) => run.passed),
+    digest: contentDigest(body),
+  };
+}
+
+/** Shared run assembly: the six required checks per journey, fail-closed. */
+function assembleJourneyRuns(
+  runs: readonly {
+    readonly journeyId: string;
+    readonly checks: readonly CheckResult[];
+  }[],
+): JourneyVerificationRun[] {
+  return runs.map((run) => {
     const covered = BROWSER_VERIFICATION_CHECKS.filter((check) =>
       run.checks.some((result) => result.check === check),
     );
@@ -798,10 +850,639 @@ export function recordBrowserVerificationRun(
           ];
     return { journeyId: run.journeyId, checks, passed };
   });
-  const body = { suiteId: "payswap.browser-verification" as const, runs: assembled };
+}
+
+// ---------------------------------------------------------------------------
+// P2-W3-003 — provider-rollout browser contracts: real paths, the local
+// rail's user-authorized session, expired sessions, secret exclusion
+// ---------------------------------------------------------------------------
+
+/**
+ * The REAL path a provider-rollout journey drives (work-order acceptance
+ * "browser journeys use real API/protocol/provider paths"). The contract
+ * describes the real path — the connector's own mapping code over the
+ * provider's real documented API surface, driven through the validated
+ * protocol envelope; never a simulated substitute.
+ */
+export interface RealPathDescriptor {
+  readonly providerName: string;
+  /** The journey drives the provider's REAL API surface through the connector. */
+  readonly apiPath: "REAL_PROVIDER_API";
+  /** Mutations leave as validated RequestEnvelopes (INV-F05 idempotency keys). */
+  readonly protocolPath: "VALIDATED_REQUEST_ENVELOPE";
+  /**
+   * The canonical authorization mode of the connected instance (validated
+   * against the caller-supplied canonical union — boundary law 6).
+   */
+  readonly authorizationMode: string;
+  readonly transportNote: string;
+}
+
+/** The expired-session handling declaration (P2-W3-003 acceptance). */
+export interface ExpiredSessionHandling {
+  /** The journey reaches an EXPLICIT EXPIRED state (never silent). */
+  readonly producesExpiredState: true;
+  /** The customer must act: reauthentication is required to continue. */
+  readonly customerActionRequired: true;
+  /** Reauthentication happens ONLY inside the isolated secure browser surface. */
+  readonly reauthenticationPath: "ISOLATED_SECURE_BROWSER_SURFACE";
+  /** A re-authenticated journey continues as a NEW attempt with fresh authorization evidence. */
+  readonly continuesAsNewAttempt: true;
+}
+
+/**
+ * Builds the provider real-path browser contract for one connected
+ * provider. The journey drives the provider's real API through the
+ * connector's own mapping code and the validated protocol envelope;
+ * UNKNOWN outcomes render reconciling (INV-X01).
+ */
+export function providerRealPathJourneyContract(
+  providerName: string,
+  authorizationMode: string,
+  extraInteractions: readonly KeyInteraction[] = [],
+): BrowserJourneyContract {
+  return Object.freeze({
+    journeyId: `provider-real-path:${providerName}`,
+    title: `Provider real-path journey — ${providerName}`,
+    source: "PROVIDER_REAL_PATH_JOURNEY" as const,
+    surface: "Payments",
+    requiredChecks: [...BROWSER_VERIFICATION_CHECKS],
+    keyInteractions: [
+      {
+        interactionId: "complete-real-path-payment",
+        description:
+          `Drive the checkout over the REAL ${providerName} API path (the connector's own mapping code, the provider's documented API surface, the validated RequestEnvelope) to the terminal honest view with evidence links.`,
+        expectedJourneyState: "FULFILLED",
+        correlatedProtocolId: "settlementId",
+      },
+      {
+        interactionId: "provider-outcome-unknown",
+        description:
+          `When ${providerName} answers ambiguously, the surface renders UNKNOWN as reconciling with the reconciliation path surfaced — never as failure (INV-X01).`,
+        expectedJourneyState: "UNKNOWN",
+        correlatedProtocolId: "reconciliationCaseId",
+      },
+      ...extraInteractions,
+    ],
+    unknownHandling: {
+      applies: true as const,
+      rendersAs: "reconciling" as const,
+      reconciliationPathSurfaced: true as const,
+    },
+    screenshotArtifact: {
+      evidenceId: `screenshot:provider-real-path:${providerName}`,
+      strength: SCREENSHOT_EVIDENCE_STRENGTH,
+    },
+    realPath: {
+      providerName,
+      apiPath: "REAL_PROVIDER_API" as const,
+      protocolPath: "VALIDATED_REQUEST_ENVELOPE" as const,
+      authorizationMode,
+      transportNote:
+        "the connector's own mapping code over the provider's real documented API surface — scripted transport in certification, live transport in production; never a simulated rail",
+    },
+    credentialBoundary: "SECURE_BROWSER_OR_VAULT_ONLY" as const,
+  });
+}
+
+/**
+ * Derives the real-path contract set for the connected providers of a
+ * rollout (one contract per provider — the completeness the coverage
+ * checker enforces).
+ */
+export function deriveProviderRealPathContracts(
+  connectedProviders: readonly {
+    readonly providerName: string;
+    readonly authorizationMode: string;
+  }[],
+): readonly BrowserJourneyContract[] {
+  return Object.freeze(
+    connectedProviders.map((provider) =>
+      providerRealPathJourneyContract(
+        provider.providerName,
+        provider.authorizationMode,
+      ),
+    ),
+  );
+}
+
+/**
+ * Builds the LOCAL-RAIL user-authorized journey contract (work-order
+ * acceptance: "local-rail browser journeys use the real user-authorized
+ * provider/session path when no API credential exists"). The
+ * authorizationMode is the W1-003 direct-local mode (INTERACTIVE_BROWSER_
+ * SESSION for the user-authorized provider session; PROVIDERLESS_RAIL for
+ * a rail with user-held local material) — validated by the coverage
+ * checker against the caller-supplied canonical direct-local union.
+ */
+export function localRailUserAuthorizedJourneyContract(
+  authorizationMode: string,
+): BrowserJourneyContract {
+  return Object.freeze({
+    journeyId: "local-rail-user-authorized-payment",
+    title: "Local-rail payment over the user-authorized provider session",
+    source: "LOCAL_RAIL_USER_AUTHORIZED_JOURNEY" as const,
+    surface: "Payments",
+    requiredChecks: [...BROWSER_VERIFICATION_CHECKS],
+    keyInteractions: [
+      {
+        interactionId: "establish-user-authorized-session",
+        description:
+          "With no API credential, the user authorizes the provider inside the ISOLATED secure browser surface (login/MFA in the browser boundary — the session material never crosses into agent context or artifacts); the surface renders the preserved customer action (INV-C06).",
+        expectedJourneyState: "USER_ACTION_REQUIRED",
+        correlatedProtocolId: "attemptId",
+      },
+      {
+        interactionId: "complete-local-rail-payment",
+        description:
+          "The local-rail payment executes over the user-authorized provider/session path (the real path — no simulated substitute); the terminal honest view renders with evidence links.",
+        expectedJourneyState: "FULFILLED",
+        correlatedProtocolId: "settlementId",
+      },
+    ],
+    unknownHandling: {
+      applies: true as const,
+      rendersAs: "reconciling" as const,
+      reconciliationPathSurfaced: true as const,
+    },
+    screenshotArtifact: {
+      evidenceId: "screenshot:local-rail-user-authorized-payment",
+      strength: SCREENSHOT_EVIDENCE_STRENGTH,
+    },
+    realPath: {
+      providerName: "local-rail",
+      apiPath: "REAL_PROVIDER_API" as const,
+      protocolPath: "VALIDATED_REQUEST_ENVELOPE" as const,
+      authorizationMode,
+      transportNote:
+        "the real user-authorized provider/session path inside the isolated secure browser runtime — applies when no API credential exists (the W1-003 direct-local coverage-gap vocabulary)",
+    },
+    credentialBoundary: "SECURE_BROWSER_OR_VAULT_ONLY" as const,
+  });
+}
+
+/** The default local-rail contract (the user-authorized browser session). */
+export const LOCAL_RAIL_USER_AUTHORIZED_JOURNEY_CONTRACT: BrowserJourneyContract =
+  localRailUserAuthorizedJourneyContract("INTERACTIVE_BROWSER_SESSION");
+
+/**
+ * The expired-session journey contract (work-order acceptance: "expired
+ * sessions produce explicit reauthentication/customer-action-required
+ * states"). Expected states use the canonical browser-session
+ * authorization lifecycle tokens (ACTIVE / REAUTHENTICATION_REQUIRED /
+ * STEP_UP_REQUIRED / EXPIRED / REVOKED — owned by @payswap/connectors and
+ * passed into the checker by the caller); EXPIRED renders through the
+ * honest-state layer (neutral tone, never failure).
+ */
+export const EXPIRED_SESSION_JOURNEY_CONTRACT: BrowserJourneyContract =
+  Object.freeze({
+    journeyId: "expired-session-reauthentication",
+    title: "Expired session — explicit reauthentication",
+    source: "EXPIRED_SESSION_JOURNEY" as const,
+    surface: "Payments",
+    requiredChecks: [...BROWSER_VERIFICATION_CHECKS],
+    keyInteractions: [
+      {
+        interactionId: "observe-session-expiry",
+        description:
+          "The provider session expires mid-journey; the surface reaches the EXPLICIT EXPIRED state with the reauthentication path surfaced — never a silent re-login, never a fabricated continuation.",
+        expectedJourneyState: "EXPIRED",
+        correlatedProtocolId: "attemptId",
+      },
+      {
+        interactionId: "complete-reauthentication",
+        description:
+          "The customer re-authenticates inside the isolated secure browser surface; the browser-session lifecycle returns to ACTIVE and the journey continues as a NEW attempt with fresh authorization evidence.",
+        expectedJourneyState: "ACTIVE",
+        correlatedProtocolId: "attemptId",
+      },
+      {
+        interactionId: "provider-requires-step-up",
+        description:
+          "When the provider requires step-up authentication, the surface renders STEP_UP_REQUIRED as a customer action (INV-C06) — distinct from expiry and from failure.",
+        expectedJourneyState: "STEP_UP_REQUIRED",
+        correlatedProtocolId: "attemptId",
+      },
+    ],
+    unknownHandling: {
+      applies: false as const,
+      notApplicableReason:
+        "Session expiry, reauthentication and step-up are determinate browser-session lifecycle states; ambiguity of the external outcome is owned by the real-path journey contracts.",
+    },
+    screenshotArtifact: {
+      evidenceId: "screenshot:expired-session-reauthentication",
+      strength: SCREENSHOT_EVIDENCE_STRENGTH,
+    },
+    credentialBoundary: "SECURE_BROWSER_OR_VAULT_ONLY" as const,
+    expiredSessionHandling: {
+      producesExpiredState: true as const,
+      customerActionRequired: true as const,
+      reauthenticationPath: "ISOLATED_SECURE_BROWSER_SURFACE" as const,
+      continuesAsNewAttempt: true as const,
+    },
+  });
+
+// ---------------------------------------------------------------------------
+// P2-W3-003 — secret exclusion: secret-bearing form fields, cookies and
+// session material stay OUTSIDE agent context and ordinary artifacts
+// ---------------------------------------------------------------------------
+
+/** The field classes that carry secret-bearing material. */
+export const SECRET_BEARING_FIELD_CLASSES = [
+  "FORM_FIELD_VALUE",
+  "COOKIE",
+  "SESSION_MATERIAL",
+  "AUTHORIZATION_HEADER",
+  "WEBHOOK_SIGNATURE",
+] as const;
+export type SecretBearingFieldClass =
+  (typeof SECRET_BEARING_FIELD_CLASSES)[number];
+
+/** Cookie-assignment syntax (a cookie VALUE recorded as an artifact string). */
+const COOKIE_ASSIGNMENT_PATTERN =
+  /[A-Za-z0-9_-]{2,}=[^;\s]{8,};\s*(?:Path|Domain|Max-Age|Expires|HttpOnly|Secure|SameSite)=/;
+
+/** Opaque boundary references (the ONLY legal artifact representation). */
+const OPAQUE_REF_PATTERN = /^(?:browser-session|vault|opaque):\/\/[a-zA-Z0-9][a-zA-Z0-9._-]*$/;
+
+/** What a browser runner observed on one journey (pre-redaction input). */
+export interface BrowserObservationField {
+  readonly name: string;
+  readonly fieldClass: SecretBearingFieldClass | "NON_SECRET";
+  /** PLAIN_VALUE carries the material; OPAQUE_REF carries a boundary reference. */
+  readonly representation: "PLAIN_VALUE" | "OPAQUE_REF";
+  readonly value: string;
+}
+
+export interface BrowserJourneyObservation {
+  readonly journeyId: string;
+  readonly fields: readonly BrowserObservationField[];
+  /** Cookie NAMES only — cookie values are structurally unrepresentable. */
+  readonly cookieNames: readonly string[];
+  /** The opaque browser-session reference (when a session backs the journey). */
+  readonly sessionRef?: string;
+  readonly notes: readonly string[];
+}
+
+/** The artifact-safe product of {@link redactBrowserJourneyObservation}. */
+export interface RedactedBrowserJourneyArtifact {
+  readonly journeyId: string;
+  readonly fields: readonly {
+    readonly name: string;
+    readonly fieldClass: SecretBearingFieldClass | "NON_SECRET";
+    readonly representation: "OPAQUE_REF";
+    /** A per-field ordinal opaque reference — NO trace of the value survives. */
+    readonly ref: string;
+  }[];
+  readonly cookieNames: readonly string[];
+  readonly sessionRef?: string;
+  readonly notes: readonly string[];
+  readonly credentialBoundary: "SECURE_BROWSER_OR_VAULT_ONLY";
+}
+
+export interface BrowserArtifactExclusionReport {
+  readonly journeyId: string;
+  readonly ok: boolean;
+  readonly violations: readonly { readonly field: string; readonly problem: string }[];
+}
+
+/** Deep secret scan + representation rules over one observation. */
+function observationExclusionViolations(
+  observation: BrowserJourneyObservation,
+  rootLabel: string,
+): { journeyId: string; violations: { field: string; problem: string }[] } {
+  const violations: { field: string; problem: string }[] = [];
+  const push = (field: string, problem: string): void => {
+    violations.push({ field, problem });
+  };
+
+  for (const fieldClass of SECRET_BEARING_FIELD_CLASSES) {
+    if (fieldClass === "COOKIE") {
+      continue; // cookies are names-only, checked below
+    }
+    for (const field of observation.fields) {
+      if (field.fieldClass === fieldClass && field.representation === "PLAIN_VALUE") {
+        push(
+          `${rootLabel}.fields[${field.name}]`,
+          `secret-bearing ${fieldClass.toLowerCase()} recorded as PLAIN_VALUE — the secure browser/credential boundary is the only legal location`,
+        );
+      }
+    }
+  }
+  for (const field of observation.fields) {
+    if (
+      field.fieldClass === "COOKIE" &&
+      field.representation === "PLAIN_VALUE" &&
+      COOKIE_ASSIGNMENT_PATTERN.test(field.value)
+    ) {
+      push(
+        `${rootLabel}.fields[${field.name}]`,
+        "cookie assignment syntax recorded in an artifact — cookie values stay in the browser boundary",
+      );
+    }
+  }
+  if (observation.sessionRef !== undefined) {
+    if (!OPAQUE_REF_PATTERN.test(observation.sessionRef)) {
+      push(
+        `${rootLabel}.sessionRef`,
+        "session material must appear as an opaque boundary reference (browser-session://…), never as a value",
+      );
+    }
+  }
+  // Deep secret-shape scan over every string (same fail-closed heuristics
+  // as the provider-activation byte scanner — one law, one scanner).
+  for (const hit of collectSecretShapedStrings(observation, rootLabel)) {
+    push(hit, "secret-shaped value in browser-journey material (references only)");
+  }
+  return { journeyId: observation.journeyId, violations };
+}
+
+/**
+ * Checks a raw observation: every secret-bearing field, cookie value and
+ * session material must stay OUT of the recorded artifact (opaque
+ * references only). The runner calls this BEFORE redaction to prove the
+ * boundary holds — an ok:false report is a boundary violation.
+ */
+export function checkBrowserObservationSecretExclusion(
+  observation: BrowserJourneyObservation,
+): BrowserArtifactExclusionReport {
+  const { journeyId, violations } = observationExclusionViolations(
+    observation,
+    "observation",
+  );
+  return { journeyId, ok: violations.length === 0, violations };
+}
+
+/**
+ * Deterministically redacts an observation into the artifact-safe form:
+ * every field becomes an OPAQUE_REF with a per-journey ordinal (NO digest,
+ * NO trace of the value survives in the artifact); cookie names are kept
+ * (names are not secret); the session reference passes through only when
+ * it is already opaque.
+ */
+export function redactBrowserJourneyObservation(
+  observation: BrowserJourneyObservation,
+): RedactedBrowserJourneyArtifact {
+  return Object.freeze({
+    journeyId: observation.journeyId,
+    fields: Object.freeze(
+      observation.fields.map((field, index) => ({
+        name: field.name,
+        fieldClass: field.fieldClass,
+        representation: "OPAQUE_REF" as const,
+        ref: `opaque://${observation.journeyId}/field/${index}`,
+      })),
+    ),
+    cookieNames: Object.freeze([...observation.cookieNames]),
+    ...(observation.sessionRef !== undefined &&
+    OPAQUE_REF_PATTERN.test(observation.sessionRef)
+      ? { sessionRef: observation.sessionRef }
+      : {}),
+    notes: Object.freeze([...observation.notes]),
+    credentialBoundary: "SECURE_BROWSER_OR_VAULT_ONLY" as const,
+  });
+}
+
+/**
+ * Checks a redacted artifact (or any claimed artifact): the artifact must
+ * contain NO secret-bearing material — no secret-shaped strings, no
+ * cookie-assignment syntax, no plain session material — anywhere in its
+ * structure. Fail-closed deep scan.
+ */
+export function checkBrowserArtifactSecretExclusion(
+  artifact: unknown,
+): BrowserArtifactExclusionReport {
+  const violations: { field: string; problem: string }[] = [];
+  const record =
+    typeof artifact === "object" && artifact !== null
+      ? (artifact as Readonly<Record<string, unknown>>)
+      : undefined;
+  const journeyIdToken = record?.journeyId;
+  const journeyId =
+    typeof journeyIdToken === "string" ? journeyIdToken : "unknown-journey";
+  const push = (field: string, problem: string): void => {
+    violations.push({ field, problem });
+  };
+
+  const scan = (value: unknown, field: string): void => {
+    if (typeof value === "string") {
+      if (COOKIE_ASSIGNMENT_PATTERN.test(value)) {
+        push(field, "cookie assignment syntax in an artifact (values stay in the browser boundary)");
+      }
+      return; // secret-shape handled by the shared scanner below
+    }
+    if (Array.isArray(value)) {
+      value.forEach((item, i) => scan(item, `${field}[${i}]`));
+    } else if (typeof value === "object" && value !== null) {
+      const record = value as Readonly<Record<string, unknown>>;
+      for (const key of Object.keys(record)) {
+        scan(record[key], `${field}.${key}`);
+      }
+    }
+  };
+  scan(artifact, "artifact");
+  for (const hit of collectSecretShapedStrings(artifact, "artifact")) {
+    push(hit, "secret-shaped value in a browser artifact (references only)");
+  }
+  return { journeyId, ok: violations.length === 0, violations };
+}
+
+// ---------------------------------------------------------------------------
+// P2-W3-003 — the provider-rollout browser coverage checker
+// ---------------------------------------------------------------------------
+
+export interface ProviderRolloutBrowserCoverageInput {
+  /** The connected providers of the rollout (from the release record). */
+  readonly connectedProviders: readonly {
+    readonly providerName: string;
+    readonly authorizationMode: string;
+  }[];
+  readonly contracts: readonly BrowserJourneyContract[];
+  /** The local-rail leg: applies exactly when no API credential exists. */
+  readonly localRail: {
+    readonly applies: boolean;
+    readonly reason: string;
+  };
+}
+
+/**
+ * Checks the provider-rollout browser coverage (work-order acceptance):
+ *
+ *  1. every CONNECTED provider has exactly one PROVIDER_REAL_PATH_JOURNEY
+ *     contract whose realPath provider + canonical authorization mode
+ *     match (the journey drives the real API/protocol/provider path);
+ *  2. every provided contract passes the shared per-contract rules (the
+ *     six checks, protocol-correlated interactions, INV-X01, INV-E04);
+ *  3. every provider-backed contract declares the SECURE_BROWSER_OR_VAULT_
+ *     ONLY credential boundary;
+ *  4. when the local rail applies (no API credential exists), the
+ *     LOCAL_RAIL_USER_AUTHORIZED_JOURNEY contract is present with a
+ *     canonical direct-local authorization mode (the W1-003 vocabulary —
+ *     passed in by the caller);
+ *  5. the EXPIRED_SESSION contract is present with the explicit
+ *     reauthentication/customer-action-required declaration.
+ *
+ * `allowedAuthorizationModes` is the canonical five-mode union
+ * (@payswap/connectors AUTHORIZATION_MODES) and
+ * `allowedDirectLocalAuthorizationModes` the W1-003 direct-local union
+ * (@payswap/capabilities DIRECT_LOCAL_AUTHORIZATION_MODES) — both passed
+ * in by the caller (boundary law 6: this package never redefines them).
+ */
+export function checkProviderRolloutBrowserCoverage(
+  input: ProviderRolloutBrowserCoverageInput,
+  allowedAuthorizationModes: readonly string[],
+  allowedDirectLocalAuthorizationModes: readonly string[],
+): BrowserContractReport {
+  const violations: ContractViolation[] = [];
+
+  for (const provider of input.connectedProviders) {
+    const mine = input.contracts.filter(
+      (contract) =>
+        contract.source === "PROVIDER_REAL_PATH_JOURNEY" &&
+        contract.realPath !== undefined &&
+        contract.realPath.providerName === provider.providerName,
+    );
+    if (mine.length === 0) {
+      violations.push({
+        journeyId: `provider-real-path:${provider.providerName}`,
+        check: "real-path-coverage",
+        detail:
+          "connected provider has no real-path browser journey contract (the rollout's browser journeys must drive the real API/protocol/provider path)",
+      });
+      continue;
+    }
+    if (mine.length > 1) {
+      violations.push({
+        journeyId: `provider-real-path:${provider.providerName}`,
+        check: "real-path-coverage",
+        detail: "duplicate real-path contract for the provider",
+      });
+    }
+    if (!allowedAuthorizationModes.includes(provider.authorizationMode)) {
+      violations.push({
+        journeyId: `provider-real-path:${provider.providerName}`,
+        check: "real-path-coverage",
+        detail: `authorization mode '${provider.authorizationMode}' is not in the canonical union`,
+      });
+    }
+  }
+
+  for (const contract of input.contracts) {
+    violations.push(...contractRuleViolations(contract));
+    if (
+      (contract.source === "PROVIDER_REAL_PATH_JOURNEY" ||
+        contract.source === "LOCAL_RAIL_USER_AUTHORIZED_JOURNEY" ||
+        contract.source === "EXPIRED_SESSION_JOURNEY") &&
+      contract.credentialBoundary !== "SECURE_BROWSER_OR_VAULT_ONLY"
+    ) {
+      violations.push({
+        journeyId: contract.journeyId,
+        check: "credential-boundary",
+        detail:
+          "provider-backed browser contracts must declare the SECURE_BROWSER_OR_VAULT_ONLY credential boundary (secret-bearing fields, cookies and session material never enter artifacts)",
+      });
+    }
+  }
+
+  if (input.localRail.applies) {
+    const localRailContracts = input.contracts.filter(
+      (contract) => contract.source === "LOCAL_RAIL_USER_AUTHORIZED_JOURNEY",
+    );
+    if (localRailContracts.length === 0) {
+      violations.push({
+        journeyId: "local-rail-user-authorized-payment",
+        check: "local-rail-coverage",
+        detail: `the local rail applies (${input.localRail.reason}) but the user-authorized provider/session journey contract is missing`,
+      });
+    } else {
+      const mode = localRailContracts[0]?.realPath?.authorizationMode;
+      if (mode === undefined || !allowedDirectLocalAuthorizationModes.includes(mode)) {
+        violations.push({
+          journeyId: "local-rail-user-authorized-payment",
+          check: "local-rail-coverage",
+          detail: `the local-rail authorization mode must be one of the canonical direct-local modes [${allowedDirectLocalAuthorizationModes.join(", ")}] (the W1-003 coverage-gap vocabulary)`,
+        });
+      }
+    }
+  }
+
+  const expired = input.contracts.filter(
+    (contract) => contract.source === "EXPIRED_SESSION_JOURNEY",
+  );
+  if (expired.length !== 1) {
+    violations.push({
+      journeyId: "expired-session-reauthentication",
+      check: "expired-session-coverage",
+      detail:
+        "exactly one expired-session contract is required (expired sessions produce explicit reauthentication/customer-action-required states)",
+    });
+  } else {
+    const contract = expired[0];
+    if (
+      contract?.expiredSessionHandling === undefined ||
+      contract.expiredSessionHandling.customerActionRequired !== true ||
+      contract.expiredSessionHandling.reauthenticationPath !==
+        "ISOLATED_SECURE_BROWSER_SURFACE"
+    ) {
+      violations.push({
+        journeyId: "expired-session-reauthentication",
+        check: "expired-session-coverage",
+        detail:
+          "the expired-session contract must declare customer-action-required reauthentication through the isolated secure browser surface",
+      });
+    }
+  }
+
+  const verifiedTerminalStates = new Set<string>();
+  for (const contract of input.contracts) {
+    for (const interaction of contract.keyInteractions) {
+      if (isTerminalUiState(interaction.expectedJourneyState)) {
+        renderTerminalHonestView(interaction.expectedJourneyState);
+        verifiedTerminalStates.add(interaction.expectedJourneyState);
+      }
+    }
+  }
+
+  return {
+    passed: violations.length === 0,
+    contractCount: input.contracts.length,
+    violations,
+    verifiedTerminalStates: [...verifiedTerminalStates].sort(),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// P2-W3-003 — the provider-rollout browser verification run record
+// ---------------------------------------------------------------------------
+
+export interface ProviderRolloutBrowserVerificationReport {
+  readonly suiteId: "payswap.provider-rollout-browser-verification";
+  readonly workOrder: "P2-W3-003";
+  readonly runs: readonly JourneyVerificationRun[];
+  readonly passed: boolean;
+  readonly digest: string;
+}
+
+/**
+ * Records the provider-rollout browser verification run (the P2-W3-003
+ * gate evidence the release record consumes): same six-checks-per-journey
+ * assembly and digest discipline as {@link recordBrowserVerificationRun},
+ * over the provider-rollout journey set.
+ */
+export function recordProviderRolloutBrowserVerification(
+  runs: readonly {
+    readonly journeyId: string;
+    readonly checks: readonly CheckResult[];
+  }[],
+): ProviderRolloutBrowserVerificationReport {
+  const assembled = assembleJourneyRuns(runs);
+  const body = {
+    suiteId: "payswap.provider-rollout-browser-verification" as const,
+    runs: assembled,
+  };
   return {
     ...body,
-    workOrder: "W3-007",
+    workOrder: "P2-W3-003",
     passed: assembled.every((run) => run.passed),
     digest: contentDigest(body),
   };
