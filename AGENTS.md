@@ -4,7 +4,10 @@
 This repository is the sole source of truth for implementation. Conversation history, model memory, PR descriptions, screenshots, agent reports, and claimed test counts are non-authoritative unless the repository records the underlying evidence.
 
 Primary authority files:
+- docs/SOURCE-OF-TRUTH.md
 - docs/LLM-ARCHITECT-HANDOFF.md
+- docs/FINAL-TL-HANDOFF-PHASE-4-2026-10-02.md
+- docs/UNIVERSAL-MONEY-INTERFACE-ARCHITECTURE-2026-10-02.md
 - spec/architecture/FROZEN-ARCHITECTURE.md
 - spec/architecture/INVARIANTS.md
 - spec/dependency-graph.md
@@ -60,3 +63,15 @@ Use: <work-item-id>: <imperative change>
 Example: W1-001: add deterministic obligation state machine
 
 A commit is not accepted because a worker says it is complete. The TL validates the commit, CI, affected invariants, and the Work Order acceptance criteria.
+
+## Phase 4 universal-money rules
+23. Blockchain is a settlement-rail family, not the product identity; never create a parallel crypto ledger.
+24. Chain, wallet, signer, smart-account, protocol, DEX, bridge, off-ramp and generic contract capabilities use the existing Capability/Connector model.
+25. Raw private keys, seed phrases, wallet/provider secrets, cookies and MFA material never enter agent/model context or normal repository artifacts.
+26. Supported consequential onchain writes require explicit authorization lineage and, where supported, simulation plus a pre-broadcast re-check.
+27. Security/adversarial agents cannot override deterministic security BLOCK decisions.
+28. Unknown generic contract writes never execute silently.
+29. Submitted transactions are not financial finality; finality requires observation/evidence/reconciliation.
+30. Stripe settlement is a capability only when the actual connected Stripe account/transaction is eligible; never fabricate provider effects.
+31. Stripe UX research uses isolated browser sessions and user-assisted official Google authentication; credentials/session secrets remain outside workers and artifacts.
+32. Stripe is the primary product/operational UX benchmark; reproduce interaction principles with original PaySwap implementation.
