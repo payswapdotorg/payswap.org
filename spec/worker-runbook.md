@@ -37,7 +37,12 @@
 - treating provider catalogue availability as connected-account authority;
 - flattening consequential provider state into generic CRUD outcomes;
 - creating a second connector capability vocabulary;
-- treating provider-reported balances as PaySwap custody.
+- treating provider-reported balances as PaySwap custody;
+- exposing provider passwords, API keys, refresh tokens, cookies, browser storage or MFA material to the agent model/context;
+- using browser login on every transaction when an existing authorization/session can be reused;
+- assuming PaySwap must possess a provider API credential to certify a local rail;
+- treating an authenticated browser session as unrestricted withdrawal authority;
+- capturing secret-bearing page content as ordinary evidence.
 
 ## TL acceptance
 The TL validates:
@@ -61,7 +66,12 @@ Before accepting connector work, the TL verifies:
 - execution mode is explicit: PASS_THROUGH_NATIVE / COMPOSED_PAYSWAP / OPTIMIZED_MULTI_PROVIDER;
 - provider-native optimization/recovery is represented as a capability and remains a valid incumbent baseline;
 - external funds observations have freshness/provenance and cannot become PaySwap custody;
-- W2-003 owns the capability vocabulary and W3-003 consumes it without redefining it.
+- W2-003 owns the capability vocabulary and W3-003 consumes it without redefining it;
+- supported authorization mode is explicit and preserved on the ConnectedCapabilityInstance;
+- browser/local-rail routes use an isolated browser/session boundary and expose only opaque references to agents;
+- reauthentication/step-up and expiry are first-class customer-action states;
+- connection scope is not blanket debit/withdrawal scope;
+- providerless local-rail execution receives the same authorization, evidence, idempotency, reconciliation and UNKNOWN treatment as API execution.
 
 ## Worker completion report
 Include:

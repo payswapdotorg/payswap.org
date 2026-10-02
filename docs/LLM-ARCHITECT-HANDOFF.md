@@ -84,6 +84,23 @@ Do not copy prototype-only behavior from related repositories. Reuse concepts, t
 - Messaging adapters for trusted human approval.
 - Rail/provider APIs only through protocol-authorized adapters.
 
+## Connector authorization and credential isolation
+
+Connector execution is explicitly non-custodial.
+
+A connected provider account belongs to the external account owner. PaySwap receives authorization to use selected capabilities; it does not receive ownership of the underlying funds.
+
+The connection layer must support:
+- DELEGATED_OAUTH;
+- CONNECTED_ACCOUNT;
+- SCOPED_API_CREDENTIAL;
+- INTERACTIVE_BROWSER_SESSION;
+- PROVIDERLESS_RAIL.
+
+The user's agent/trusted surface may initiate interactive provider login, especially for local rails with no usable API credential, but the LLM MUST NOT see passwords, API keys, OAuth refresh tokens, cookies, browser storage, MFA secrets or equivalent authentication material. The secure credential/browser broker returns only opaque authorization/session references and sanitized metadata.
+
+Subsequent financial actions reuse the existing authorization through the connector runtime. Reauthentication/step-up is requested only when required. Connecting an account never implies unrestricted withdrawal authority; debit/transfer-out capabilities are separately scoped.
+
 ## Connector execution rule
 
 A provider catalogue is not an executable capability. Every connector resolves:
@@ -101,6 +118,8 @@ Connector execution modes are explicit:
 Provider-native optimization/recovery is itself a capability and is a mandatory incumbent baseline. The Lab must be able to choose the incumbent path rather than optimize merely for additional orchestration.
 
 ExternalFundsLocation and ExternalFundsPositionObservation represent provider-reported external funds state. They never create PaySwap custody or a PaySwap customer balance.
+
+Browser/local-rail execution is valid when the provider permits it and the real user-authorized external capability can be established. The browser runtime must be isolated from the model and preserve the same authorization, evidence, idempotency, ProviderStateEnvelope and reconciliation requirements as API execution.
 
 ## Acceptance definition
 The architecture is implemented only when:

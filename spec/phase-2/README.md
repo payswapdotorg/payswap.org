@@ -20,3 +20,21 @@ Wave 3:
 P2-W1-003 Coverage-gap local rail program
 P2-W2-003 Cross-provider lifecycle/conformance certification
 P2-W3-003 Production provider rollout + browser/operator verification
+
+
+## Authorization and credential boundary
+
+Phase 2 must support real external capabilities even when PaySwap does not possess provider API credentials.
+
+Supported modes:
+- delegated OAuth/consent;
+- provider-native connected accounts;
+- scoped API credentials;
+- interactive browser session;
+- providerless local-rail execution.
+
+For interactive/local routes, the merchant/supplier authenticates directly in an isolated provider browser session. The user agent/trusted surface may initiate the flow, but the agent model receives only an opaque session/authorization reference. Passwords, MFA secrets, cookies, storage and bearer tokens never enter model context, ordinary logs or protocol events.
+
+Subsequent financial actions reuse the existing authorization through the connector runtime. The user is re-invoked only for provider-required reauthentication/step-up. Connecting an account never grants blanket withdrawal authority.
+
+See spec/phase-2/AUTHORIZATION-AND-CREDENTIAL-ISOLATION.md.

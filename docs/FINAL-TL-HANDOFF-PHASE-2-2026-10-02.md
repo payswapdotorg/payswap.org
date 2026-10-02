@@ -1,4 +1,5 @@
 # Final TL Handoff — PaySwap.org Phase 2
+Revision: 2 — pre-TL submission
 Date: 2026-10-02
 Repository: payswapdotorg/payswap.org
 Architecture: 1.5-frozen-2026-09-30
@@ -13,6 +14,9 @@ Phase 2 turns that machinery into real provider connectivity.
 
 The system must remain:
 - non-custodial;
+- authorization-separated from credentials;
+- capable of supporting providerless/local-rail paths;
+- safe for interactive browser authentication;
 - provider-neutral;
 - lossless;
 - account-scoped;
@@ -32,6 +36,106 @@ Repository machine state records:
 - historical deployment record still contains zero connected financial providers.
 
 Do NOT rewrite historical certification/deployment records. Phase 2 provider activation gets new versioned records.
+
+## Non-custodial provider authorization model
+
+Provider connectivity does NOT mean PaySwap custody.
+
+For every connected provider account, distinguish:
+1. Account ownership/control — remains with the merchant, supplier or other external account owner.
+2. Authorization — explicit permission for a defined capability and scope.
+3. Authentication material — OAuth tokens, API keys, cookies, browser sessions or equivalent secrets.
+4. Execution — the provider-specific connector uses the authorized mechanism to request an external action.
+
+A connected provider balance is always external state. It must never become a PaySwap-owned balance.
+
+### Authentication modes
+
+The connector platform must support:
+- DELEGATED_OAUTH;
+- CONNECTED_ACCOUNT;
+- SCOPED_API_CREDENTIAL;
+- INTERACTIVE_BROWSER_SESSION;
+- PROVIDERLESS_RAIL.
+
+The last two are first-class modes for local rails where no suitable provider API credential is available.
+
+### Agent credential/session isolation
+
+The merchant/supplier user agent may initiate or guide connection, but the agent model MUST NOT receive raw provider passwords, API keys, refresh tokens, cookies, browser storage, MFA secrets, or equivalent authentication material.
+
+The secure connection/browser subsystem exposes only opaque references such as:
+- authorization_artifact_ref;
+- browser_session_ref;
+- provider/account identity;
+- authorization/capability scope;
+- expiry/reauthentication state;
+- sanitized evidence/provenance.
+
+Raw secrets/session material stays inside the credential broker or isolated browser runtime.
+
+The browser runner MUST prevent secret-bearing form fields, cookies, storage, headers and equivalent authentication artifacts from entering model context, traces, ordinary logs or protocol events.
+
+### Interactive local-rail connection
+
+When no suitable API/delegation path exists:
+
+~~~text
+Merchant/Supplier
+   ↓
+User Agent / Trusted Surface
+   ↓
+Provider-hosted login/consent
+   ↓
+Isolated provider browser session
+   ↓
+Merchant/Supplier logs in directly + completes MFA
+   ↓
+Secure browser/session broker seals session
+   ↓
+ConnectedCapabilityInstance + browser_session_ref
+~~~
+
+The user enters credentials only into the provider's own page. The LLM never receives the secret.
+
+### Subsequent financial action
+
+A later payment/withdrawal MUST NOT default to another login.
+
+~~~text
+Economic Intent
+   ↓
+Financial Protocol authorization/policy
+   ↓
+ConnectedCapabilityInstance
+   ↓
+Connector Runtime
+   ├─ API/token path
+   └─ isolated browser-session path
+   ↓
+External Provider / Local Rail
+   ↓
+External financial effect
+   ↓
+Provider evidence + reconciliation
+~~~
+
+If the provider session expires or requires step-up/MFA/reauthentication, execution becomes an explicit customer-action-required state. The trusted surface is invoked to reauthenticate; the financial attempt remains pending/UNKNOWN as appropriate until evidence resolves it.
+
+### Scope and withdrawal rule
+
+Connecting an account does not create blanket withdrawal authority. Debit/withdrawal/transfer-out capabilities MUST be separately scoped, authorized, limited, versioned and auditable.
+
+### Local-rail acceptance
+
+A local-rail connector may be certified without PaySwap possessing a provider API credential only when:
+- the account owner explicitly authorized the connection;
+- the browser/device route is legally and contractually permitted;
+- the browser/session boundary is isolated from the agent model;
+- the ConnectedCapabilityInstance is account-scoped;
+- action scope/limits and reauthentication state are explicit;
+- the real external effect and evidence/reconciliation path are verified;
+- no simulation substitutes for the external effect.
 
 ## Operator-supplied credentials
 
@@ -142,15 +246,32 @@ Do not build a local connector merely because it exists. Build it when the matri
 
 ## Provider onboarding procedure
 
-For EACH new provider:
+For EACH new provider/rail, first determine the authorization mode. Do not assume PaySwap will obtain a provider secret.
 
+### A. Delegated OAuth / connected-account
+1. Open the provider-hosted authorization flow using the trusted surface.
+2. User completes login/MFA/consent directly with the provider.
+3. Receive the provider authorization artifact and store only its vault reference.
+4. Continue at step 7.
+
+### B. Provider API credential
 1. Open the provider dashboard using the operator-authorized browser session.
-2. User completes authentication/MFA when the provider requires it. Never ask the user to paste raw secrets into chat.
-3. Complete business/KYB/merchant verification and contractual activation required by the provider.
-4. Create the least-privilege production API/app/service credential required for the intended capabilities.
+2. User completes authentication/MFA. Never ask the user to paste raw secrets into chat.
+3. Complete required business/KYB/contractual activation.
+4. Create the least-privilege production API/app/service credential.
 5. Obtain webhook signing material and application/merchant/account identifiers.
-6. Record the exact credential bundle as a vault reference.
-7. Create the ProviderImplementation record.
+6. Record the credential bundle as a vault reference.
+7. Continue.
+
+### C. Interactive browser/local-rail
+1. Establish that no suitable API/delegation credential path exists.
+2. Verify provider terms/security controls permit the browser route.
+3. Create an isolated browser profile/session owned by the secure browser runtime.
+4. User logs in directly and completes MFA/step-up.
+5. Seal the resulting browser session as browser_session_ref; never expose cookies, storage, passwords or MFA material to the model.
+6. Continue at step 7.
+
+7. Create the ProviderImplementation or local-rail ProviderImplementation.
 8. Create ConnectedCapabilityInstances scoped to the real merchant/account/tenant, authorized features, currencies/geographies and permissions.
 9. Run live health, authentication, capability and eligibility probes.
 10. Register and verify webhook endpoints.
@@ -232,6 +353,17 @@ Use the Gap Case mechanism to add local providers only where the matrix proves a
 ## Critical production invariants
 
 The provider activation phase must not weaken any frozen invariant.
+
+Additional authentication/credential invariants:
+- connection authorization is distinct from credential/session material;
+- raw credentials never enter the agent model/context;
+- raw credentials/session cookies never enter ordinary logs or protocol events;
+- an opaque authorization/session reference is the only agent-visible handle;
+- INTERACTIVE_BROWSER_SESSION is supported only when permitted and isolated;
+- providerless local-rail execution is allowed when explicit user authorization and evidence establish the connected capability;
+- account connection never implies blanket debit/withdrawal authority;
+- expired/invalid browser sessions produce explicit reauthentication states, never silent fallback to synthetic execution;
+- browser-only execution preserves the same authorization, policy, evidence, reconciliation and idempotency guarantees as API execution.
 
 Especially:
 - provider catalogue ≠ connected capability;

@@ -53,7 +53,12 @@
     "no_simulated_financial_effect": true,
     "provider_catalogue_never_authorizes": true,
     "provider_state_lossless": true,
-    "historical_records_immutable": true
+    "historical_records_immutable": true,
+    "raw_credentials_never_agent": true,
+    "interactive_browser_authorization_supported": true,
+    "providerless_local_rail_supported": true,
+    "browser_session_isolated_from_agent": true,
+    "account_connection_not_blanket_withdrawal": true
   },
   "gates": [
     "vault_reference_bound",
@@ -68,6 +73,10 @@
     "sandbox_conformance_verified",
     "live_canary_authorized",
     "coverage_matrix_updated",
-    "browser_real_path_verified"
+    "browser_real_path_verified",
+    "interactive_auth_evidence_verified",
+    "browser_session_isolation_verified",
+    "reauthentication_step_up_verified",
+    "local_rail_external_effect_verified"
   ]
 }
