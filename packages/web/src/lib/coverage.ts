@@ -26,10 +26,12 @@ export interface ProbeEvidence {
 }
 
 export interface CertificationSummary {
+  readonly certificationId?: string;
   readonly executed: number;
   readonly passed: number;
   readonly failed: number;
   readonly notApplicable: number;
+  readonly evidencePath?: string;
 }
 
 export interface ConnectedProviderRecord {
@@ -112,6 +114,17 @@ interface ProviderProbesRecord {
 const probes = probesJson as unknown as ProviderProbesRecord;
 const rollout = rolloutJson as unknown as ProviderRolloutRecord;
 
+/**
+ * Non-narrowing array check. `Array.isArray` is a type guard whose true
+ * branch narrows a `readonly T[]` to `any[]` — using it directly on the
+ * record fields silently degraded every derived collection below to
+ * `any[]` (untyped evidence projection). This helper keeps the runtime
+ * fail-loud check while preserving the declared record types.
+ */
+function isUnknownArray(value: unknown): boolean {
+  return Array.isArray(value);
+}
+
 // Fail loudly if the evidence files are not what this surface expects.
 if (probes.record_type !== "provider-probe-evidence") {
   throw new Error(
@@ -123,7 +136,10 @@ if (rollout.record_type !== "provider-rollout-release") {
     "coverage: provider-rollout-20261002.json has an unexpected record_type — refusing to render coverage",
   );
 }
-if (!Array.isArray(rollout.connectedProviders) || !Array.isArray(rollout.nonConnections)) {
+if (
+  !isUnknownArray(rollout.connectedProviders)
+  || !isUnknownArray(rollout.nonConnections)
+) {
   throw new Error(
     "coverage: provider-rollout-20261002.json is missing connectedProviders/nonConnections — refusing to render coverage",
   );
