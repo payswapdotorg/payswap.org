@@ -188,7 +188,7 @@ export interface ScenarioArtifacts {
   readonly outage?: OutageProbeOutcome;
   /** The webhook ingestion + loss-recovery result (WEBHOOK_LOSS). */
   readonly webhookLoss?: {
-    readonly firstIngestion: "INGESTED" | "REJECTED";
+    readonly firstIngestion: "INGESTED" | "ALREADY_INGESTED" | "REJECTED";
     readonly duplicateDelivery: "ALREADY_INGESTED" | "INGESTED" | "REJECTED";
     readonly refetchedExternalId: string;
     readonly refetchedFamily: ProviderStateFamily;

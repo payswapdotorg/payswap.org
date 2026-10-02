@@ -78,9 +78,9 @@ function intent(
   } as StripePaymentIntentProviderObject;
 }
 
-const paymentMapper: EnvelopeMapper<StripePaymentIntentProviderObject> = {
+const paymentMapper: EnvelopeMapper = {
   build: (object) =>
-    stripePaymentIntentEnvelope(object, { ...CONTEXT, fetchId: "fetch-conformance-1" }),
+    stripePaymentIntentEnvelope(object as StripePaymentIntentProviderObject, { ...CONTEXT, fetchId: "fetch-conformance-1" }),
   fixture: (status, overrides) => intent(status, overrides),
 };
 
@@ -100,8 +100,7 @@ export const stripeConformanceProfile: ProviderConformanceProfile = {
   applicability: buildApplicability(),
   payment: paymentMapper,
   customerAction: {
-    status: "requires_action",
-    family: "customer_action_required",
+    fixture: { status: "requires_action", family: "customer_action_required" },
   },
   asyncStatus: "processing",
   failedStatus: "canceled",
@@ -289,8 +288,10 @@ export const stripeConformanceProfile: ProviderConformanceProfile = {
     const providerState = sdkProviderStateOf(result) as ProviderStateEnvelope | undefined;
     return {
       kind: "OUTCOME_UNKNOWN_ENVELOPE" as const,
-      outcome: outcome.outcome,
-      requiresReconciliation: outcome.requiresReconciliation,
+      ...(outcome.outcome !== undefined ? { outcome: outcome.outcome } : {}),
+      ...(outcome.requiresReconciliation !== undefined
+        ? { requiresReconciliation: outcome.requiresReconciliation }
+        : {}),
       ...(providerState !== undefined ? { envelope: providerState } : {}),
     };
   },

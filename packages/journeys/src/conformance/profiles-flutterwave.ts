@@ -64,15 +64,18 @@ function transaction(
   };
 }
 
-const paymentMapper: EnvelopeMapper<FlutterwaveTransactionProviderObject> = {
+const paymentMapper: EnvelopeMapper = {
   build: (object) =>
-    flutterwaveTransactionEnvelope(object, { ...CONTEXT, fetchId: "fetch-conformance-1" }),
+    flutterwaveTransactionEnvelope(object as FlutterwaveTransactionProviderObject, {
+      ...CONTEXT,
+      fetchId: "fetch-conformance-1",
+    }),
   fixture: (status, overrides) => transaction(status, overrides),
 };
 
-const hostedCheckoutMapper: EnvelopeMapper<FlutterwaveHostedCheckoutProviderObject> = {
+const hostedCheckoutMapper: EnvelopeMapper = {
   build: (object) =>
-    flutterwaveHostedCheckoutEnvelope(object, TX_REF, {
+    flutterwaveHostedCheckoutEnvelope(object as FlutterwaveHostedCheckoutProviderObject, TX_REF, {
       ...CONTEXT,
       fetchId: "fetch-conformance-1",
     }),
@@ -189,8 +192,10 @@ export const flutterwaveConformanceProfile: ProviderConformanceProfile = {
     const providerState = sdkProviderStateOf(result) as ProviderStateEnvelope | undefined;
     return {
       kind: "OUTCOME_UNKNOWN_ENVELOPE" as const,
-      outcome: outcome.outcome,
-      requiresReconciliation: outcome.requiresReconciliation,
+      ...(outcome.outcome !== undefined ? { outcome: outcome.outcome } : {}),
+      ...(outcome.requiresReconciliation !== undefined
+        ? { requiresReconciliation: outcome.requiresReconciliation }
+        : {}),
       ...(providerState !== undefined ? { envelope: providerState } : {}),
     };
   },

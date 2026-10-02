@@ -64,9 +64,12 @@ function transaction(
   };
 }
 
-const paymentMapper: EnvelopeMapper<PaystackTransactionProviderObject> = {
+const paymentMapper: EnvelopeMapper = {
   build: (object) =>
-    paystackTransactionEnvelope(object, { ...CONTEXT, fetchId: "fetch-conformance-1" }),
+    paystackTransactionEnvelope(object as PaystackTransactionProviderObject, {
+      ...CONTEXT,
+      fetchId: "fetch-conformance-1",
+    }),
   fixture: (status, overrides) => transaction(status, overrides),
 };
 
@@ -86,8 +89,7 @@ export const paystackConformanceProfile: ProviderConformanceProfile = {
   applicability: buildApplicability(),
   payment: paymentMapper,
   customerAction: {
-    status: "pending",
-    family: "customer_action_required",
+    fixture: { status: "pending", family: "customer_action_required" },
   },
   asyncStatus: "processing",
   failedStatus: "failed",
@@ -225,8 +227,10 @@ export const paystackConformanceProfile: ProviderConformanceProfile = {
     const providerState = sdkProviderStateOf(result) as ProviderStateEnvelope | undefined;
     return {
       kind: "OUTCOME_UNKNOWN_ENVELOPE" as const,
-      outcome: outcome.outcome,
-      requiresReconciliation: outcome.requiresReconciliation,
+      ...(outcome.outcome !== undefined ? { outcome: outcome.outcome } : {}),
+      ...(outcome.requiresReconciliation !== undefined
+        ? { requiresReconciliation: outcome.requiresReconciliation }
+        : {}),
       ...(providerState !== undefined ? { envelope: providerState } : {}),
     };
   },

@@ -81,7 +81,7 @@ const CONFORMANCE_PRINCIPAL = Object.freeze({
 // ---------------------------------------------------------------------------
 
 function mapFixture(
-  mapper: { build: (object: never) => ProviderStateEnvelope; fixture: (status: string, overrides?: Readonly<Record<string, unknown>>) => unknown },
+  mapper: { build: (object: unknown) => ProviderStateEnvelope; fixture: (status: string, overrides?: Readonly<Record<string, unknown>>) => unknown },
   fixtureStatus: StatusFixture,
 ): { envelope: ProviderStateEnvelope; refetched: ProviderStateEnvelope } {
   const object = mapper.fixture(fixtureStatus.status, fixtureStatus.overrides);
@@ -1036,8 +1036,10 @@ const fallbackReAuthorization: ConformanceScenarioDefinition = {
     ] as const;
     // The fallback candidate: a connected instance whose authorization is
     // NOT yet active — re-authorization REQUIRED before any execution.
-    const fallbackAuthorization = "PENDING";
-    const reAuthorizationRequired = fallbackAuthorization !== "ACTIVE";
+    const fallbackInstanceAuthorization: { readonly state: "PENDING" | "ACTIVE" } = {
+      state: "PENDING",
+    };
+    const reAuthorizationRequired = fallbackInstanceAuthorization.state !== "ACTIVE";
     // The coverage-gap record: the incumbent path failed, no authorized
     // fallback exists in the market → the direct-local resolution.
     const gap: CoverageGapCase = openCoverageGapCase({
@@ -1078,12 +1080,12 @@ const fallbackReAuthorization: ConformanceScenarioDefinition = {
         ladder,
         failedTerminal: failedEnvelope.classification.isTerminal === true,
         reAuthorizationRequired,
-        fallbackInstanceAuthorization: fallbackAuthorization,
+        fallbackInstanceAuthorization: fallbackInstanceAuthorization.state,
         onboardingFirstStep,
       },
       notes: [
         `incumbent path failed terminally ('${profile.failedStatus}'); coverage gap ${gap.gapKind} → ${resolved.status}`,
-        `direct-local fallback requires re-authorization (instance authorization '${fallbackAuthorization}', first onboarding step '${onboardingFirstStep}')`,
+        `direct-local fallback requires re-authorization (instance authorization '${fallbackInstanceAuthorization.state}', first onboarding step '${onboardingFirstStep}')`,
         profile.honestyNote,
       ],
     };
