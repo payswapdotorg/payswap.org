@@ -181,6 +181,35 @@ function isSecretShaped(value: string): boolean {
 }
 
 /**
+ * Collects every secret-shaped string reachable in a value (field paths).
+ * Shared by the P2-W3-003 provider-rollout and browser-verification
+ * checkers so the SAME fail-closed byte heuristics govern every operator
+ * artifact — one law, one scanner.
+ */
+export function collectSecretShapedStrings(
+  value: unknown,
+  prefix = "value",
+): readonly string[] {
+  const hits: string[] = [];
+  const scan = (v: unknown, field: string): void => {
+    if (typeof v === "string") {
+      if (isSecretShaped(v)) {
+        hits.push(field);
+      }
+    } else if (Array.isArray(v)) {
+      v.forEach((item, i) => scan(item, `${field}[${i}]`));
+    } else if (typeof v === "object" && v !== null) {
+      const record = v as Readonly<Record<string, unknown>>;
+      for (const key of Object.keys(record)) {
+        scan(record[key], `${field}.${key}`);
+      }
+    }
+  };
+  scan(value, prefix);
+  return hits;
+}
+
+/**
  * Validates a provider-activation record against the Phase 2 laws.
  * `allowedAuthorizationModes` MUST be the canonical union passed in by the
  * caller (from @payswap/connectors AUTHORIZATION_MODES — this package
