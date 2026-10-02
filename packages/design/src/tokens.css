@@ -1,0 +1,248 @@
+/*
+ * @payswap/design — design tokens
+ * Distilled from the You-platform reference extraction (2026-10-02):
+ * near-white canvas / near-black ink, dark panel surfaces, restrained emerald
+ * accent, amber reserved for attention + UNKNOWN, red for failure ONLY.
+ * NO indigo/blue primary anywhere in this system (law 5).
+ *
+ * Themes: light is the default on :root/.ps-theme-light; dark via .ps-theme-dark
+ * (or [data-ps-theme="dark"] on any ancestor; tokens cascade).
+ * Motion tokens collapse under prefers-reduced-motion (WCAG 2.3.3 posture).
+ */
+
+:root,
+.ps-theme-light {
+  /* ---- neutral ramp (warm stone) ---- */
+  --ps-neutral-0: #ffffff;
+  --ps-neutral-50: #fafaf8;
+  --ps-neutral-100: #f4f3f0;
+  --ps-neutral-200: #e7e4de;
+  --ps-neutral-300: #d6d2c9;
+  --ps-neutral-400: #a8a29a;
+  --ps-neutral-500: #79746c;
+  --ps-neutral-600: #5c5750;
+  --ps-neutral-700: #44403a;
+  --ps-neutral-800: #2b2925;
+  --ps-neutral-900: #1c1a17;
+  --ps-neutral-950: #131211;
+
+  /* ---- accent ramp: emerald (money/positive; the ONLY brand accent) ---- */
+  --ps-emerald-50: #ecfdf5;
+  --ps-emerald-100: #d1fae5;
+  --ps-emerald-200: #a7f3d0;
+  --ps-emerald-300: #6ee7b7;
+  --ps-emerald-400: #34d399;
+  --ps-emerald-500: #10b981;
+  --ps-emerald-600: #059669;
+  --ps-emerald-700: #047857;
+  --ps-emerald-800: #065f46;
+  --ps-emerald-900: #064e3b;
+
+  /* ---- amber ramp (attention AND unknown; never failure) ---- */
+  --ps-amber-50: #fffbeb;
+  --ps-amber-100: #fef3c7;
+  --ps-amber-200: #fde68a;
+  --ps-amber-300: #fcd34d;
+  --ps-amber-400: #fbbf24;
+  --ps-amber-500: #f59e0b;
+  --ps-amber-600: #d97706;
+  --ps-amber-700: #b45309;
+  --ps-amber-800: #92400e;
+
+  /* ---- red ramp (danger: failure ONLY, never UNKNOWN) ---- */
+  --ps-red-50: #fef2f2;
+  --ps-red-100: #fee2e2;
+  --ps-red-200: #fecaca;
+  --ps-red-300: #fca5a5;
+  --ps-red-400: #f87171;
+  --ps-red-500: #ef4444;
+  --ps-red-600: #dc2626;
+  --ps-red-700: #b91c1c;
+  --ps-red-800: #991b1b;
+
+  /* ---- semantic: surfaces & ink ---- */
+  --ps-bg: var(--ps-neutral-50);
+  --ps-fg: var(--ps-neutral-900);
+  --ps-fg-muted: var(--ps-neutral-600);
+  --ps-fg-subtle: var(--ps-neutral-500);
+  --ps-surface: var(--ps-neutral-0);
+  --ps-surface-raised: var(--ps-neutral-0);
+  --ps-surface-sunken: var(--ps-neutral-100);
+  --ps-border: var(--ps-neutral-200);
+  --ps-border-strong: var(--ps-neutral-300);
+
+  /* ---- semantic: accent + outcomes ---- */
+  --ps-accent: var(--ps-emerald-700);
+  --ps-accent-emphasis: var(--ps-emerald-800);
+  --ps-accent-tint: var(--ps-emerald-50);
+  --ps-on-accent: #ffffff;
+  --ps-positive: var(--ps-emerald-700);
+  --ps-positive-tint: var(--ps-emerald-50);
+  --ps-attention: var(--ps-amber-700);
+  --ps-attention-tint: var(--ps-amber-100);
+  --ps-unknown: var(--ps-amber-700);
+  --ps-unknown-tint: var(--ps-amber-50);
+  --ps-danger: var(--ps-red-700);
+  --ps-danger-emphasis: var(--ps-red-800);
+  --ps-danger-tint: var(--ps-red-50);
+  --ps-focus: var(--ps-neutral-900);
+  --ps-scrim: rgba(19, 18, 17, 0.55);
+
+  /* ---- elevation ---- */
+  --ps-shadow-1: 0 1px 2px rgba(19, 18, 17, 0.06), 0 1px 3px rgba(19, 18, 17, 0.08);
+  --ps-shadow-2: 0 8px 24px rgba(19, 18, 17, 0.16), 0 2px 6px rgba(19, 18, 17, 0.1);
+
+  /* ---- type ---- */
+  --ps-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --ps-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  --ps-text-2xs: 0.75rem;    /* 12px — ids, dense metadata */
+  --ps-text-xs: 0.8125rem;   /* 13px — secondary text */
+  --ps-text-sm: 0.875rem;    /* 14px — controls, compact body */
+  --ps-text-base: 1rem;      /* 16px — body */
+  --ps-text-lg: 1.125rem;    /* 18px — lead */
+  --ps-text-xl: 1.5rem;      /* 24px — page heading */
+  --ps-text-2xl: 2rem;       /* 32px — display */
+  --ps-leading-tight: 1.25;
+  --ps-leading-normal: 1.5;
+  --ps-leading-relaxed: 1.6;
+  --ps-weight-regular: 400;
+  --ps-weight-medium: 500;
+  --ps-weight-semibold: 600;
+  /* section label: small-caps group heading (reference pattern) */
+  --ps-label-size: var(--ps-text-2xs);
+  --ps-label-tracking: 0.12em;
+
+  /* ---- spacing (4px base grid) ---- */
+  --ps-space-1: 0.25rem;   /* 4 */
+  --ps-space-2: 0.5rem;    /* 8 */
+  --ps-space-3: 0.75rem;   /* 12 */
+  --ps-space-4: 1rem;      /* 16 */
+  --ps-space-5: 1.25rem;   /* 20 */
+  --ps-space-6: 1.5rem;    /* 24 */
+  --ps-space-8: 2rem;      /* 32 */
+  --ps-space-10: 2.5rem;   /* 40 */
+  --ps-space-12: 3rem;     /* 48 */
+  --ps-space-16: 4rem;     /* 64 */
+
+  /* ---- density (comfortable default; compact for command-center tables) ---- */
+  --ps-density: 1;
+  --ps-touch: 44px;
+
+  /* ---- radius (8px standard; 4px inputs; 12px panels) ---- */
+  --ps-radius-sm: 4px;
+  --ps-radius-md: 8px;
+  --ps-radius-lg: 12px;
+  --ps-radius-full: 9999px;
+
+  /* ---- motion (150ms micro; 200–250ms panels; reduced-motion honored) ---- */
+  --ps-duration-fast: 150ms;
+  --ps-duration-panel: 200ms;
+  --ps-duration-slow: 250ms;
+  --ps-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  color-scheme: light;
+}
+
+.ps-theme-dark,
+[data-ps-theme="dark"] {
+  --ps-bg: var(--ps-neutral-950);
+  --ps-fg: var(--ps-neutral-100);
+  --ps-fg-muted: var(--ps-neutral-400);
+  --ps-fg-subtle: var(--ps-neutral-500);
+  --ps-surface: var(--ps-neutral-900);
+  --ps-surface-raised: var(--ps-neutral-800);
+  --ps-surface-sunken: #0d0c0b;
+  --ps-border: var(--ps-neutral-800);
+  --ps-border-strong: var(--ps-neutral-700);
+
+  --ps-accent: var(--ps-emerald-400);
+  --ps-accent-emphasis: var(--ps-emerald-300);
+  --ps-accent-tint: rgba(52, 211, 153, 0.12);
+  --ps-on-accent: var(--ps-emerald-900);
+  --ps-positive: var(--ps-emerald-400);
+  --ps-positive-tint: rgba(52, 211, 153, 0.12);
+  --ps-attention: var(--ps-amber-400);
+  --ps-attention-tint: rgba(251, 191, 36, 0.14);
+  --ps-unknown: var(--ps-amber-400);
+  --ps-unknown-tint: rgba(251, 191, 36, 0.08);
+  --ps-danger: var(--ps-red-400);
+  --ps-danger-emphasis: var(--ps-red-500);
+  --ps-danger-tint: rgba(248, 113, 113, 0.12);
+  --ps-focus: var(--ps-neutral-100);
+  --ps-scrim: rgba(0, 0, 0, 0.7);
+
+  --ps-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
+  --ps-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}
+
+/* Density modifier: compact rows for command-center tables. */
+.ps-density-compact {
+  --ps-density: 0.75;
+}
+
+/*
+ * Reduced motion: collapse all token-driven durations. Components must only
+ * animate via these tokens (plus the useReducedMotion() hook for JS paths).
+ */
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  .ps-theme-light,
+  .ps-theme-dark,
+  [data-ps-theme="dark"] {
+    --ps-duration-fast: 0.01ms;
+    --ps-duration-panel: 0.01ms;
+    --ps-duration-slow: 0.01ms;
+  }
+}
+
+/* Root scope: font baseline + the visible-focus law (never removed). */
+.ps-root {
+  font-family: var(--ps-font-sans);
+  font-size: var(--ps-text-base);
+  line-height: var(--ps-leading-relaxed);
+  color: var(--ps-fg);
+  background-color: var(--ps-bg);
+}
+
+.ps-root :focus-visible {
+  outline: 2px solid var(--ps-focus);
+  outline-offset: 2px;
+}
+
+/* Screen-reader-only helper (companion utility). */
+.ps-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Section label (small-caps group heading — reference navigation pattern). */
+.ps-label {
+  font-size: var(--ps-label-size);
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: var(--ps-label-tracking);
+  text-transform: uppercase;
+  color: var(--ps-fg-muted);
+  font-family: inherit;
+}
+
+/* Tabular figures for ids/dates/counts (money columns rule lives downstream). */
+.ps-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Mono for ids/hashes/external object references. */
+.ps-mono {
+  font-family: var(--ps-font-mono);
+  font-variant-numeric: tabular-nums;
+}
