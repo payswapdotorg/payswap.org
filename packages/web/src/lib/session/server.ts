@@ -53,6 +53,14 @@ export type WebSessionContext =
       readonly configured: true;
       readonly session: WebSessionLookup;
       readonly plane: import("./web-session.js").WebSessionPlane;
+      /**
+       * The CSRF echo token for the live session (undefined otherwise). This
+       * is the one session-derived value that is INTENTIONALLY client-visible
+       * (the CSRF cookie is not httpOnly): client mutations echo it in the
+       * `x-payswap-csrf` header. It is an HMAC of the session token — the
+       * session token itself never crosses to the client.
+       */
+      readonly csrfToken?: string;
     };
 
 /**
@@ -76,7 +84,13 @@ export async function currentWebSessionContext(): Promise<WebSessionContext> {
   if (typeof token !== "string" || token.length === 0) {
     return { configured: true, session: { valid: false, reason: "UNKNOWN_TOKEN" }, plane };
   }
-  return { configured: true, session: plane.lookup(token), plane };
+  const session = plane.lookup(token);
+  return {
+    configured: true,
+    session,
+    plane,
+    ...(session.valid ? { csrfToken: plane.csrfTokenFor(token) } : {}),
+  };
 }
 
 /** Human explanation of a fail-closed lookup reason (UI copy, verbatim reasons). */

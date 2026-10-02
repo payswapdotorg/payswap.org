@@ -39,7 +39,13 @@ export interface WebPrincipalContext {
 /** Result of a same-origin session-API call (union — never throws). */
 export type SessionApiResult<T> =
   | { readonly status: "ok"; readonly data: T }
-  | { readonly status: "http-error"; readonly statusCode: number; readonly message?: string }
+  | {
+      readonly status: "http-error";
+      readonly statusCode: number;
+      /** The parsed JSON body when the route answered JSON (verbatim). */
+      readonly body?: T;
+      readonly message?: string;
+    }
   | { readonly status: "network-error"; readonly message: string };
 
 /** The verbatim error body shape the PaySwap API returns on failures. */
@@ -92,8 +98,10 @@ export async function sessionFetchJson<T>(
   }
   if (!response.ok) {
     let message: string | undefined;
+    let body: T | undefined;
     try {
       const parsed: unknown = await response.json();
+      body = parsed as T;
       if (
         typeof parsed === "object" && parsed !== null &&
         typeof (parsed as { message?: unknown }).message === "string"
@@ -103,7 +111,7 @@ export async function sessionFetchJson<T>(
     } catch {
       // Non-JSON error body — the status code alone is the honest signal.
     }
-    return { status: "http-error", statusCode: response.status, message };
+    return { status: "http-error", statusCode: response.status, message, body };
   }
   return { status: "ok", data: (await response.json()) as T };
 }
