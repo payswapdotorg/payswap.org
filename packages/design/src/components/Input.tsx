@@ -1,3 +1,5 @@
+"use client";
+
 import { useContext, type InputHTMLAttributes } from "react";
 import { cx } from "../utils/cx.js";
 import { FieldContext } from "./Field.js";

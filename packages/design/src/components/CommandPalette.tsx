@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cx } from "../utils/cx.js";
 import { useId } from "../hooks/useId.js";
