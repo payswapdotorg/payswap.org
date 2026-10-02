@@ -803,6 +803,221 @@
   gap: var(--ps-space-2);
 }
 
+/* ============================== Skeleton ============================ */
+/* LOADING only — never a substitute for absent data (honest-use contract). */
+
+.ps-skeleton__lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  width: 100%;
+}
+
+.ps-skeleton {
+  height: 0.875em;
+  border-radius: var(--ps-radius-sm);
+  background-color: var(--ps-surface-sunken);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--ps-border) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: ps-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes ps-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-skeleton {
+    animation: none;
+  }
+}
+
+/* ============================== States ============================== */
+/* The honest-state family: neutral / unknown (amber, dashed) / danger (red). */
+
+.ps-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ps-space-3);
+  padding: var(--ps-space-6);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-lg);
+  background-color: var(--ps-surface);
+  text-align: left;
+}
+
+.ps-state__title {
+  margin: 0;
+  font-size: var(--ps-text-base);
+  font-weight: var(--ps-weight-semibold);
+  color: var(--ps-fg);
+}
+
+.ps-state__description {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg-muted);
+}
+
+.ps-state__actions {
+  display: flex;
+  gap: var(--ps-space-2);
+  margin-top: var(--ps-space-1);
+}
+
+.ps-state__doctrine {
+  margin: var(--ps-space-1) 0 0;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-subtle);
+  font-style: italic;
+}
+
+/* unknown — amber + DASHED: reconciling, never failure styling */
+.ps-state--unknown {
+  border-style: dashed;
+  border-color: var(--ps-unknown);
+  background-color: var(--ps-unknown-tint);
+}
+
+.ps-state--unknown .ps-state__title {
+  color: var(--ps-unknown);
+}
+
+/* danger — solid red: a real failure occurred */
+.ps-state--danger {
+  border-color: var(--ps-danger);
+  background-color: var(--ps-danger-tint);
+}
+
+.ps-state--danger .ps-state__title {
+  color: var(--ps-danger);
+}
+
+/* ============================== Toast =============================== */
+
+.ps-toast-viewport {
+  position: fixed;
+  bottom: var(--ps-space-4);
+  right: var(--ps-space-4);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  width: min(22rem, calc(100vw - 2 * var(--ps-space-4)));
+}
+
+.ps-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ps-space-3);
+  padding: var(--ps-space-3) var(--ps-space-4);
+  border-radius: var(--ps-radius-md);
+  border: 1px solid var(--ps-border-strong);
+  background-color: var(--ps-surface-raised);
+  box-shadow: var(--ps-shadow-2);
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+  animation: ps-toast-in var(--ps-duration-panel) var(--ps-ease-out);
+}
+
+.ps-toast--info {
+  border-left: 3px solid var(--ps-accent);
+}
+
+.ps-toast--success {
+  border-left: 3px solid var(--ps-positive);
+  background-color: var(--ps-positive-tint);
+}
+
+.ps-toast--error {
+  border-left: 3px solid var(--ps-danger);
+  background-color: var(--ps-danger-tint);
+}
+
+.ps-toast__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ps-toast__dismiss {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0 var(--ps-space-1);
+  font-size: var(--ps-text-lg);
+  line-height: 1;
+  color: var(--ps-fg-muted);
+  cursor: pointer;
+  border-radius: var(--ps-radius-sm);
+  flex: none;
+}
+
+.ps-toast__dismiss:hover {
+  color: var(--ps-fg);
+}
+
+@keyframes ps-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-toast {
+    animation: none;
+  }
+}
+
+/* ============================== KeyValue ============================ */
+
+.ps-kv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  margin: 0;
+}
+
+.ps-kv--dense {
+  gap: var(--ps-space-1);
+}
+
+.ps-kv__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ps-space-4);
+  font-size: var(--ps-text-xs);
+}
+
+.ps-kv__key {
+  flex: none;
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: var(--ps-label-tracking);
+  text-transform: uppercase;
+  font-size: var(--ps-text-2xs);
+  color: var(--ps-fg-muted);
+}
+
+.ps-kv__value {
+  margin: 0;
+  text-align: right;
+  color: var(--ps-fg);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
 /* ============================== Badge ============================== */
 
 .ps-badge {
