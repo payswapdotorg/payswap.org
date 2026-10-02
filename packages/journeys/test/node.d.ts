@@ -14,7 +14,7 @@ declare module "node:crypto" {
     update(data: string): Hmac;
     digest(encoding: "hex"): string;
   }
-  export function createHmac(algorithm: "sha256", secret: string): Hmac;
+  export function createHmac(algorithm: "sha256" | "sha512", secret: string): Hmac;
 }
 
 declare module "node:fs" {
