@@ -1,0 +1,216 @@
+{
+  "record_type": "provider-rollout-release",
+  "schema_version": "1.0",
+  "workOrder": "P2-W3-003",
+  "releaseId": "provider-rollout-20261002@2026-10-02T14:30:00Z",
+  "plannedAt": "2026-10-02T14:30:00Z",
+  "plannedBy": "tl-gate",
+  "connectedProviders": [
+    {
+      "providerName": "stripe",
+      "activationRecordId": "pa-stripe-20261002",
+      "connectedInstanceId": "cci-stripe-20261002",
+      "authorizationMode": "SCOPED_API_CREDENTIAL",
+      "configKey": "PROVIDER_STRIPE_CREDENTIAL_REF",
+      "vaultReferences": {
+        "preview": "vault://payswap/providers/stripe/preview",
+        "production": "vault://payswap/providers/stripe/production"
+      },
+      "probeEvidence": {
+        "evidencePath": "spec/development-state/provider-probes-20261002.json",
+        "probedAt": "2026-10-02T06:37:38Z",
+        "verdict": "VERIFIED",
+        "summary": "live test-mode account probe: authentication VERIFIED (acct scope observed), real create+cancel PaymentIntent round-trip, PayPal-on-Stripe eligibility observed, GHS rejection carried as the honest negative datum"
+      },
+      "certification": {
+        "certificationId": "P2-W2-003-cross-provider-conformance",
+        "providerName": "stripe",
+        "executed": 13,
+        "passed": 13,
+        "failed": 0,
+        "notApplicable": 0,
+        "evidencePath": "packages/journeys/test/conformance.test.ts (matrix 39 pairs)"
+      },
+      "limitations": [
+        "test-mode credentials (live keys never supplied)",
+        "GHS not routable on this account (provider-side rejection, recorded as the honest negative datum)"
+      ]
+    },
+    {
+      "providerName": "paystack",
+      "activationRecordId": "pa-paystack-20261002",
+      "connectedInstanceId": "cci-paystack-20261002",
+      "authorizationMode": "SCOPED_API_CREDENTIAL",
+      "configKey": "PROVIDER_PAYSTACK_CREDENTIAL_REF",
+      "vaultReferences": {
+        "preview": "vault://payswap/providers/paystack/preview",
+        "production": "vault://payswap/providers/paystack/production"
+      },
+      "probeEvidence": {
+        "evidencePath": "spec/development-state/provider-probes-20261002.json",
+        "probedAt": "2026-10-02T06:37:38Z",
+        "verdict": "ELIGIBLE",
+        "summary": "live test-mode probe: authentication VERIFIED, GHS ghipss + NGN/KES/ZAR bank-rail enumeration"
+      },
+      "certification": {
+        "certificationId": "P2-W2-003-cross-provider-conformance",
+        "providerName": "paystack",
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "notApplicable": 4,
+        "evidencePath": "packages/journeys/test/conformance.test.ts (matrix 39 pairs)"
+      },
+      "limitations": [
+        "test-mode credentials (live keys never supplied)",
+        "collection-focused connector: no payout/dispute/mandate families (declared NOT_APPLICABLE in the conformance matrix)"
+      ]
+    },
+    {
+      "providerName": "flutterwave",
+      "activationRecordId": "pa-flutterwave-20261002",
+      "connectedInstanceId": "cci-flutterwave-20261002",
+      "authorizationMode": "SCOPED_API_CREDENTIAL",
+      "configKey": "PROVIDER_FLUTTERWAVE_CREDENTIAL_REF",
+      "vaultReferences": {
+        "preview": "vault://payswap/providers/flutterwave/preview",
+        "production": "vault://payswap/providers/flutterwave/production"
+      },
+      "probeEvidence": {
+        "evidencePath": "spec/development-state/provider-probes-20261002.json",
+        "probedAt": "2026-10-02T06:37:38Z",
+        "verdict": "ELIGIBLE",
+        "summary": "live probe: authentication VERIFIED, 31-wallet observation incl. USDC/USDT/RLUSD stablecoins (materially relevant to the Stellar USDC local-rail path)"
+      },
+      "certification": {
+        "certificationId": "P2-W2-003-cross-provider-conformance",
+        "providerName": "flutterwave",
+        "executed": 9,
+        "passed": 9,
+        "failed": 0,
+        "notApplicable": 4,
+        "evidencePath": "packages/journeys/test/conformance.test.ts (matrix 39 pairs)"
+      },
+      "limitations": [
+        "test-mode credentials (live keys never supplied)",
+        "hosted-checkout + wallet-observation surface: no payout-execution family (declared NOT_APPLICABLE in the conformance matrix)"
+      ]
+    }
+  ],
+  "nonConnections": [
+    {
+      "providerName": "mtn_momo",
+      "status": "BLOCKED",
+      "reason": "subscription key rejected HTTP 401 at the APIM gate (collection/disbursement/remittance) — API credentials never evaluated; operator input recorded, never integration proof; re-probe when a valid subscription key is supplied",
+      "evidencePath": "spec/development-state/provider-probes-20261002.json"
+    },
+    {
+      "providerName": "paypal-direct",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "rapyd",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "dlocal",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "thunes",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "adyen",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "airwallex",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "ebanx",
+      "status": "NO_CREDENTIAL_HELD",
+      "reason": "connector merged + certified fail-closed (Phase 2 Wave 2) but no credential exists in the vault for this provider; activation requires the operator to supply one"
+    },
+    {
+      "providerName": "stellar",
+      "status": "NOT_ACTIVATED",
+      "reason": "the LOCAL rail: no provider API-credential connection model — browser journeys use the real user-authorized provider/session path (LOCAL_RAIL_USER_AUTHORIZED contract) and the W1-003 testnet proof is on record; activation-as-connection is not the local-rail law",
+      "evidencePath": "packages/rails/test/live/stellar.live.test.ts"
+    }
+  ],
+  "parity": {
+    "previewEnvironment": "preview",
+    "productionEnvironment": "production",
+    "providersMissingInProduction": [],
+    "providersMissingInPreview": [],
+    "providerDiffs": [
+      {
+        "providerName": "stripe",
+        "activationRecordIdDrift": false,
+        "configKeyDrift": false,
+        "unexpectedDifferences": [],
+        "passed": true
+      },
+      {
+        "providerName": "paystack",
+        "activationRecordIdDrift": false,
+        "configKeyDrift": false,
+        "unexpectedDifferences": [],
+        "passed": true
+      },
+      {
+        "providerName": "flutterwave",
+        "activationRecordIdDrift": false,
+        "configKeyDrift": false,
+        "unexpectedDifferences": [],
+        "passed": true
+      }
+    ],
+    "passed": true,
+    "digest": "fnv1a64:c6328c7dbd7297e1"
+  },
+  "browserVerification": {
+    "suiteId": "payswap.provider-rollout-browser-verification",
+    "workOrder": "P2-W3-003",
+    "passed": true,
+    "digest": "fnv1a64:0199e75075adcfd0",
+    "journeyRunCount": 5
+  },
+  "enablement": [
+    {
+      "providerName": "stripe",
+      "enabled": true,
+      "reason": "verified activation pa-stripe-20261002 (probe evidence VERIFIED @ 2026-10-02T06:37:38Z)"
+    },
+    {
+      "providerName": "paystack",
+      "enabled": true,
+      "reason": "verified activation pa-paystack-20261002 (probe evidence ELIGIBLE @ 2026-10-02T06:37:38Z)"
+    },
+    {
+      "providerName": "flutterwave",
+      "enabled": true,
+      "reason": "verified activation pa-flutterwave-20261002 (probe evidence ELIGIBLE @ 2026-10-02T06:37:38Z)"
+    }
+  ],
+  "rollback": {
+    "steps": [
+      "OPERATOR_DISABLE_OVERRIDE",
+      "REVOCATION_RECORD_APPEND",
+      "CONNECTED_INSTANCE_RETIREMENT",
+      "RE_VERIFICATION_PROBE",
+      "RE_ACTIVATION_WITH_FRESH_EVIDENCE"
+    ],
+    "reactivationRequiresFreshEvidence": true,
+    "rehearsalEvidence": "battery: packages/operations/test/provider-rollout.test.ts — rehearseProviderRollback drills deactivate -> disabled -> re-activate -> enabled on derived ledgers"
+  },
+  "digest": "fnv1a64:4586a0e356a405e6"
+}

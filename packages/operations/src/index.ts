@@ -51,3 +51,4 @@ export * from "./operator-actions.js";
 export * from "./recovery.js";
 export * from "./runbook.js";
 export * from "./provider-activation.js";
+export * from "./provider-rollout.js";

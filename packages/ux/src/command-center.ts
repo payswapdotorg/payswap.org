@@ -61,7 +61,7 @@ import { mapTerminalStateToUi } from '@payswap/interfaces';
 // Domains and provenance
 // ---------------------------------------------------------------------------
 
-/** The authority domains the Command Center searches over (W3-006 work order). */
+/** The authority domains the Command Center searches over (W3-006 work order + the P2-W3-003 PROVIDER domain). */
 export const COMMAND_CENTER_DOMAINS = [
   'GOAL',
   'INTENT',
@@ -76,6 +76,7 @@ export const COMMAND_CENTER_DOMAINS = [
   'MANDATE',
   'OFF_NETWORK_RECORD',
   'REMITTANCE',
+  'PROVIDER',
 ] as const;
 
 export type CommandCenterDomain = (typeof COMMAND_CENTER_DOMAINS)[number];
@@ -83,7 +84,7 @@ export type CommandCenterDomain = (typeof COMMAND_CENTER_DOMAINS)[number];
 /** Generic domains whose authority packages are consumed structurally. */
 export type GenericDomain = Exclude<
   CommandCenterDomain,
-  'APPROVAL' | 'EXECUTION' | 'CAPABILITY' | 'MANDATE' | 'OFF_NETWORK_RECORD' | 'REMITTANCE'
+  'APPROVAL' | 'EXECUTION' | 'CAPABILITY' | 'MANDATE' | 'OFF_NETWORK_RECORD' | 'REMITTANCE' | 'PROVIDER'
 >;
 
 /**
@@ -970,6 +971,13 @@ export interface CommandCenterSnapshot {
   readonly offNetworkRecords: readonly OffNetworkItemInput[];
   readonly remittances: readonly RemittanceItemInput[];
   readonly generic: readonly GenericAuthorityItem[];
+  /**
+   * P2-W3-003: the provider plane (health + coverage observations, one
+   * item per connected provider). Optional — a snapshot without provider
+   * observations simply has no PROVIDER-domain views (empty states are
+   * still honest states).
+   */
+  readonly providers?: readonly ProviderHealthItemInput[];
 }
 
 /** An empty snapshot (empty states are still honest states). */
@@ -983,6 +991,7 @@ export function emptySnapshot(viewer: ViewerContext): CommandCenterSnapshot {
     offNetworkRecords: [],
     remittances: [],
     generic: [],
+    providers: [],
   });
 }
 
@@ -1081,6 +1090,22 @@ function searchableEntries(snapshot: CommandCenterSnapshot): SearchableEntry[] {
       authorityRef: item.authorityRef,
       title: item.title,
       keywords: ['generic', item.authorityState, ...item.keywords],
+    });
+  }
+  for (const provider of snapshot.providers ?? []) {
+    const view = deriveProviderHealthView(provider);
+    entries.push({
+      domain: 'PROVIDER',
+      authorityRef: view.authorityRef,
+      title: view.title,
+      keywords: [
+        'provider',
+        'health',
+        'coverage',
+        provider.providerName,
+        provider.healthStatus,
+        ...provider.coverage.map((row) => row.dimension),
+      ],
     });
   }
   return entries;
@@ -1329,6 +1354,45 @@ export function aggregateInbox(snapshot: CommandCenterSnapshot, nowMs: number): 
     }
   }
 
+  // P2-W3-003: the provider plane — an UNHEALTHY provider is action-
+  // required (provider failure, distinct from UNKNOWN), an UNKNOWN-health
+  // provider is RECONCILING (INV-X01: absence of knowledge is not failure),
+  // a DEGRADED provider needs review.
+  for (const provider of snapshot.providers ?? []) {
+    const view = deriveProviderHealthView(provider);
+    if (view.uiState === 'provider-failure') {
+      add({
+        domain: 'PROVIDER',
+        authorityRef: view.authorityRef,
+        title: view.title,
+        urgency: 'ACTION_REQUIRED',
+        uiState: 'failed',
+        reason: `provider '${provider.providerName}' is UNHEALTHY — provider failure, distinct from UNKNOWN (route around or roll back; the rail-outage runbook applies)`,
+        actions: view.actions,
+      });
+    } else if (view.uiState === 'provider-unknown') {
+      add({
+        domain: 'PROVIDER',
+        authorityRef: view.authorityRef,
+        title: view.title,
+        urgency: 'RECONCILING',
+        uiState: 'reconciling',
+        reason: `provider '${provider.providerName}' health is UNKNOWN — absence of knowledge is not failure (INV-X01); re-observe from the authoritative source`,
+        actions: view.actions,
+      });
+    } else if (view.uiState === 'provider-degraded') {
+      add({
+        domain: 'PROVIDER',
+        authorityRef: view.authorityRef,
+        title: view.title,
+        urgency: 'REVIEW',
+        uiState: 'action-required',
+        reason: `provider '${provider.providerName}' is DEGRADED — capacity/reliability attention needed before routes depend on it`,
+        actions: view.actions,
+      });
+    }
+  }
+
   return Object.freeze({
     entries: Object.freeze(entries),
     counts: Object.freeze({ ...counts }),
@@ -1572,4 +1636,413 @@ export { mapTerminalStateToUi };
 /** Convenience derivation for any terminal authority state (total). */
 export function deriveTerminalUiState(state: TerminalState): UiState {
   return mapTerminalStateToUi(state);
+}
+
+// ---------------------------------------------------------------------------
+// Provider health and coverage views (P2-W3-003 — the provider plane)
+// ---------------------------------------------------------------------------
+
+/**
+ * Provider health view states. Derived ONE-TO-ONE from the connector
+ * health vocabulary (HEALTHY / DEGRADED / UNHEALTHY / UNKNOWN — owned by
+ * @payswap/connectors `HealthStatus`, which this package's boundary
+ * forbids importing, so the derivation takes the token as a passthrough
+ * string and the battery binds it to the canonical union). UNKNOWN is
+ * `provider-unknown` — NEVER `provider-failure` (INV-X01: absence of
+ * knowledge about provider health is not provider failure).
+ */
+export const PROVIDER_HEALTH_UI_STATES = [
+  'provider-healthy',
+  'provider-degraded',
+  'provider-failure',
+  'provider-unknown',
+] as const;
+
+export type ProviderHealthUiState = (typeof PROVIDER_HEALTH_UI_STATES)[number];
+
+/** Total, exhaustive connector-health → view mapping (fail-closed). */
+export function deriveProviderHealthUiState(healthStatus: string): ProviderHealthUiState {
+  switch (healthStatus) {
+    case 'HEALTHY':
+      return 'provider-healthy';
+    case 'DEGRADED':
+      return 'provider-degraded';
+    case 'UNHEALTHY':
+      return 'provider-failure';
+    case 'UNKNOWN':
+      // INV-X01: UNKNOWN health is not provider failure — it reconciles.
+      return 'provider-unknown';
+    default:
+      throw new ViewContractError(
+        `unhandled provider health status: '${healthStatus}' (the canonical HealthStatus union is owned by @payswap/connectors; unknown tokens fail closed)`,
+      );
+  }
+}
+
+/**
+ * Provider coverage view states, derived ONE-TO-ONE from the honest
+ * coverage verdict vocabulary (AVAILABLE / NOT_ELIGIBLE / NOT_CONFIGURED /
+ * UNAVAILABLE / UNKNOWN / COMPLIANCE_BLOCKED / NO_VIABLE_ROUTE — owned by
+ * @payswap/capabilities `HonestCoverageVerdict`, consumed here as a
+ * passthrough token bound to the canonical union by the battery). The
+ * three operator-critical verdicts stay DISTINCT: UNKNOWN ≠
+ * COMPLIANCE_BLOCKED ≠ NO_VIABLE_ROUTE (and UNAVAILABLE is the
+ * provider-side unavailability, again distinct from UNKNOWN).
+ */
+export const PROVIDER_COVERAGE_UI_STATES = [
+  'coverage-available',
+  'coverage-not-available',
+  'coverage-unknown',
+  'coverage-compliance-blocked',
+  'coverage-no-viable-route',
+] as const;
+
+export type ProviderCoverageUiState =
+  (typeof PROVIDER_COVERAGE_UI_STATES)[number];
+
+/** Total, exhaustive coverage-verdict → view mapping (fail-closed). */
+export function deriveProviderCoverageUiState(verdict: string): ProviderCoverageUiState {
+  switch (verdict) {
+    case 'AVAILABLE':
+      return 'coverage-available';
+    case 'NOT_ELIGIBLE':
+    case 'NOT_CONFIGURED':
+    case 'UNAVAILABLE':
+      return 'coverage-not-available';
+    case 'UNKNOWN':
+      // INV-X01: UNKNOWN coverage is not an unavailability verdict.
+      return 'coverage-unknown';
+    case 'COMPLIANCE_BLOCKED':
+      return 'coverage-compliance-blocked';
+    case 'NO_VIABLE_ROUTE':
+      return 'coverage-no-viable-route';
+    default:
+      throw new ViewContractError(
+        `unhandled coverage verdict: '${verdict}' (the canonical HonestCoverageVerdict union is owned by @payswap/capabilities; unknown tokens fail closed)`,
+      );
+  }
+}
+
+/** One coverage row input: a dimension with its honest verdict. */
+export interface ProviderCoverageRowInput {
+  /** e.g. 'GHS pay-in' / 'KES payout' — the corridor or method dimension. */
+  readonly dimension: string;
+  /** The canonical honest coverage verdict token (passthrough). */
+  readonly verdict: string;
+  readonly basis?: string;
+}
+
+export interface ProviderCoverageRowView {
+  readonly dimension: string;
+  readonly verdict: string;
+  readonly uiState: ProviderCoverageUiState;
+  readonly basis?: string;
+}
+
+/**
+ * The provider health item input: what the composition root passes from
+ * the connector observations (health) and the coverage matrix (coverage).
+ * `healthStatus` and coverage `verdict` tokens are passthroughs of the
+ * canonical unions owned by @payswap/connectors and @payswap/capabilities
+ * — this package never re-interprets them, it derives the view state.
+ */
+export interface ProviderHealthItemInput {
+  readonly providerName: string;
+  readonly healthStatus: string;
+  readonly lastCheckedAt: string;
+  /** The connected-instance reference (authority binding — always carried). */
+  readonly connectedInstanceRef: string;
+  readonly authorizationMode: string;
+  readonly coverage: readonly ProviderCoverageRowInput[];
+  readonly limitations: readonly string[];
+}
+
+/** The derived provider health view (the Command Center PROVIDER domain). */
+export interface ProviderHealthView {
+  readonly domain: 'PROVIDER';
+  readonly authorityRef: string;
+  readonly providerName: string;
+  readonly uiState: ProviderHealthUiState;
+  readonly lastCheckedAt: string;
+  readonly authorizationMode: string;
+  readonly coverage: readonly ProviderCoverageRowView[];
+  readonly limitations: readonly string[];
+  readonly title: string;
+  readonly actions: readonly ViewAction[];
+}
+
+/** Derive the provider health view (pure, one-to-one with the observation). */
+export function deriveProviderHealthView(input: ProviderHealthItemInput): ProviderHealthView {
+  const uiState = deriveProviderHealthUiState(input.healthStatus);
+  const base = { authorityRef: input.connectedInstanceRef };
+  const actions: ViewAction[] = [
+    {
+      actionId: 'view-provider-observation',
+      label: 'View the last capability observation (provenance + health)',
+      kind: 'EVIDENCE_VIEW',
+      ...base,
+      available: true,
+    },
+    {
+      actionId: 'view-provider-coverage',
+      label: 'View provider coverage rows with their honest verdicts',
+      kind: 'EVIDENCE_VIEW',
+      ...base,
+      available: true,
+    },
+  ];
+  if (uiState === 'provider-failure') {
+    actions.push({
+      actionId: 'open-rail-outage-runbook',
+      label: 'Open the rail-outage runbook (provider failure)',
+      kind: 'NAVIGATION',
+      ...base,
+      available: true,
+    });
+  } else if (uiState === 'provider-unknown') {
+    actions.push({
+      actionId: 're-observe-provider-health',
+      label: 'Re-observe provider health from the authoritative source',
+      kind: 'NAVIGATION',
+      ...base,
+      available: true,
+    });
+  } else if (uiState === 'provider-degraded') {
+    actions.push({
+      actionId: 'review-degraded-capacity',
+      label: 'Review degraded capacity before routing depends on it',
+      kind: 'NAVIGATION',
+      ...base,
+      available: true,
+    });
+  }
+  for (const row of input.coverage) {
+    if (row.verdict === 'NO_VIABLE_ROUTE') {
+      actions.push({
+        actionId: 'open-coverage-gap-case',
+        label: `Open a coverage-gap case for ${row.dimension}`,
+        kind: 'NAVIGATION',
+        ...base,
+        available: true,
+      });
+    }
+  }
+  return Object.freeze({
+    domain: 'PROVIDER',
+    authorityRef: input.connectedInstanceRef,
+    providerName: input.providerName,
+    uiState,
+    lastCheckedAt: input.lastCheckedAt,
+    authorizationMode: input.authorizationMode,
+    coverage: Object.freeze(
+      input.coverage.map((row) => ({
+        dimension: row.dimension,
+        verdict: row.verdict,
+        uiState: deriveProviderCoverageUiState(row.verdict),
+        ...(row.basis !== undefined ? { basis: row.basis } : {}),
+      })),
+    ),
+    limitations: Object.freeze([...input.limitations]),
+    title: `Provider ${input.providerName} — ${input.healthStatus}`,
+    actions: Object.freeze(actions),
+  });
+}
+
+/** The operator's provider-plane surface (P2-W3-003). */
+export interface ProviderPlaneView {
+  readonly providers: readonly ProviderHealthView[];
+  /** Providers by health view state (all four states always present). */
+  readonly healthCounts: Readonly<Record<ProviderHealthUiState, number>>;
+  /** Coverage rows by coverage view state (all five states always present). */
+  readonly coverageCounts: Readonly<Record<ProviderCoverageUiState, number>>;
+}
+
+/**
+ * Derives the operator's provider-plane surface: every provider with its
+ * health view + coverage rows, plus the aggregate counts (the operator
+ * sees at a glance how many providers are healthy / degraded / failed /
+ * unknown — the four-state distinction starts here).
+ */
+export function deriveProviderPlaneView(
+  providers: readonly ProviderHealthItemInput[],
+): ProviderPlaneView {
+  const views = providers.map((provider) => deriveProviderHealthView(provider));
+  const healthCounts = {} as Record<ProviderHealthUiState, number>;
+  for (const state of PROVIDER_HEALTH_UI_STATES) {
+    healthCounts[state] = 0;
+  }
+  const coverageCounts = {} as Record<ProviderCoverageUiState, number>;
+  for (const state of PROVIDER_COVERAGE_UI_STATES) {
+    coverageCounts[state] = 0;
+  }
+  for (const view of views) {
+    healthCounts[view.uiState] += 1;
+    for (const row of view.coverage) {
+      coverageCounts[row.uiState] += 1;
+    }
+  }
+  return Object.freeze({
+    providers: Object.freeze(views),
+    healthCounts: Object.freeze(healthCounts),
+    coverageCounts: Object.freeze(coverageCounts),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// The operator four-state distinction (P2-W3-003): provider failure,
+// UNKNOWN, compliance block and NO_VIABLE_ROUTE are NEVER conflated
+// ---------------------------------------------------------------------------
+
+export const OPERATOR_ROUTE_OUTCOME_KINDS = [
+  'PROVIDER_FAILURE',
+  'OUTCOME_UNKNOWN',
+  'COMPLIANCE_BLOCK',
+  'NO_VIABLE_ROUTE',
+] as const;
+export type OperatorRouteOutcomeKind =
+  (typeof OPERATOR_ROUTE_OUTCOME_KINDS)[number];
+
+/** The four terminal states that carry operator-distinct route outcomes. */
+export const OPERATOR_ROUTE_OUTCOME_STATES = [
+  'FAILED',
+  'UNKNOWN',
+  'COMPLIANCE_BLOCKED',
+  'NO_VIABLE_ROUTE',
+] as const;
+export type OperatorRouteOutcomeState = (typeof OPERATOR_ROUTE_OUTCOME_STATES)[number];
+
+/** Narrows a terminal state to the operator-distinct outcome states. */
+export function isOperatorRouteOutcomeState(
+  state: TerminalState,
+): state is OperatorRouteOutcomeState {
+  return (OPERATOR_ROUTE_OUTCOME_STATES as readonly TerminalState[]).includes(state);
+}
+
+export interface OperatorRouteOutcomeContext {
+  readonly providerName?: string;
+  readonly reason?: string;
+}
+
+/**
+ * The operator-facing route-outcome view: ONE derivation that keeps the
+ * four operator-critical outcomes DISTINCT in kind, UI state, tone,
+ * explanation, action and runbook path. The UI state is CONSUMED from the
+ * canonical `mapTerminalStateToUi` (never re-defined here).
+ */
+export interface OperatorRouteOutcomeView {
+  readonly kind: OperatorRouteOutcomeKind;
+  readonly terminalState: OperatorRouteOutcomeState;
+  readonly uiState: UiState;
+  readonly tone: 'negative' | 'neutral' | 'attention';
+  readonly headline: string;
+  readonly operatorExplanation: string;
+  readonly distinctOperatorAction: ViewAction;
+  readonly runbookPath: string;
+}
+
+/**
+ * Derives the operator route-outcome view for a terminal state. The four
+ * distinctions (the P2-W3-003 acceptance):
+ *
+ *  - FAILED → PROVIDER_FAILURE: the provider reported failure through
+ *    protocol evidence — action: view the provider incident; runbook:
+ *    rail outage. NOT retryable from this surface (retry = new intent).
+ *  - UNKNOWN → OUTCOME_UNKNOWN: absence of knowledge, reconciling —
+ *    action: open the reconciliation case; runbook: unknown outcome.
+ *    NEVER rendered as failure (INV-X01).
+ *  - COMPLIANCE_BLOCKED → COMPLIANCE_BLOCK: the sanctioned-market policy
+ *    (or another recorded policy) blocks the corridor — action: view the
+ *    recorded policy reason; runbook: compliance. NOT retryable.
+ *  - NO_VIABLE_ROUTE → NO_VIABLE_ROUTE: every candidate route is excluded
+ *    by acceptance/geography/currency/liquidity — action: open a
+ *    coverage-gap case; runbook: coverage gap.
+ *
+ * Any other terminal state throws (fail-closed — it does not carry an
+ * operator-distinct route outcome).
+ */
+export function deriveOperatorRouteOutcomeView(
+  state: TerminalState,
+  context: OperatorRouteOutcomeContext = {},
+): OperatorRouteOutcomeView {
+  const providerNote =
+    context.providerName !== undefined ? ` (provider '${context.providerName}')` : '';
+  const reasonNote = context.reason !== undefined ? ` Recorded reason: ${context.reason}.` : '';
+  switch (state) {
+    case 'FAILED':
+      return {
+        kind: 'PROVIDER_FAILURE',
+        terminalState: state,
+        uiState: mapTerminalStateToUi(state),
+        tone: 'negative',
+        headline: 'Provider failure',
+        operatorExplanation:
+          `The provider reported failure through protocol evidence${providerNote} — this is a PROVIDER failure, not an unknown outcome, not a compliance block and not a no-route verdict.${reasonNote} Retry only as a NEW intent with a fresh idempotency key; route around or roll the provider back if the failure persists.`,
+        distinctOperatorAction: {
+          actionId: 'view-provider-incident',
+          label: 'View the provider incident and rail-outage runbook',
+          kind: 'EVIDENCE_VIEW',
+          authorityRef: context.providerName ?? 'provider',
+          available: true,
+        },
+        runbookPath: 'rail-outage',
+      };
+    case 'UNKNOWN':
+      return {
+        kind: 'OUTCOME_UNKNOWN',
+        terminalState: state,
+        uiState: mapTerminalStateToUi(state),
+        tone: 'neutral',
+        headline: 'Outcome unknown — reconciling',
+        operatorExplanation:
+          `The external outcome could not be determined${providerNote} — this is UNKNOWN, not a provider failure: absence of knowledge is not failure (INV-X01).${reasonNote} Reconciliation is authoritative for ambiguous external effects (INV-X03); the external write is never blindly retried (INV-X02).`,
+        distinctOperatorAction: {
+          actionId: 'open-reconciliation-case',
+          label: 'Open the reconciliation case (authoritative for ambiguity)',
+          kind: 'NAVIGATION',
+          authorityRef: context.providerName ?? 'execution',
+          available: true,
+        },
+        runbookPath: 'unknown-outcome',
+      };
+    case 'COMPLIANCE_BLOCKED':
+      return {
+        kind: 'COMPLIANCE_BLOCK',
+        terminalState: state,
+        uiState: mapTerminalStateToUi(state),
+        tone: 'attention',
+        headline: 'Compliance block',
+        operatorExplanation:
+          `The market or corridor is blocked by the recorded compliance policy (sanctioned / unacceptable perimeter)${providerNote} — this is a COMPLIANCE block, not a provider failure and not a routing gap.${reasonNote} The block is explicit with its recorded reason (INV-R04) and is not retryable from any execution surface.`,
+        distinctOperatorAction: {
+          actionId: 'view-sanctioned-market-policy',
+          label: 'View the sanctioned-market policy reason',
+          kind: 'EVIDENCE_VIEW',
+          authorityRef: context.reason ?? 'sanctioned-market-policy',
+          available: true,
+        },
+        runbookPath: 'compliance',
+      };
+    case 'NO_VIABLE_ROUTE':
+      return {
+        kind: 'NO_VIABLE_ROUTE',
+        terminalState: state,
+        uiState: mapTerminalStateToUi(state),
+        tone: 'attention',
+        headline: 'No viable route',
+        operatorExplanation:
+          `No candidate route satisfies acceptance, geography, currency and liquidity constraints${providerNote} — this is a COVERAGE verdict, not a provider failure, not UNKNOWN and not a compliance block: matching providers may exist but none is eligible-and-available.${reasonNote} Open a coverage-gap case for the affected dimensions.`,
+        distinctOperatorAction: {
+          actionId: 'open-coverage-gap-case',
+          label: 'Open a coverage-gap case for these dimensions',
+          kind: 'NAVIGATION',
+          authorityRef: context.reason ?? 'coverage-gap',
+          available: true,
+        },
+        runbookPath: 'coverage-gap',
+      };
+    default:
+      throw new ViewContractError(
+        `terminal state '${state}' does not carry an operator-distinct route outcome (the four states are ${OPERATOR_ROUTE_OUTCOME_STATES.join(', ')})`,
+      );
+  }
 }
