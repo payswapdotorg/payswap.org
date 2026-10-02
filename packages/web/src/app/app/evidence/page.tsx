@@ -15,7 +15,14 @@ export const metadata: Metadata = {
  * inspection, strongest-first ordering. The strength order itself is
  * consumed from the certified contract (never restated from memory).
  */
-export default async function EvidencePage() {
+export default async function EvidencePage({
+  searchParams,
+}: {
+  readonly searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const actionParam = typeof params.action === "string" ? params.action : undefined;
+  const artifactParam = typeof params.artifact === "string" ? params.artifact : undefined;
   return (
     <CcSection navItemId="evidence">
       <section aria-labelledby="cc-evidence-heading" className="cc-stack">
@@ -43,7 +50,11 @@ export default async function EvidencePage() {
             ))}
           </ol>
         </Panel>
-        <EvidenceJourneySurface actionRef="viewer:current" artifacts={[]} />
+        <EvidenceJourneySurface
+          actionRef={actionParam ?? "viewer:current"}
+          artifacts={[]}
+          initialArtifactRef={artifactParam}
+        />
       </section>
     </CcSection>
   );

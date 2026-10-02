@@ -10,6 +10,8 @@
  * deployment), the honest not-bound state says so.
  */
 
+import Link from "next/link";
+
 import { KeyValue, Panel, StatusPill } from "@payswap/design";
 
 import type { SerializedConnectionJourney } from "@/app/(auth)/_server/connection-plane";
@@ -67,6 +69,15 @@ export function AwaitingAuthorizationView({
       <div className="mt-5">
         <AuthorizationSurfaceNotBoundState honestState={journey.authorizationSurface.honestState} />
       </div>
+      <p className="mt-4 text-sm leading-6 text-stone-600">
+        If the authorization request itself expires or a step-up is required
+        while you act, the{" "}
+        <Link href="/reauth" className="font-semibold text-emerald-800 underline">
+          reauthorization journey
+        </Link>{" "}
+        preserves the original lineage — execution never continues quietly on
+        a stale authorization.
+      </p>
     </Panel>
   );
 }

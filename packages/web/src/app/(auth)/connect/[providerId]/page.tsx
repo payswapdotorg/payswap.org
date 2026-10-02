@@ -7,6 +7,12 @@ import { KeyValue, Panel, StatusPill, UnknownState } from "@payswap/design";
 import { AwaitingAuthorizationView } from "@/components/connect/awaiting-authorization";
 import { ConnectionFlowActions } from "@/components/connect/connection-flow";
 import { ConnectionScopeReview } from "@/components/connect/connection-scope";
+import {
+  ConnectedInstanceView,
+  connectionFactsFromRecord,
+  type ConnectionAuthorizationMode,
+} from "@/components/connect/connected-instance-view";
+import { LocalRailAuthorization } from "@/components/connect/local-rail-authorization";
 import { catalogueStatusById } from "@/app/(auth)/_server/connection-catalogue";
 import { getConnectionPlane, type ConnectionPlane } from "@/app/(auth)/_server/connection-plane";
 import { currentWebSessionContext } from "@/lib/session/server";
@@ -88,6 +94,14 @@ export default async function ProviderConnectionPage({
           isLocalRail={status.isLocalRail}
         />
 
+        {status.isLocalRail ? (
+          <LocalRailAuthorization
+            status={status}
+            authorizationSurface={plane.authorizationSurface()}
+            browserSessionRef={journey?.browserSessionRef}
+          />
+        ) : null}
+
         {journey === undefined ? (
           status.statusKind === "BLOCKED" ? (
             <Panel title="This provider is not connectable" headingLevel={3}>
@@ -145,7 +159,15 @@ function JourneyStateView({
     case "connected-capability-instance":
     case "expired":
     case "revoked":
-      return (
+      return journey.connectedInstance !== undefined ? (
+        <ConnectedInstanceView
+          facts={connectionFactsFromRecord(
+            journey.connectedInstance,
+            userConnectionModeFor(providerId),
+          )}
+          providerDisplayName={providerDisplayName}
+        />
+      ) : (
         <Panel
           title={`Connection journey: ${journey.stateName}`}
           description="This state can only be produced by an authority activation record from the PaySwap API — the web app never mints one."
@@ -164,6 +186,11 @@ function JourneyStateView({
         </Panel>
       );
   }
+}
+
+/** The catalogue-declared user-connection mode for a provider. */
+function userConnectionModeFor(providerId: string): ConnectionAuthorizationMode {
+  return catalogueStatusById(providerId)?.userConnectionMode ?? "DELEGATED_OAUTH";
 }
 
 function InitiatingView({

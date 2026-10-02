@@ -3,6 +3,9 @@ import Link from "next/link";
 
 import { EmptyState, Panel } from "@payswap/design";
 
+import { ReauthEntry, type ReauthEntryInput } from "@/components/connect/reauth-entry";
+import { getConnectionPlane } from "@/app/(auth)/_server/connection-plane";
+import { catalogueStatusById } from "@/app/(auth)/_server/connection-catalogue";
 import { currentWebSessionContext } from "@/lib/session/server";
 
 export const metadata: Metadata = {
@@ -14,14 +17,16 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 /**
- * /reauth — the ReauthJourney entry (P3-W1-002).
+ * /reauth — the ReauthJourney entry (P3-W1-002; the real journey rendering
+ * by P3-W3-002).
  *
- * Honest state: a reauthorization journey begins from AUTHORITY state (an
- * expired authorization or a step-up requirement on a real intent). This
- * web app holds no such records (the API session path is not yet wired),
- * so the page renders the honest empty state — it never fabricates a
- * reauth journey. The journey contract itself (all five states, verbatim)
- * is exercised end-to-end in the test suite.
+ * A reauthorization journey begins from AUTHORITY state: an EXPIRED
+ * ConnectedCapabilityInstanceRecord folded into the connection plane by the
+ * authoritative API. This page derives those records for the signed-in
+ * principal and renders the live ReauthJourney contract for each — the
+ * fresh-authorization request dispatches through the real authenticated
+ * transport and the answer folds VERBATIM. With no expired records the
+ * honest empty state renders (never a fabricated journey).
  */
 export default async function ReauthPage() {
   const context = await currentWebSessionContext();
@@ -62,6 +67,25 @@ export default async function ReauthPage() {
     );
   }
 
+  const principalRef = context.session.view.principalRef;
+  const plane = getConnectionPlane();
+  const expiredEntries: ReauthEntryInput[] = plane
+    .authorityRecordsFor(principalRef)
+    .filter((record) => record.state === "EXPIRED")
+    .map((record) => {
+      const journey = plane.journeyFor(principalRef, record.providerId);
+      return {
+        providerId: record.providerId,
+        providerDisplayName:
+          catalogueStatusById(record.providerId)?.displayName ?? record.providerId,
+        instanceId: record.instanceId,
+        connectedAt: record.connectedAt,
+        ...(journey?.initiationIntentId === undefined
+          ? {}
+          : { initiationIntentId: journey.initiationIntentId }),
+      };
+    });
+
   return (
     <section className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
       <h1 className="text-3xl font-bold tracking-tight text-stone-900">Reauthorization</h1>
@@ -73,19 +97,25 @@ export default async function ReauthPage() {
         the fresh authorization → resume execution with the original lineage
         intact.
       </p>
-      <div className="mt-8">
-        <EmptyState
-          title="No authorization requires reauthorization right now"
-          description="There is no expired or step-up-required authorization on record for your session. This is the honest state: the web app holds no payment authorizations of its own (financial authority lives in the PaySwap API), and none of your connection journeys is parked in a reauth-required state."
-          action={
-            <Link
-              href="/connect"
-              className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-800 hover:border-stone-400 hover:bg-stone-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
-            >
-              Review your connections
-            </Link>
-          }
-        />
+      <div className="mt-8 flex flex-col gap-8">
+        {expiredEntries.length > 0 ? (
+          expiredEntries.map((entry) => (
+            <ReauthEntry key={entry.instanceId} entry={entry} csrfToken={context.csrfToken} />
+          ))
+        ) : (
+          <EmptyState
+            title="No authorization requires reauthorization right now"
+            description="There is no expired or step-up-required authorization on record for your session. This is the honest state: the web app holds no payment authorizations of its own (financial authority lives in the PaySwap API), and none of your connection journeys is parked in a reauth-required state."
+            action={
+              <Link
+                href="/connect"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-lg border border-stone-300 bg-white px-5 py-2.5 text-sm font-semibold text-stone-800 hover:border-stone-400 hover:bg-stone-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+              >
+                Review your connections
+              </Link>
+            }
+          />
+        )}
       </div>
       <div className="mt-8">
         <Panel

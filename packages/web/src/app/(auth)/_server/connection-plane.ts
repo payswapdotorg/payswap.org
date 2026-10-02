@@ -44,6 +44,7 @@ import type { ApiResponse } from "@payswap/api";
 import { ERROR_CATEGORIES, type ErrorCategory, type ResponseEnvelope } from "@payswap/interfaces";
 import {
   JourneyContractError,
+  applyConnectionAuthorizationOutcome,
   applyConnectionInitiationResponse,
   attachBrowserSession,
   beginConnectProvider,
@@ -51,6 +52,7 @@ import {
   chooseProvider,
   type BrowserSessionRef,
   type CatalogueConnectionOption,
+  type ConnectedCapabilityInstanceRecord,
   type ConnectProviderJourney,
   type ProviderCatalogueEntry,
 } from "@payswap/ux";
@@ -63,7 +65,7 @@ import { providerCatalogueEntries } from "./connection-catalogue.js";
 /** What the honest UI needs about the authorization-surface boundary. */
 export interface AuthorizationSurfaceState {
   /** False in this deployment: no real provider broker is bound. */
-  readonly brokerBound: false;
+  readonly brokerBound: boolean;
   /** The honest explanation (verbatim doctrine — never "failed"). */
   readonly honestState: string;
 }
@@ -107,6 +109,13 @@ export interface SerializedConnectionJourney {
   /** The opaque broker reference (opaque by contract; never a credential). */
   readonly browserSessionRef?: string;
   readonly initiationIntentId?: string;
+  /** The AUTHORITY activation record, when one was folded (never minted here). */
+  readonly connectedInstance?: {
+    readonly instanceId: string;
+    readonly providerId: string;
+    readonly connectedAt: string;
+    readonly state: "ACTIVE" | "EXPIRED" | "REVOKED";
+  };
   readonly approval?: {
     readonly requestHash: string;
     readonly expiresAt: string;
@@ -311,6 +320,91 @@ export class ConnectionPlane {
     }
   }
 
+  /**
+   * Fold an AUTHORITY activation record into the journey — the ONLY way a
+   * connected capability instance id enters this plane
+   * (`applyConnectionAuthorizationOutcome`, the W3-001 law). This web app is
+   * NOT the authority: nothing in this deployment CALLS this method with a
+   * minted record — it exists as the fold point for the authoritative API
+   * path (the same standing as `attachBrokerSessionRef`), and tests exercise
+   * it with obviously-fake records to prove the downstream continuity
+   * (capability presence, expiry → reauth).
+   */
+  applyAuthorityActivation(
+    principalRef: string,
+    providerId: string,
+    record: ConnectedCapabilityInstanceRecord,
+  ): PlaneOperationResult {
+    const stored = this.#storedFor(principalRef, providerId);
+    if (
+      stored === undefined ||
+      (stored.journey.stateName !== "awaiting-authorization" &&
+        stored.journey.stateName !== "connected-capability-instance")
+    ) {
+      return { status: "not-found" };
+    }
+    try {
+      const journey = applyConnectionAuthorizationOutcome(stored.journey, record);
+      const updated: StoredJourney = {
+        journey,
+        apiAttempt: stored.apiAttempt,
+        updatedAt: Date.now(),
+      };
+      this.#store(principalRef, providerId, updated);
+      return { status: "ok", journey: this.#serialize(principalRef, providerId, updated) };
+    } catch (error) {
+      if (error instanceof JourneyContractError) {
+        return { status: "illegal", message: error.message };
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * The viewer's CONNECTED capability instances — derived EXCLUSIVELY from
+   * authority activation records folded into connected journeys (never from
+   * the catalogue; an expired/revoked instance is not connected capability).
+   */
+  connectedInstancesFor(
+    principalRef: string,
+  ): readonly ConnectedCapabilityInstanceRecord[] {
+    return this.#recordsFor(principalRef).filter(
+      (record) => record.state === "ACTIVE",
+    );
+  }
+
+  /**
+   * Every authority activation record folded for the principal (any state —
+   * ACTIVE, EXPIRED, REVOKED): what the Capabilities inspection and the
+   * reauth journey entry derive from. Records only — never catalogue data.
+   */
+  authorityRecordsFor(
+    principalRef: string,
+  ): readonly ConnectedCapabilityInstanceRecord[] {
+    return this.#recordsFor(principalRef);
+  }
+
+  #recordsFor(principalRef: string): readonly ConnectedCapabilityInstanceRecord[] {
+    const perProvider = this.#journeys.get(principalRef);
+    if (perProvider === undefined) {
+      return [];
+    }
+    const records: ConnectedCapabilityInstanceRecord[] = [];
+    for (const stored of perProvider.values()) {
+      const record = stored.journey.connectedInstance;
+      if (
+        stored.journey.stateName === "connected-capability-instance" ||
+        stored.journey.stateName === "expired" ||
+        stored.journey.stateName === "revoked"
+      ) {
+        if (record !== undefined) {
+          records.push(record);
+        }
+      }
+    }
+    return records.sort((a, b) => (a.instanceId < b.instanceId ? -1 : 1));
+  }
+
   /** Restart after a terminal state (expired/revoked): a FRESH journey. */
   restartConnection(principalRef: string, providerId: string): PlaneOperationResult {
     const stored = this.#storedFor(principalRef, providerId);
@@ -389,6 +483,9 @@ export class ConnectionPlane {
       ...(journey.initiationIntentId === undefined
         ? {}
         : { initiationIntentId: journey.initiationIntentId }),
+      ...(journey.connectedInstance === undefined
+        ? {}
+        : { connectedInstance: { ...journey.connectedInstance } }),
       ...(journey.approval === undefined
         ? {}
         : {

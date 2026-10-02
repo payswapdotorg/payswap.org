@@ -12,6 +12,14 @@ export default defineConfig({
         import.meta.dirname,
         "src/test/stubs/link.tsx",
       ),
+      // Client components may call useRouter (navigations). In the
+      // node-environment suite there is no router: a no-op stub keeps the
+      // honest static render working (navigation clicks are exercised in
+      // the real browser deployment, not asserted here).
+      "next/navigation": path.resolve(
+        import.meta.dirname,
+        "src/test/stubs/navigation.ts",
+      ),
       "@": path.resolve(import.meta.dirname, "src"),
     },
   },

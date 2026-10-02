@@ -16,7 +16,7 @@
 import Link from "next/link";
 import { KeyValue, Panel, StatusPill } from "@payswap/design";
 
-import type { ConnectedCapabilityInstanceRecord } from "@payswap/ux";
+import { asConnectedCapabilityInstanceId, type ConnectedCapabilityInstanceRecord } from "@payswap/ux";
 
 /** The authorization-mode vocabulary of user connections. */
 export type ConnectionAuthorizationMode =
@@ -24,6 +24,48 @@ export type ConnectionAuthorizationMode =
   | "CONNECTED_ACCOUNT"
   | "SCOPED_CREDENTIAL"
   | "BROWSER_SESSION";
+
+/** The serialized authority record as the connect plane carries it. */
+export interface SerializedInstanceRecord {
+  readonly instanceId: string;
+  readonly providerId: string;
+  readonly connectedAt: string;
+  readonly state: "ACTIVE" | "EXPIRED" | "REVOKED";
+}
+
+/**
+ * Derive the full visible authorization facts from an authority record plus
+ * the catalogue's declared connection mode (P3-W3-002). The scope lines are
+ * the connection-scope doctrine verbatim (connection ≠ withdrawal); the
+ * reauth state is the RECORD's own state — EXPIRED records (and only those)
+ * require reauthorization.
+ */
+export function connectionFactsFromRecord(
+  record: SerializedInstanceRecord,
+  authorizationMode: ConnectionAuthorizationMode,
+): ConnectionAuthorizationFacts {
+  return {
+    record: {
+      instanceId: asConnectedCapabilityInstanceId(record.instanceId),
+      providerId: record.providerId,
+      connectedAt: record.connectedAt,
+      state: record.state,
+    },
+    scopeGranted: [
+      "A linked capability with this provider for your account — nothing more.",
+      "Observing what the connection honestly supports (eligibility, rails, limits) — read/observe scope.",
+      "Initiating payments through the connection, where every payment still requires its own authorization.",
+    ],
+    scopeExplicitlyExcludes: [
+      "Withdrawing funds — withdrawal is a separate, explicitly-granted authority.",
+      "Blanket transfer authority or moving money without a payout destination you separately authorized.",
+      "Custody — PaySwap is non-custodial by construction.",
+      "Silent scope growth — scope, authorization mode, expiry and reauth state stay visible.",
+    ],
+    authorizationMode,
+    reauthState: record.state === "EXPIRED" ? "EXPIRED" : "NOT_REQUIRED",
+  };
+}
 
 const MODE_COPY: Readonly<Record<ConnectionAuthorizationMode, string>> = {
   DELEGATED_OAUTH:

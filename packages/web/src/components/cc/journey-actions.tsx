@@ -1,15 +1,17 @@
 "use client";
 
 /**
- * The honest journey-action renderer (P3-W2-002).
+ * The honest journey-action renderer (P3-W2-002; copy made current by
+ * P3-W3-002).
  *
  * Every ViewAction from a certified journey contract renders here with the
  * W3-001 no-dead-buttons doctrine: an available action is a real control; an
- * unavailable action renders its honest reason. API_COMMAND actions are the
- * one class this deployment cannot yet run — dispatching requires a
- * JourneySession (auth + idempotency keys through the api handler), and the
- * session plane is the parallel work stream — so they render disabled with
- * exactly that reason until the merge wires `dispatchProductJourneyAction`.
+ * unavailable action renders its honest reason. API_COMMAND actions now
+ * dispatch through the REAL authenticated transport
+ * (`/api/journeys/dispatch` → the authoritative PaySwap API, answers folded
+ * verbatim) — the honest unavailable state is the marked-preview no-session
+ * case and the API runtime's own session gate (its 401/403 answers render
+ * verbatim, never as a fake success).
  */
 
 import Link from "next/link";
@@ -18,9 +20,9 @@ import type { ViewAction } from "@payswap/ux";
 import { Button } from "@payswap/design";
 
 export const SESSION_NOT_WIRED_REASON =
-  "API session not yet wired in this deployment — journey mutations dispatch through the authenticated protocol path (INV-F05), which the session plane (parallel work stream) provides. This action becomes live when that plane merges.";
+  "This journey mutation dispatches through the authenticated protocol path (INV-F05) to the authoritative PaySwap API. A signed-in session is required to dispatch it — and the API runtime authenticates with its own session tokens, answering honestly until a public issuance path exists. The verbatim answer is always surfaced, never a simulated effect.";
 
-/** Route-string links to surfaces owned by the parallel (auth/connect) plane. */
+/** Route-string links to surfaces owned by the authentication/connect plane. */
 export const CONNECT_ROUTE = "/connect" as const;
 
 export function JourneyActionControl({
@@ -68,8 +70,10 @@ export function JourneyActionControl({
             {action.label}
           </Link>
           <span className="cc-actions__reason">
-            The trusted approval surface ships with the authentication plane
-            (parallel work stream).
+            The trusted approval surface is the provider&rsquo;s own surface —
+            no provider broker is bound in this deployment yet, so the honest
+            not-yet state renders here (credentials never cross, in either
+            direction).
           </span>
         </span>
       );
