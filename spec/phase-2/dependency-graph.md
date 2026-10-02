@@ -25,3 +25,7 @@ Date: 2026-10-02
 Maximum concurrency: 3. Active work orders must be pairwise-disjoint.
 Provider existence never equals executable coverage. A country/method/currency/direction claim requires a currently eligible ConnectedCapabilityInstance and CapabilityObservation.
 Historical Phase 1 records are immutable; Phase 2 creates new activation/release evidence.
+
+## Authorization-path rule
+
+The dependency graph does not require every rail to have a PaySwap-held provider credential. Local-rail work must select the narrowest real authorization mode available: delegated OAuth, provider-native connected account, scoped API credential, interactive browser session, or providerless rail capability. Interactive browser sessions must be isolated from the agent model.
