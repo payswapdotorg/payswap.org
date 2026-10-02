@@ -427,6 +427,128 @@
   }
 }
 
+/* ============================== CommandPalette ====================== */
+/* Same layer/scrim as Dialog; positioned toward the top like the reference. */
+
+.ps-palette {
+  position: absolute;
+  top: 15vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(36rem, calc(100vw - 2 * var(--ps-space-4)));
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--ps-surface-raised);
+  color: var(--ps-fg);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-lg);
+  box-shadow: var(--ps-shadow-2);
+  overflow: hidden;
+  animation: ps-dialog-in var(--ps-duration-panel) var(--ps-ease-out);
+}
+
+.ps-palette__input-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ps-space-2);
+  padding: var(--ps-space-3) var(--ps-space-4);
+  border-bottom: 1px solid var(--ps-border);
+}
+
+.ps-palette__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--ps-text-base);
+  color: var(--ps-fg);
+  padding: var(--ps-space-2) 0;
+  min-height: var(--ps-touch);
+  box-sizing: border-box;
+}
+
+.ps-palette__input:focus {
+  outline: none;
+}
+
+.ps-palette__input-row:focus-within {
+  outline: 2px solid var(--ps-focus);
+  outline-offset: -2px;
+}
+
+.ps-palette__list {
+  overflow-y: auto;
+  padding: var(--ps-space-2);
+}
+
+.ps-palette__group {
+  padding: var(--ps-space-1) 0;
+}
+
+.ps-palette__group-label {
+  display: block;
+  padding: var(--ps-space-1) var(--ps-space-3);
+}
+
+.ps-palette__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-space-3);
+  padding: var(--ps-space-2) var(--ps-space-3);
+  border-radius: var(--ps-radius-md);
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+  cursor: pointer;
+}
+
+.ps-palette__option--active {
+  background-color: var(--ps-accent-tint);
+}
+
+.ps-palette__option--disabled {
+  color: var(--ps-fg-subtle);
+  cursor: not-allowed;
+}
+
+.ps-palette__option-group {
+  flex: none;
+  font-size: var(--ps-text-2xs);
+  color: var(--ps-fg-muted);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-sm);
+  padding: 1px var(--ps-space-2);
+}
+
+.ps-palette__separator {
+  height: 1px;
+  background-color: var(--ps-border);
+  margin: var(--ps-space-2) 0;
+}
+
+.ps-palette__empty {
+  margin: 0;
+  padding: var(--ps-space-4);
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg-muted);
+  text-align: center;
+}
+
+.ps-palette__header {
+  padding: var(--ps-space-2) var(--ps-space-4);
+  border-bottom: 1px solid var(--ps-border);
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-palette {
+    animation: none;
+  }
+}
+
 /* ============================== Badge ============================== */
 
 .ps-badge {
