@@ -197,6 +197,87 @@
   padding: 0;
 }
 
+/* ============================== Field =============================== */
+
+.ps-field {
+  display: grid;
+  gap: var(--ps-space-1);
+}
+
+.ps-field__label {
+  font-size: var(--ps-text-sm);
+  font-weight: var(--ps-weight-medium);
+  color: var(--ps-fg);
+  width: fit-content;
+}
+
+.ps-field__required {
+  color: var(--ps-danger);
+  margin-left: var(--ps-space-1);
+}
+
+.ps-field__hint {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+}
+
+/* Error text is the accessible error (role=alert); danger color is only a
+ * secondary carrier, never the only one. */
+.ps-field__error {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  font-weight: var(--ps-weight-medium);
+  color: var(--ps-danger);
+}
+
+/* ============================== Input / Select ====================== */
+/* Radius-sm (4px) per token law: inputs are denser than panels. */
+
+.ps-input,
+.ps-select {
+  display: block;
+  width: 100%;
+  min-height: var(--ps-touch);
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: var(--ps-text-sm);
+  line-height: 1.25;
+  color: var(--ps-fg);
+  background-color: var(--ps-surface);
+  border: 1px solid var(--ps-border-strong);
+  border-radius: var(--ps-radius-sm);
+  padding: calc(var(--ps-space-2) * var(--ps-density))
+    calc(var(--ps-space-3) * var(--ps-density));
+}
+
+.ps-input::placeholder {
+  color: var(--ps-fg-subtle);
+}
+
+.ps-input:focus-visible,
+.ps-select:focus-visible {
+  outline: 2px solid var(--ps-focus);
+  outline-offset: 2px;
+  border-color: var(--ps-accent);
+}
+
+.ps-input:disabled,
+.ps-select:disabled {
+  cursor: not-allowed;
+  background-color: var(--ps-surface-sunken);
+  color: var(--ps-fg-muted);
+  opacity: 0.7;
+}
+
+/* Invalid: danger border reinforces the (always-rendered) error text. */
+.ps-input--invalid,
+.ps-select--invalid,
+.ps-input[aria-invalid="true"],
+.ps-select[aria-invalid="true"] {
+  border-color: var(--ps-danger);
+}
+
 /* ============================== Badge ============================== */
 
 .ps-badge {
