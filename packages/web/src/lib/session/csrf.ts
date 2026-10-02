@@ -20,10 +20,10 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 /** The header same-origin mutations must carry. */
-export const CSRF_HEADER = "x-payswap-csrf" as const;
+export { CSRF_HEADER } from "./csrf-shared.js";
 
 /** The CSRF token prefix (versioned so the format can evolve). */
-const CSRF_PREFIX = "csrf_v1_" as const;
+import { CSRF_PREFIX } from "./csrf-shared.js";
 
 /** Derive the CSRF token bound to one session token. */
 export function mintCsrfToken(

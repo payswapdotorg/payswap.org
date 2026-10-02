@@ -23,12 +23,10 @@
  *    honest-state doctrine) with the verbatim error alongside.
  */
 
-import { randomUUID } from "node:crypto";
-
 import { CURRENT_API_VERSION } from "@payswap/interfaces";
 import type { ApiError } from "@payswap/interfaces";
 
-import { CSRF_HEADER } from "@/lib/session/csrf";
+import { CSRF_HEADER } from "@/lib/session/csrf-shared";
 import { apiRuntimeState, type ApiRuntimeState } from "@/lib/api";
 
 /** The web session principal as request context (never authority). */
@@ -152,7 +150,7 @@ export async function paySwapApiFetch<T>(
         "x-payswap-principal": principal.principalRef,
         "x-payswap-api-version": CURRENT_API_VERSION,
         ...(method === "POST"
-          ? { "content-type": "application/json", "idempotency-key": randomUUID() }
+          ? { "content-type": "application/json", "idempotency-key": crypto.randomUUID() }
           : {}),
       },
       ...(init?.body === undefined ? {} : { body: JSON.stringify(init.body) }),
