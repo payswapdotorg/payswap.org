@@ -191,7 +191,6 @@ export function validatePayoutRequestInit(candidate: unknown): PayoutRequestInit
   for (const field of [
     "connectorCapabilityId",
     "transferOutAuthorizationId",
-    "destination",
     "currency",
     "protocolKey",
     "authorizationEvidenceRef",
