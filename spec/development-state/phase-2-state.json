@@ -26,18 +26,18 @@
   ],
   "active_work_orders": [
     {
-      "id": "P2-W1-003",
-      "owner": "worker-1",
+      "id": "P2-W2-003",
+      "owner": "worker-2",
       "status": "ACTIVE",
       "dispatched_at": "2026-10-02",
-      "branch": "work/P2-W1-003"
+      "branch": "work/P2-W2-003"
     }
   ],
   "frontier": [
     {
       "id": "P2-W1-003",
       "owner": "worker-1",
-      "status": "ACTIVE",
+      "status": "COMPLETE",
       "depends_on": [
         "P2-W1-002",
         "P2-W2-002",
@@ -47,7 +47,7 @@
     {
       "id": "P2-W2-003",
       "owner": "worker-2",
-      "status": "READY",
+      "status": "ACTIVE",
       "depends_on": [
         "P2-W1-003",
         "P2-W2-002"
@@ -133,9 +133,15 @@
       "owner": "worker-3",
       "completed_at": "2026-10-02",
       "branch": "work/P2-W3-002"
+    },
+    {
+      "id": "P2-W1-003",
+      "owner": "worker-1",
+      "completed_at": "2026-10-02",
+      "branch": "work/P2-W1-003"
     }
   ],
   "wave_1_status": "COMPLETE 2026-10-02 — control plane (P2-W1-001) + Stripe (P2-W2-001, live-verified 7/7) + MTN MoMo/Flutterwave/Paystack (P2-W3-001, live-verified 8/8; MTN MoMo honestly BLOCKED pending a valid subscription key); battery 2051/2051; no provider secret in Git",
   "wave_2_status": "COMPLETE 2026-10-02 — PayPal Direct + generic global payout controls (P2-W1-002: 93+38 tests, live 401 datum re-verified, payouts observation-only + six-gate control plane); Rapyd/dLocal/Thunes (P2-W2-002: 152 tests, Rapyd 401 + dLocal root-200 + Thunes GLOBALLY-NXDOMAIN honest data, coverage law executable, KYC/beneficiary preconditions); Adyen/Airwallex/EBANX (P2-W3-002: 149 tests, Adyen 401 + Airwallex 403 + EBANX 401 honest data, EBANX on the current integration-key + query-back path). No Wave-2 provider credential held — every connector REAL-mapped and fail-closed (INV-NC04) per BLOCKED-RAILS.md sections 6-12. Battery 2483/2483, root typecheck clean, verify:repo green, secret byte-scan clean. Resident-watch TL completion of worker deliveries (workers hit context deadlines after producing code — the established honest division).",
-  "wave_3_status": "FRONTIER READY — P2-W1-003 coverage-gap local rail program, P2-W2-003 cross-provider lifecycle/conformance certification, P2-W3-003 production rollout + browser/operator verification (per the operator's dependency graph; activation on TL dispatch)"
+  "wave_3_status": "IN PROGRESS — P2-W1-003 COMPLETE (coverage-gap case workflow with the five-cause classifier, narrowest-integration selection, direct-local onboarding with the browser-session isolation law, no-bypass executable law, sanctioned-market policy; Stellar testnet local rail with zero-dependency StrKey/XDR/ed25519, REAL live-proven testnet submission round-trip 2026-10-02, GHS→USDC→KES corridor representation; battery 2571/2571, root typecheck clean, verify:repo green, secret scan clean). P2-W2-003 dispatched next (cross-provider lifecycle/conformance certification); P2-W3-003 follows."
 }
