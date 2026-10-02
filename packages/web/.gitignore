@@ -21,3 +21,5 @@ next-env.d.ts
 .env
 .env.*
 !.env.example
+.env*
+.vercel/
