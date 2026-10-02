@@ -451,9 +451,9 @@ function paypalDirectCapabilityDefinition(input: {
           "merchant/account country eligibility is OBSERVED through a connected instance (payer eligibility errors like COUNTRY_NOT_SUPPORTED arrive verbatim as provider evidence); never assumed",
       },
       {
-        kind: "PROVIDER",
+        kind: "COMMERCIAL",
         description:
-          "PayPal Direct is its own provider (paypal_direct) — distinct from Stripe's PayPal-on-Stripe payment method; the two are never conflated in routing",
+          "PayPal Direct is its own provider (paypal_direct) — distinct from Stripe's PayPal-on-Stripe payment method (different credentials, API and settlement); the two are never conflated in routing",
       },
     ],
   });
