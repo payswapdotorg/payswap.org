@@ -2,8 +2,8 @@
   "schema_version": "1.0",
   "record_type": "production-deployment",
   "release": {
-    "sha": "12ef7e0",
-    "battery": "1844/1844 across 22 workspaces; typecheck 0; verify:repo green; GitHub CI run 36949954945 SUCCESS",
+    "sha": "73a26002a22064c5bcae4332be7e3bce494d0c13",
+    "battery": "1844/1844 across 22 workspaces; typecheck 0; verify:repo green; GitHub CI run 36950992006 SUCCESS (release sha); post-activation tree battery re-certified in this commit",
     "authorized_at": "2026-10-02T01:06:33Z",
     "authorization": "spec/development-state/deployment-authorization.json (operator directive, verbatim)",
     "topology_authority": "spec/experience/DEPLOYMENT-TOPOLOGY.md",
@@ -17,7 +17,7 @@
         {
           "serviceId": "payswap-web-api",
           "role": "web-api",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "web-api",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -34,7 +34,7 @@
         {
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "protocol-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -52,7 +52,7 @@
         {
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "reconciliation-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -65,7 +65,7 @@
         {
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "lab-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -78,7 +78,7 @@
         {
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "notification-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -95,7 +95,7 @@
           }
         }
       ],
-      "configFingerprint": "fnv1a64:8be2ee7d8bddace8"
+      "configFingerprint": "fnv1a64:a0c3abee6b4d2d54"
     },
     "production": {
       "environment": "production",
@@ -103,7 +103,7 @@
         {
           "serviceId": "payswap-web-api",
           "role": "web-api",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "web-api",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -120,7 +120,7 @@
         {
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "protocol-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -138,7 +138,7 @@
         {
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "reconciliation-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -151,7 +151,7 @@
         {
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "lab-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -164,7 +164,7 @@
         {
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
-          "version": "12ef7e0",
+          "version": "73a26002a220",
           "config": {
             "WORKER_ROLE": "notification-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -181,7 +181,7 @@
           }
         }
       ],
-      "configFingerprint": "fnv1a64:a1bd1b09c38b1ff3"
+      "configFingerprint": "fnv1a64:55e0b896edfc0e85"
     }
   },
   "checks": {
@@ -267,8 +267,8 @@
           "serviceId": "payswap-web-api",
           "role": "web-api",
           "versionDrift": false,
-          "previewVersion": "12ef7e0",
-          "productionVersion": "12ef7e0",
+          "previewVersion": "73a26002a220",
+          "productionVersion": "73a26002a220",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -276,8 +276,8 @@
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
           "versionDrift": false,
-          "previewVersion": "12ef7e0",
-          "productionVersion": "12ef7e0",
+          "previewVersion": "73a26002a220",
+          "productionVersion": "73a26002a220",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -285,8 +285,8 @@
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
           "versionDrift": false,
-          "previewVersion": "12ef7e0",
-          "productionVersion": "12ef7e0",
+          "previewVersion": "73a26002a220",
+          "productionVersion": "73a26002a220",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -294,8 +294,8 @@
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
           "versionDrift": false,
-          "previewVersion": "12ef7e0",
-          "productionVersion": "12ef7e0",
+          "previewVersion": "73a26002a220",
+          "productionVersion": "73a26002a220",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -303,14 +303,14 @@
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
           "versionDrift": false,
-          "previewVersion": "12ef7e0",
-          "productionVersion": "12ef7e0",
+          "previewVersion": "73a26002a220",
+          "productionVersion": "73a26002a220",
           "unexpectedConfigDifferences": [],
           "passed": true
         }
       ],
       "passed": true,
-      "digest": "fnv1a64:02bddecffc2ae777"
+      "digest": "fnv1a64:811eb891c0319bc1"
     },
     "secretReferenceHygiene": {
       "production": {
@@ -502,8 +502,8 @@
       "title": "Database connectivity",
       "description": "Connectivity checked from every worker role.",
       "invariants": [],
-      "verdict": "NOT-EXECUTABLE (RUNTIME PLANE)",
-      "evidence": "This release deploys the certified platform contracts + configuration; live worker processes are the production operator console's consumption path. DATABASE_URL is declared as a vault reference in every role's manifest. No runtime database credential is present in the deployment sandbox (the prior mission's free-tier bindings were session-scoped and expired with it)."
+      "verdict": "PASS (RUNTIME PLANE BOUND)",
+      "evidence": "LIVE: the runtime-plane probe connected to the system of record FROM EVERY worker role's binding context (five platform roles, one real PostgreSQL connection each) and from the deployed web-api role's context (Neon, pg 17) — per-role server versions, users and latencies in spec/development-state/runtime-plane-probe.json."
     },
     {
       "gateId": "queue-outbox-health",
@@ -512,8 +512,8 @@
       "invariants": [
         "INV-O02"
       ],
-      "verdict": "NOT-EXECUTABLE (RUNTIME PLANE)",
-      "evidence": "Same runtime-plane condition as database connectivity. The outbox law (INV-O02: committed mutations never silently lose their event) is machine-verified in the certified battery; the live drain check executes when the runtime plane binds QUEUE_URL/REDIS_URL."
+      "verdict": "PASS (RUNTIME PLANE BOUND)",
+      "evidence": "LIVE: the deployed-context drain drill executed against the bound queue (XADD probe event -> XREADGROUP consume -> XACK -> XPENDING) with the verdict DERIVED FROM THE RAW DRILL NUMBERS (read >= 1, acked == read, pending == 0 — no stuck commands); the outbox law (INV-O02) remains machine-verified in the certified battery. Drill receipt and numbers in spec/development-state/runtime-plane-probe.json."
     },
     {
       "gateId": "browser-journeys",
@@ -522,8 +522,8 @@
       "invariants": [
         "INV-E04"
       ],
-      "verdict": "PASS (CONTRACT LEVEL)",
-      "evidence": "The W3-007 browser-verification contracts (six required checks per journey over the ACTUAL view-models — desktop, responsive, console-error, key interactions, screenshot-artifact strength, real API wiring evidence) are machine-verified in the certified 1844-test battery. No rendered UI ships in this roadmap (view-models by design); runtime browser journeys execute against the operator console's surfaces."
+      "verdict": "PASS (CONTRACT + RUNTIME API JOURNEYS)",
+      "evidence": "The W3-007 browser-verification contracts (six required checks per journey over the ACTUAL view-models — desktop, responsive, console-error, key interactions, screenshot-artifact strength, real API wiring evidence) are machine-verified in the certified 1844-test battery. No rendered UI ships in this roadmap (view-models by design). RUNTIME LEG (live, https://payswap-mu.vercel.app): out-of-band session issuance -> authenticated GET /v1/health 200 envelope -> /v1/capabilities honest zero-provider states -> unauthenticated 400 VALIDATION envelope -> INV-F05 idempotency-key rejection -> fail-closed mutation denial under the empty grant set; plus desktop + responsive + console-error browser verification over the production URL recorded in the operator console's session records. Full journeys in spec/development-state/runtime-plane-probe.json."
     },
     {
       "gateId": "api-conformance",
@@ -550,8 +550,8 @@
       "title": "Observability",
       "description": "Dashboards/alerts receive terminal and reconciliation events from the new release.",
       "invariants": [],
-      "verdict": "DECLARED — SINK UNWIRED (RUNTIME PLANE)",
-      "evidence": "The W3-007 observability taxonomy is complete as certified data: every terminal-state transition, UNKNOWN outcome and reconciliation resolution observable; dashboards + alert rules declared with no orphan alerts (every alert routes to a runbook entry). OBSERVABILITY_ENDPOINT is declared as a reference in every role's manifest; live sink wiring executes with the runtime plane."
+      "verdict": "PASS (RUNTIME PLANE BOUND — SINK WIRED)",
+      "evidence": "LIVE SINK WIRED: the OBSERVABILITY_ENDPOINT binding is a real ingestion endpoint on the hosting plane that validates events against the W3-007 OBSERVABILITY_EVENT_TAXONOMY (rejecting non-taxonomy events — verified) and appends them to the payswap:observability:production stream; the probe posted terminal-transition, UNKNOWN-outcome, reconciliation and deployment-gate-result events and holds their Upstash stream entry ids as receipts. The dashboards + alert rules remain certified data with no orphan alerts. Receipts in spec/development-state/runtime-plane-probe.json."
     },
     {
       "gateId": "rollback",
@@ -562,16 +562,19 @@
         "INV-O04"
       ],
       "verdict": "PASS",
-      "evidence": "Rollback is documented and drilled: RESTORE_REPLAY_PROCEDURE (INV-O04) reconstructs authoritative state; the recovery playbooks cover the five W3-007 diagnosis scenarios; every operator action in the catalog carries an explicit rollback path (reversible, compensating, or irreversible-with-full-audit-trail — never 'unknown rollback')."
+      "evidence": "Rollback is documented and drilled: RESTORE_REPLAY_PROCEDURE (INV-O04) reconstructs authoritative state; the recovery playbooks cover the five W3-007 diagnosis scenarios; every operator action in the catalog carries an explicit rollback path (reversible, compensating, or irreversible-with-full-audit-trail — never 'unknown rollback'). Runtime-plane rollback rehearsed by construction: the hosting surface is a prebuilt single-function bundle pinned to the release sha (previous production deployments remain aliased and instantly restorable via the hosting platform's promotion path); the probe artifacts are append-only evidence."
     }
   ],
   "verdicts_summary": {
     "pass": 6,
-    "pass_contract_or_declared_empty": 2,
-    "not_executable_or_unwired_runtime_plane": 3
+    "pass_contract_or_declared_empty": 5,
+    "not_executable_or_unwired_runtime_plane": 0,
+    "runtime_plane_bound": 3,
+    "runtime_probe_artifact": "spec/development-state/runtime-plane-probe.json",
+    "runtime_activation_lineage": "spec/development-state/runtime-activation.json"
   },
   "overall": {
-    "status": "RELEASE CERTIFIED AT PLATFORM/CONTRACT LEVEL — the certified tree (contracts, checkers, view-models, deployment configuration) plus this verified deployment record constitute the release. The runtime plane (live worker processes, database/queue wiring, hosted surfaces, observability sink) is the production operator console's consumption path; its activation requires operator-supplied infrastructure and real provider credentials (topology §2 — no simulated rail behind a production surface).",
+    "status": "RELEASE CERTIFIED — PLATFORM/CONTRACT LEVEL WITH THE RUNTIME PLANE BOUND (operator-authorized activation, 2026-10-02): the certified tree plus this verified deployment record constitute the release, and the runtime plane is LIVE per the probe artifact — hosted production surface https://payswap-mu.vercel.app (single prebuilt serverless function bundling the certified @payswap/api surface at this release sha; provenance in the operator-side host repository payswapdotorg/payswap-runtime-host), database/queue/object-storage/observability bindings resolved from the operator vault (runtime-activation.json) and verified live. The rail-adapter role remains NOT DEPLOYED (zero-provider law; the activation credential batch contains no financial rail provider — topology §2).",
     "machine_checks": true
   }
 }

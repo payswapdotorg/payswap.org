@@ -13,7 +13,8 @@
     "verify:repo": "node scripts/verify-repository.mjs",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "deploy:record": "node scripts/deployment/run.mjs"
+    "deploy:record": "node scripts/deployment/run.mjs",
+    "deploy:probe": "bun scripts/deployment/runtime-plane-probe.ts"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

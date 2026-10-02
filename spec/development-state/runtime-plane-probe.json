@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0",
+  "record_type": "runtime-plane-probe",
+  "release": {
+    "sha": "73a26002a22064c5bcae4332be7e3bce494d0c13"
+  },
+  "probed_at": "2026-10-02T02:45:23.574Z",
+  "production_url": "https://payswap-mu.vercel.app",
+  "secondary_surface": "https://payswap.vercel.app",
+  "vantages": {
+    "console": "operator console (sandbox, vault-resolved bindings)",
+    "deployed": "live web-api role on the hosting plane (runtime-probe endpoint)"
+  },
+  "environmentCompleteness": {
+    "vault": {
+      "roles": [
+        {
+          "role": "web-api",
+          "declared": 10,
+          "missing": [],
+          "passed": true
+        },
+        {
+          "role": "protocol-worker",
+          "declared": 11,
+          "missing": [],
+          "passed": true
+        },
+        {
+          "role": "reconciliation-worker",
+          "declared": 6,
+          "missing": [],
+          "passed": true
+        },
+        {
+          "role": "lab-worker",
+          "declared": 6,
+          "missing": [],
+          "passed": true
+        },
+        {
+          "role": "notification-worker",
+          "declared": 10,
+          "missing": [],
+          "passed": true
+        }
+      ],
+      "passed": true
+    },
+    "deployed": {
+      "role": "web-api",
+      "declared": 10,
+      "missing": [
+        "OBSERVABILITY_ENDPOINT"
+      ],
+      "passed": false
+    }
+  },
+  "databaseConnectivity": {
+    "perRole": [
+      {
+        "role": "web-api",
+        "ok": true,
+        "database": "neondb",
+        "user": "neondb_owner",
+        "serverVersion": "PostgreSQL 17.11",
+        "latencyMs": 1785
+      },
+      {
+        "role": "protocol-worker",
+        "ok": true,
+        "database": "neondb",
+        "user": "neondb_owner",
+        "serverVersion": "PostgreSQL 17.11",
+        "latencyMs": 1560
+      },
+      {
+        "role": "reconciliation-worker",
+        "ok": true,
+        "database": "neondb",
+        "user": "neondb_owner",
+        "serverVersion": "PostgreSQL 17.11",
+        "latencyMs": 1557
+      },
+      {
+        "role": "lab-worker",
+        "ok": true,
+        "database": "neondb",
+        "user": "neondb_owner",
+        "serverVersion": "PostgreSQL 17.11",
+        "latencyMs": 1550
+      },
+      {
+        "role": "notification-worker",
+        "ok": true,
+        "database": "neondb",
+        "user": "neondb_owner",
+        "serverVersion": "PostgreSQL 17.11",
+        "latencyMs": 1566
+      }
+    ],
+    "deployedContext": {
+      "ok": true,
+      "database": "neondb",
+      "user": "neondb_owner",
+      "serverVersion": "PostgreSQL 17.11",
+      "latencyMs": 15
+    },
+    "binding": {
+      "user": "neondb_owner",
+      "host": "ep-hidden-lab-b7oezqaq-pooler.c-13.us-east-1.aws.neon.tech",
+      "database": "neondb",
+      "previewBranch": "ep-mute-art-b7xn4xhl-pooler.c-13.us-east-1.aws.neon.tech"
+    }
+  },
+  "queueOutbox": {
+    "binding": {
+      "restEndpoint": "https://polished-yeti-167554.upstash.io",
+      "namespace": "payswap:*",
+      "note": "operator URL meet-ewe-145933 verified NXDOMAIN globally; account free tier single-DB binding with payswap:* namespaces"
+    },
+    "deployedContext": {
+      "ok": true,
+      "ping": "PONG",
+      "drill": {
+        "stream": "payswap:production:outbox-probe",
+        "group": "probe-group-1790909131771",
+        "messageId": "1790909131780-0",
+        "read": 7,
+        "acked": 7,
+        "pendingAfterAck": 0
+      },
+      "drainVerified": true,
+      "latencyMs": 64
+    },
+    "drainDerived": true
+  },
+  "observability": {
+    "binding": {
+      "endpoint": "https://payswap-mu.vercel.app/api/internal/observability",
+      "sink": "upstash stream payswap:observability:production (taxonomy-validated ingestion)"
+    },
+    "ok": true,
+    "accepted": [
+      {
+        "eventName": "settlement.terminal-transition.fulfilled",
+        "stream": "payswap:observability:production",
+        "eventId": "1790909133240-0"
+      },
+      {
+        "eventName": "settlement.terminal-transition.unknown",
+        "stream": "payswap:observability:production",
+        "eventId": "1790909133476-0"
+      },
+      {
+        "eventName": "reconciliation.case-opened",
+        "stream": "payswap:observability:production",
+        "eventId": "1790909133706-0"
+      },
+      {
+        "eventName": "deployment.gate-result",
+        "stream": "payswap:observability:production",
+        "eventId": "1790909133944-0"
+      }
+    ],
+    "invalidRejected": true
+  },
+  "objectStorage": {
+    "consoleVantage": {
+      "ok": true,
+      "bucket": "payswap-evidence-prod",
+      "artifact": "probe/activation/554ef029cce57b2acb8ddf9e0a3db3e15176f58339db878cfc1ecd5c07a6eee0.txt",
+      "digestMatch": true
+    },
+    "deployedContext": {
+      "ok": true,
+      "putStatus": 200,
+      "getStatus": 200,
+      "digestMatch": true,
+      "artifact": "probe/production/bb743bf7f6d7bcb1fdddb53ccb84ca74819a1f24ee0a8e6cecc9ea27c48e7d9c.txt",
+      "latencyMs": 1185
+    }
+  },
+  "hosting": {
+    "provider": "vercel",
+    "deployments": [
+      {
+        "uid": "dpl_Gs53N7Dxdttca5zpav9BmnH1fbMx",
+        "readyState": "BLOCKED",
+        "url": "payswap-1dw5qg567-tepa.vercel.app",
+        "gitSha": null
+      },
+      {
+        "uid": "dpl_9BaJ3HdNGnFfV5oRJQX98LonPTZb",
+        "readyState": "BLOCKED",
+        "url": "payswap-r61ijtcw8-tepa.vercel.app",
+        "gitSha": null
+      },
+      {
+        "uid": "dpl_FNEB1o9tANj9KjkCF3iHnhvvGur1",
+        "readyState": "READY",
+        "url": "payswap-jg7d1b0kh-tepa.vercel.app",
+        "gitSha": null
+      }
+    ],
+    "projectEnvKeys": [
+      "API_VERSION",
+      "APPROVAL_SIGNING_KEY",
+      "DATABASE_URL",
+      "OBJECT_STORAGE_ACCESS_KEY_ID",
+      "OBJECT_STORAGE_BUCKET",
+      "OBJECT_STORAGE_ENDPOINT",
+      "OBJECT_STORAGE_REGION",
+      "OBJECT_STORAGE_SECRET_ACCESS_KEY",
+      "OBSERVABILITY_ENDPOINT",
+      "PAYSWAP_ENV",
+      "QUEUE_URL",
+      "REDIS_URL",
+      "RELEASE_SHA",
+      "RUNTIME_PROBE_SECRET",
+      "SESSION_SIGNING_KEY",
+      "UPSTASH_REDIS_REST_TOKEN",
+      "UPSTASH_REDIS_REST_URL",
+      "VAULT_REF",
+      "WORKER_ROLE"
+    ],
+    "observabilityEndpointBound": true
+  },
+  "apiJourneys": {
+    "journeys": [
+      {
+        "name": "unauthenticated /v1/health -> honest VALIDATION envelope",
+        "ok": true,
+        "status": 400,
+        "detail": "code=request.invalid (auth.principal + apiVersion required)"
+      },
+      {
+        "name": "authenticated /v1/health -> 200 certified envelope",
+        "ok": true,
+        "status": 200,
+        "detail": "requestId=req_1790909135791_1790909135791000017 serverTime present=true"
+      },
+      {
+        "name": "authenticated /v1/capabilities -> honest zero-provider states",
+        "ok": true,
+        "status": 200,
+        "detail": "3 capabilities; external observation probe = UNKNOWN (UNKNOWN is the honest no-connector state)"
+      },
+      {
+        "name": "POST /v1/intents without Idempotency-Key -> INV-F05 rejection",
+        "ok": true,
+        "status": 400,
+        "detail": "idempotencyKey is REQUIRED on mutating requests (Idempotency-Key); one idempotency key maps to one authoritati"
+      },
+      {
+        "name": "POST /v1/intents well-formed -> fail-closed denial (no grants)",
+        "ok": true,
+        "status": 403,
+        "detail": "code=authorization.denied (authorization denied: no_matching_grant (fail closed))"
+      }
+    ],
+    "passed": true
+  },
+  "verdicts": {
+    "databaseConnectivity": "PASS",
+    "queueOutboxHealth": "PASS",
+    "observability": "PASS",
+    "apiJourneys": "PASS"
+  }
+}

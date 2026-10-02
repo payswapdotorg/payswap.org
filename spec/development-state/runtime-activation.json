@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "gate": "runtime_plane_activation",
+  "activated": true,
+  "operator_action": "Operator-supplied infrastructure credential batch (2026-10-02, resident-watch IM channel): Vercel (payswaporg account token), Neon (API keys), Upstash (Redis REST endpoint + tokens + console API key), Cloudflare R2 (account, API token, S3 access keys), plus GitHub PAT (identity confirmed identical to the mission token), E2B, Composio, OpenRouter, Alibaba Model Cloud and LiveKit credentials held in the operator vault for future use.",
+  "authorized_at": "2026-10-02T02:00:00Z",
+  "authorization_lineage": [
+    "spec/development-state/deployment-authorization.json — operator directive 'proceed with the deployment' (verbatim, 2026-10-02T01:06:33Z)",
+    "The 73a2600 release record's recorded activation path: 'its activation requires operator-supplied infrastructure and real provider credentials'",
+    "This credential batch is the operator supplying exactly that: the infrastructure class (Vercel/Neon/Upstash/R2) the record named"
+  ],
+  "activated_bindings": {
+    "hosting": "Vercel (project 'payswap'; production surface https://payswap-mu.vercel.app with alias https://payswap-tepa.vercel.app; secondary surface https://payswap.vercel.app; git-hook linked to payswapdotorg/payswap-runtime-host)",
+    "database": "Neon PostgreSQL (project 'payswap', aws-us-east-1, pg 17; branches main=production, preview=preview; connection strings vault-resolved)",
+    "queue": "Upstash Redis (account free-tier single database; payswap:* key namespaces; note: the operator-provided endpoint meet-ewe-145933.upstash.io was verified NXDOMAIN via public DNS-over-HTTPS — recorded, and the account's single free-tier database is bound with strict namespaces; a dedicated database is the recorded upgrade path)",
+    "object_storage": "Cloudflare R2 (buckets payswap-evidence-prod, payswap-evidence-preview; S3 API, SigV4)",
+    "observability": "Live sink: taxonomy-validated ingestion endpoint on the hosting plane (https://payswap-mu.vercel.app/api/internal/observability) writing the Upstash stream payswap:observability:production"
+  },
+  "provider_law_status": "UNCHANGED — the zero-provider release stands. None of the supplied credentials is a financial rail provider (OpenRouter and Alibaba Model Cloud are LLM APIs, not payment rails); wiring any of them as PROVIDER_<NAME>_CREDENTIAL_REF would simulate a rail behind a production surface, which topology §2 forbids. The rail-adapter-worker role therefore remains NOT DEPLOYED; its activation path still requires the operator to name real financial providers.",
+  "secrets_posture": "All credential VALUES live only in the operator vault (/home/z/.secrets/env.sh, mode 0600) and the hosting plane's encrypted env store. This record, the probe artifact and the deployment record carry references, hosts, buckets, URLs and evidence counts only — never values.",
+  "evidence": "spec/development-state/runtime-plane-probe.json (the live probe artifact: per-role database connectivity, queue/outbox drain drill, observability sink receipts, object-storage round trip, hosting state, API journeys)"
+}
