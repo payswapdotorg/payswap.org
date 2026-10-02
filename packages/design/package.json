@@ -1,0 +1,38 @@
+{
+  "name": "@payswap/design",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PaySwap design system (Work Order P3-W2-001): presentation-only tokens and accessible component primitives distilled from the You-platform interaction reference — honest states (UNKNOWN never styled as failure), emerald/amber accent language with no indigo/blue primary, keyboard-first interaction patterns. No financial semantics, no business logic, no network calls.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens": "./src/tokens.ts",
+    "./styles/tokens.css": "./src/tokens.css",
+    "./styles/components.css": "./src/components.css",
+    "./styles/tailwind.css": "./src/tailwind-theme.css"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "postcss": "^8.4.49",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
