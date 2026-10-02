@@ -112,7 +112,7 @@ import type {
 import { ProviderWebhookIngestor as WebhookIngestor } from "@payswap/adapters";
 import { providerCredentialConfigKey } from "@payswap/adapters";
 import type { ProviderExecutionEvidenceDraft } from "@payswap/execution";
-import { createHmac } from "node:crypto";
+import { createHmac, randomBytes } from "node:crypto";
 import {
   RailNotAuthorizedError,
   RailProviderError,
@@ -2693,7 +2693,7 @@ export class RapydConnector extends ConnectorSDK {
     const urlPath = path.split("?")[0] ?? path;
     const headers = rapydSignatureHeaders({
       urlPath,
-      salt: rapydSalt(this.#clock),
+      salt: rapydSalt(),
       timestamp: rapydTimestamp(this.#clock),
       accessKey: material.accessKey,
       secretKey: material.secretKey,
@@ -2722,7 +2722,7 @@ export class RapydConnector extends ConnectorSDK {
   ): Promise<unknown> {
     const headers = rapydSignatureHeaders({
       urlPath: path,
-      salt: rapydSalt(this.#clock),
+      salt: rapydSalt(),
       timestamp: rapydTimestamp(this.#clock),
       accessKey: material.accessKey,
       secretKey: material.secretKey,
@@ -2750,13 +2750,14 @@ export class RapydConnector extends ConnectorSDK {
 /**
  * The salt for one signed request: a per-call random hex string. Rapyd
  * documents the salt as a random string the CLIENT generates — this is a
- * NONCE, not a secret (it rides the request header in clear), so
- * randomness here is not a determinism violation (the deterministic-battery
- * law governs envelopes/evidence, not per-request nonces).
+ * NONCE, not a secret (it rides the request header in clear). The nonce
+ * comes from node:crypto randomBytes (the cryptographically-correct
+ * source): the deterministic-battery law bans Math.random/Date.now in src
+ * and governs reproducible envelopes/evidence, while a per-request clear
+ * header nonce is REQUIRED by the provider scheme to be unguessable.
  */
-function rapydSalt(clock: ProtocolClock): string {
-  const entropy = `${String(clock.now())}${String(Math.random())}`;
-  return Buffer.from(entropy, "utf8").toString("hex").slice(0, 32);
+function rapydSalt(): string {
+  return randomBytes(16).toString("hex");
 }
 
 /** The timestamp for one signed request: unix SECONDS from the injected clock. */

@@ -21,6 +21,7 @@ declare module 'node:crypto' {
     digest(encoding: 'hex'): string;
   }
   export function createHmac(algorithm: 'sha256' | 'sha512', key: string | Uint8Array): HmacLike;
+  export function randomBytes(size: number): { toString(encoding: string): string };
   export function createHash(algorithm: 'sha256'): HashLike;
   export function timingSafeEqual(a: Uint8Array, b: Uint8Array): boolean;
   export function randomUUID(): string;
