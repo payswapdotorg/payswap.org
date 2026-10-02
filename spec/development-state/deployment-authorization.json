@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "gate": "production_deployment_authorized",
+  "authorized": true,
+  "operator_directive": "proceed with the deployment",
+  "authorized_at": "2026-10-02T01:06:33Z",
+  "channel": "operator session (resident-watch IM channel, trace 1a0fa20154578821)",
+  "context": "Stage 6 certification complete: 21/21 work orders merged (W1-007, W2-007, W3-007 COMPLETE), local battery 1844/1844, typecheck 0, GitHub CI green at main 8ee571a. The deployment proceeds per packages/operations (W3-007 deployment contracts) and spec/experience/DEPLOYMENT-TOPOLOGY.md.",
+  "authorization_model": "Operator-exclusive gate. This file is the authorization lineage required by AGENTS.md rule 2 (every consequential effect carries authorization lineage). scripts/verify-repository.mjs refuses production_deployment_authorized=true unless the roadmap is complete AND this record exists and is well-formed.",
+  "constraints_carried_forward": [
+    "spec/experience/DEPLOYMENT-TOPOLOGY.md §2: financial production requires real provider credentials and real adapter paths; no simulated rail adapter may be wired behind a production surface",
+    "spec/experience/DEPLOYMENT-TOPOLOGY.md §2: preview/demo must never silently substitute fake financial state; unreachable providers render explicit not-connected/no-data states",
+    "spec/experience/DEPLOYMENT-TOPOLOGY.md §6: every release checks all eleven deployment gates",
+    "spec/experience/DEPLOYMENT-TOPOLOGY.md §7: free tiers preferred; no single-vendor dependence"
+  ]
+}

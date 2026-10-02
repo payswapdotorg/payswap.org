@@ -3,7 +3,7 @@
   "repository": "payswapdotorg/payswap.org",
   "architecture_version": "1.5-frozen-2026-09-30",
   "implementation_authorized": true,
-  "production_deployment_authorized": false,
+  "production_deployment_authorized": true,
   "max_concurrent_workers": 3,
   "worker_lanes": {
     "worker-1": "financial-protocol",
