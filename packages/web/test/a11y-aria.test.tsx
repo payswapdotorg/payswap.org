@@ -48,8 +48,11 @@ const API_UNCONFIGURED: ApiRuntimeState = {
 };
 
 function doc(markup: string): Document {
-  return new JSDOM(`<!doctype html><html><body>${markup}</body></html>`).window
-    .document;
+  // A real origin (never opaque) so jsdom storage accessors work and
+  // assertion diffs print properly.
+  return new JSDOM(`<!doctype html><html><body>${markup}</body></html>`, {
+    url: "https://payswap.test/",
+  }).window.document;
 }
 
 /** Simplified accessible-name computation (ARIA label precedence). */
@@ -117,7 +120,8 @@ describe("aria: landmarks, headings and page structure", () => {
         <div>content</div>
       </RootLayout>,
     );
-    const document = new JSDOM(markup).window.document;
+    const document = new JSDOM(markup, { url: "https://payswap.test/" })
+      .window.document;
     expect(document.documentElement.getAttribute("lang")).toBe("en");
     expect(document.querySelectorAll("main")).toHaveLength(1);
     expect(document.querySelector("main")!.getAttribute("id")).toBe(
@@ -355,8 +359,19 @@ describe("aria: the active page is carried by aria-current, never color alone", 
     const currentLinks = Array.from(
       doc(markup).querySelectorAll('a[aria-current="page"]'),
     );
-    expect(currentLinks).toHaveLength(1);
-    expect(currentLinks[0]!.getAttribute("href")).toBe("/");
+    // With the stub pathname "/", exactly the Home entries are current —
+    // one in the desktop nav and one in the mobile disclosure.
+    expect(currentLinks.length).toBeGreaterThanOrEqual(1);
+    for (const link of currentLinks) {
+      expect(link.getAttribute("href")).toBe("/");
+    }
+    // No other primary-nav entry is marked current.
+    const currentHrefs = new Set(
+      currentLinks.map((link) => link.getAttribute("href")),
+    );
+    expect(currentHrefs.has("/capabilities")).toBe(false);
+    expect(currentHrefs.has("/security")).toBe(false);
+    expect(currentHrefs.has("/developers")).toBe(false);
   });
 });
 

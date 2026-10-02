@@ -72,8 +72,9 @@ afterEach(() => {
 });
 
 function doc(markup: string): Document {
-  return new JSDOM(`<!doctype html><html><body>${markup}</body></html>`)
-    .window.document;
+  return new JSDOM(`<!doctype html><html><body>${markup}</body></html>`, {
+    url: "https://payswap.test/",
+  }).window.document;
 }
 
 /** Failure vocabulary that must NEVER classify an UNKNOWN outcome. */

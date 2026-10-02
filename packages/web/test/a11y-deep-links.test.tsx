@@ -113,8 +113,9 @@ function discoverRoutes(): { pages: string[]; apis: string[] } {
 /* --------------------------- href extraction ------------------------- */
 
 function extractInternalHrefs(markup: string): string[] {
-  const document = new JSDOM(`<!doctype html><body>${markup}</body>`).window
-    .document;
+  const document = new JSDOM(`<!doctype html><body>${markup}</body>`, {
+    url: "https://payswap.test/",
+  }).window.document;
   const hrefs: string[] = [];
   for (const anchor of Array.from(document.querySelectorAll("a[href]"))) {
     const raw = anchor.getAttribute("href") ?? "";
@@ -316,8 +317,9 @@ describe("deep links: no dead anchors anywhere", () => {
     const markup = renderToStaticMarkup(
       <SiteHeader /> + renderToStaticMarkup(<HomePage />),
     );
-    const document = new JSDOM(`<!doctype html><body>${markup}</body>`).window
-      .document;
+    const document = new JSDOM(`<!doctype html><body>${markup}</body>`, {
+      url: "https://payswap.test/",
+    }).window.document;
     for (const anchor of Array.from(document.querySelectorAll("a[href^='#']"))) {
       const id = (anchor.getAttribute("href") ?? "").slice(1);
       if (id !== "") {

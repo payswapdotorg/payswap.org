@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import {
   COMMAND_CENTER_HREF,
   COMMAND_CENTER_LABEL,
@@ -37,9 +41,16 @@ function HeaderLink({
   href: string;
   label: string;
 }) {
+  const pathname = usePathname();
+  // The active page is carried by aria-current (never color alone) —
+  // the same law the Command Center navigation already follows.
+  // "/" matches exactly (it would otherwise match every route).
+  const active =
+    href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className="flex min-h-[44px] items-center rounded-md px-3 text-sm font-medium text-stone-600 hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
     >
       {label}
@@ -49,11 +60,37 @@ function HeaderLink({
 
 /**
  * Mobile navigation — a native <details> disclosure, so it is keyboard
- * operable and screen-reader accessible without any client JavaScript.
+ * operable and screen-reader accessible without any client JavaScript for
+ * the toggle itself. Two P3-W2-003 fixes on top of the native behavior:
+ * the disclosure CLOSES after an App Router navigation (the root layout is
+ * not remounted on client-side route changes, so an open panel would
+ * otherwise keep covering the page) and Escape closes it with focus
+ * returned to the summary (keyboard escape hatch, WCAG 2.1.2 posture).
  */
 function MobileNav() {
+  const pathname = usePathname();
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+
+  useEffect(() => {
+    if (detailsRef.current?.open) {
+      detailsRef.current.open = false;
+    }
+  }, [pathname]);
+
   return (
-    <details className="relative md:hidden">
+    <details
+      ref={detailsRef}
+      className="relative md:hidden"
+      onKeyDown={(event) => {
+        if (event.key === "Escape" && detailsRef.current?.open) {
+          event.preventDefault();
+          detailsRef.current.open = false;
+          detailsRef.current
+            .querySelector("summary")
+            ?.focus();
+        }
+      }}
+    >
       <summary
         aria-label="Open navigation menu"
         className="grid h-11 w-11 cursor-pointer list-none place-items-center rounded-lg border border-stone-300 text-stone-700 hover:bg-stone-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 [&::-webkit-details-marker]:hidden"
