@@ -138,3 +138,32 @@ rails convention): there the baseline is an HMAC-SHA256 fingerprint of the
 pair (the material itself is never stored), and the same
 verify-before-revoke steps apply. Cadence: PayPal client secrets per the
 Developer Dashboard policy (regenerate on suspicion; no forced expiry).
+
+## Wave-2 global-reach providers (P2-W2-002: Rapyd, dLocal, Thunes)
+
+Each Wave-2 connector resolves its sealed bundle per provider call through
+the P2-W1-001 CredentialBroker (`PROVIDER_RAPYD_CREDENTIAL_REF`,
+`PROVIDER_DLOCAL_CREDENTIAL_REF`, `PROVIDER_THUNES_CREDENTIAL_REF`), so the
+swap-reference-then-verify pattern applies uniformly:
+
+1. provision the NEW credential into the vault under a NEW reference;
+2. swap the vault binding for the provider's config key to the new
+   reference (the connector re-resolves on every call — no restart);
+3. `rotateCredentials` with an `AdapterExecutionAuthority` and an
+   idempotency key: the connector verifies the new reference DIFFERS from
+   the recorded baseline (fail-closed on an unchanged reference), records
+   the AUDIT_LOG evidence and returns the new opaque reference;
+4. verification BEFORE revocation: a real authenticated health probe
+   against the provider (`health()` → the authenticated endpoint answers);
+   only then is the OLD credential deactivated at the provider;
+5. the rotation evidence node is retained immutably (INV-E05).
+
+Thunes additionally requires the endpoint evidence to be current: a
+rotation against a GLOBALLY_NXDOMAIN host is refused outright (the
+`ThunesUnresolvableEndpointError` gate precedes every provider call), and
+a host change must be recorded as NEW verified `ThunesEndpointEvidence`
+(`status: "RESOLVED"` + the confirmed host) — never guessed.
+
+dLocal note: the V2-HMAC-SHA256 canonicalization is confirmed live as
+part of the FIRST authenticated probe (the honest-uncertainty record in
+BLOCKED-RAILS.md §8); a rotation re-runs that confirmation.

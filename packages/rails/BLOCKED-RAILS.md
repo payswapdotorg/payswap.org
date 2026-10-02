@@ -282,6 +282,103 @@ Status as of 2026-10-02:
   run: real OAuth2 token issuance → HEALTHY), then activate through the
   phase-2 machine (P2-W1-001) with the observed account scope as
   eligibility evidence.
+## 7. Rapyd production connector (`src/rapyd.ts`, P2-W2-002) — credential ABSENT, endpoint reachable
+
+The real Rapyd connector (`RapydConnector` + `RapydProductionRail`) speaks the
+Rapyd v1 API over the injected HTTP transport: salt/timestamp HMAC-SHA256
+request signing (`rapydSignatureHeaders` — the documented canonicalization
+with sorted-JSON body strings), pay-in and payout as SEPARATE coverage
+surfaces (`/v1/payment_methods_by_country` vs the payout method types),
+KYC/document requirements as capability preconditions
+(`rapydPaymentMethodRequirements`), explicit beneficiary requirements,
+ACT/CLO/ERR/EXP statuses verbatim, wallet observation as
+ExternalFundsPositionObservation ONLY (INV-C09), the Rapyd webhook
+signature verifier with (provider, eventId) dedupe, and the deterministic
+client reference (INV-F05). Status as of 2026-10-02:
+
+- **Credential: ABSENT** — the vault holds NO Rapyd material; the
+  control-plane reference `PROVIDER_RAPYD_CREDENTIAL_REF` names
+  `vault://payswap/providers/rapyd/sandbox-20261002` but no sealed bundle
+  exists there yet.
+- **Reachability (probed 2026-10-02, re-verified live)**:
+  `https://sandboxapi.rapyd.net/v1/payment_methods_by_country` answers
+  `HTTP 401` WITHOUT credentials — endpoint REACHABLE, authorization
+  ABSENT (INV-C01/C02: never AVAILABLE, never a failure to hide).
+- **Access required**: a Rapyd **access key + secret key pair** from the
+  Rapyd Client Portal (sandbox first, live after KYB), plus a webhook URL
+  registration for the signature verifier's live confirmation.
+- **Who must grant it**: the merchant/account owner through the Rapyd
+  Client Portal (PaySwap operations may provision on their documented
+  behalf).
+- **Until granted**: `availability()` is UNKNOWN with provenance, `health()`
+  DEGRADED/UNKNOWN with reasons, and every effectful operation throws
+  `RailNotAuthorizedError` BEFORE any provider call (INV-NC04). NO mock
+  Rapyd, NO simulated coverage — the executable coverage law
+  (`rapydCoverageEligibility`) computes eligibility ONLY from
+  connected-account observations; an empty registry is NEVER eligible.
+
+## 8. dLocal production connector (`src/dlocal.ts`, P2-W2-002) — credential ABSENT, host reachable
+
+The real dLocal connector (`DlocalConnector` + `DlocalProductionRail`)
+speaks the dLocal v6 payments API + payment-methods v2 surface: the
+documented V2-HMAC-SHA256 authentication (X-Login/X-Trans-Key/X-Date +
+Authorization over `x_login + x_date + x_trans_key + body`), the verbatim
+11-status payment table (CHARGEBACK in the dispute family; provider-ERROR
+as a terminal provider verdict kept DISTINCT from transport UNKNOWN),
+refunds/cancel/payouts, coverage-as-preconditions with KYC/document and
+beneficiary requirement extraction, the X-Signature webhook verifier
+(constant-time HMAC over the raw body, (provider, eventId) dedupe), and
+the deterministic tracking_id (INV-F05). Status as of 2026-10-02:
+
+- **Credential: ABSENT** — the vault holds NO dLocal material; the
+  control-plane reference `PROVIDER_DLOCAL_CREDENTIAL_REF` has no sealed
+  bundle.
+- **Reachability (probed 2026-10-02, re-verified live)**: the sandbox host
+  root answers `HTTP 200` WITHOUT credentials (host REACHABLE); the
+  `payments_api/v6` and `payment-methods/v2` paths require the documented
+  auth headers.
+- **HONEST UNCERTAINTY (recorded, never guessed silently)**: the exact V2
+  signature canonicalization must be CONFIRMED live once credentials
+  exist — the scheme is implemented faithfully per the documented
+  construction and any deviation surfaces as an authentication FAILURE
+  (fail-closed), never as a fabricated outcome.
+- **Access required**: a dLocal **merchant X-Login + X-Trans-Key + secret
+  key** (sandbox first), plus the notification URL registration for the
+  X-Signature live confirmation.
+- **Who must grant it**: the merchant/account owner through the dLocal
+  merchant dashboard.
+- **Until granted**: same fail-closed law as every rail (INV-NC04), the
+  executable coverage law (`dlocalCoverageEligibility`) computed ONLY
+  from connected-account observations.
+
+## 9. Thunes connector (`src/thunes.ts`, P2-W2-002) — documented API hosts GLOBALLY NXDOMAIN
+
+The Thunes connector maps the documented V2 API surface faithfully
+(api-key authentication, payers/rates/quotes/transactions lifecycles with
+HELD as the compliance-review customer-action family and
+CONFIRMED/RECONCILED as terminal settled-external, per-payer beneficiary
+preconditions, the documented HMAC webhook pattern with (provider,
+eventId) dedupe, and the deterministic externalId from the protocol key).
+Status as of 2026-10-02 — the HONEST blocked state:
+
+- **Endpoint evidence (the governing datum)**: BOTH documented API hosts
+  (`sandbox-api.thunes.com` and `api.thunes.com`) are **GLOBALLY NXDOMAIN**
+  — verified by public DNS-over-HTTPS (Status: 3; the zone is
+  authoritative on awsdns). The company domain `www.thunes.com` resolves
+  (HTTP 403 via CloudFront). The recorded datum is
+  `THUNES_UNRESOLVABLE_ENDPOINT_20261002` in `src/thunes.ts`.
+- **Credential: ABSENT** — no Thunes apiKey/secretKey exists in the vault.
+- **Access required**: a Thunes **apiKey + secretKey** AND a
+  currently-resolvable API host confirmed by the operator (the company
+  has evidently moved its API surface; the documented hosts are dead).
+- **Who must grant it**: the merchant/account owner through Thunes
+  onboarding (and the operator confirming the current host).
+- **Until lifted**: every provider-calling operation throws
+  `ThunesUnresolvableEndpointError` (a `RailNotAuthorizedError`) BEFORE
+  any provider call, citing the recorded datum — NO simulated substitute,
+  NO guessed host. The gate lifts ONLY through newer verified endpoint
+  evidence supplied at construction (`endpointEvidence` with
+  `status: "RESOLVED"` and the confirmed host) plus real credentials.
 
 ## Not blocked (exercised against genuinely reachable public endpoints)
 
