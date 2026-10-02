@@ -27,6 +27,7 @@ import {
 
 import { appRouteForNavItemId, resolveAppSection } from "@/lib/cc/routes";
 import { deriveCcPalette } from "@/lib/cc/palette";
+import { CcNavContent } from "./cc-nav-content";
 
 export interface CommandCenterShellProps {
   /** The certified, role-derived navigation (computed server-side). */
@@ -40,32 +41,6 @@ export interface CommandCenterShellProps {
   /** The role switcher form (a server slot — works without JavaScript). */
   readonly roleSwitcher: ReactNode;
   readonly children: ReactNode;
-}
-
-function NavContent({
-  nav,
-  activeRoute,
-}: {
-  readonly nav: RoleNavigationView;
-  readonly activeRoute: string;
-}) {
-  return (
-    <>
-      {nav.groups.map((group) => (
-        <SidebarSection key={group.group.id} label={group.group.label}>
-          {group.items.map((view) => (
-            <SidebarItem
-              key={view.item.id}
-              href={appRouteForNavItemId(view.item.id)}
-              active={appRouteForNavItemId(view.item.id) === activeRoute}
-            >
-              {view.item.label}
-            </SidebarItem>
-          ))}
-        </SidebarSection>
-      ))}
-    </>
-  );
 }
 
 export function CommandCenterShell({
@@ -162,7 +137,7 @@ export function CommandCenterShell({
   return (
     <div className="ps-root cc-shell">
       <Sidebar label="Command Center sections" brand={brand} footer={sidebarFooter}>
-        <NavContent nav={nav} activeRoute={activeRoute} />
+        <CcNavContent nav={nav} activeRoute={activeRoute} />
       </Sidebar>
 
       <SidebarDrawer
@@ -173,7 +148,7 @@ export function CommandCenterShell({
         brand={brand}
         footer={sidebarFooter}
       >
-        <NavContent nav={nav} activeRoute={activeRoute} />
+        <CcNavContent nav={nav} activeRoute={activeRoute} />
       </SidebarDrawer>
 
       <div className="cc-shell__main">

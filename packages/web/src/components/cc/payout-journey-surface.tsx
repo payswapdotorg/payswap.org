@@ -64,6 +64,45 @@ function minorUnitsInput(value: string): string | null {
   return trimmed.replace(/^0+(?=\d)/, "");
 }
 
+/** The payout journey facts (pill + destination/scope state) — exported for tests. */
+export function PayoutJourneyFacts({ journey }: { readonly journey: PayoutJourney }) {
+  const pill = STATE_PILLS[journey.stateName] ?? null;
+  return (
+    <>
+      {pill !== null ? (
+        <p>
+          <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
+        </p>
+      ) : null}
+      <KeyValue
+        entries={[
+          {
+            key: "Amount",
+            value: `${journey.amount.minorUnits} ${journey.amount.currency} (minor units)`,
+            mono: true,
+          },
+          { key: "Journey state", value: journey.stateName, mono: true },
+          {
+            key: "Destination",
+            value:
+              journey.destination === undefined
+                ? "— none specified (fail-closed: required before any submission)"
+                : `${journey.destination.kind} ${journey.destination.destinationRef} (${journey.destination.currency}, external observation)`,
+            mono: journey.destination !== undefined,
+          },
+          {
+            key: "Withdrawal scope",
+            value:
+              journey.withdrawalScope === undefined
+                ? "— not confirmed (required before any submission)"
+                : `single-use, max ${journey.withdrawalScope.maxAmount.minorUnits} ${journey.withdrawalScope.maxAmount.currency}, bound to the destination`,
+          },
+        ]}
+      />
+    </>
+  );
+}
+
 export function PayoutJourneySurface({
   autoStart,
 }: {
@@ -188,7 +227,6 @@ export function PayoutJourneySurface({
     }
   }
 
-  const pill = phase.kind === "JOURNEY" ? (STATE_PILLS[phase.journey.stateName] ?? null) : null;
 
   return (
     <div className="cc-stack">
@@ -240,36 +278,7 @@ export function PayoutJourneySurface({
         </Panel>
       ) : (
         <>
-          {pill !== null ? (
-            <p>
-              <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
-            </p>
-          ) : null}
-          <KeyValue
-            entries={[
-              {
-                key: "Amount",
-                value: `${phase.journey.amount.minorUnits} ${phase.journey.amount.currency} (minor units)`,
-                mono: true,
-              },
-              { key: "Journey state", value: phase.journey.stateName, mono: true },
-              {
-                key: "Destination",
-                value:
-                  phase.journey.destination === undefined
-                    ? "— none specified (fail-closed: required before any submission)"
-                    : `${phase.journey.destination.kind} ${phase.journey.destination.destinationRef} (${phase.journey.destination.currency}, external observation)`,
-                mono: phase.journey.destination !== undefined,
-              },
-              {
-                key: "Withdrawal scope",
-                value:
-                  phase.journey.withdrawalScope === undefined
-                    ? "— not confirmed (required before any submission)"
-                    : `single-use, max ${phase.journey.withdrawalScope.maxAmount.minorUnits} ${phase.journey.withdrawalScope.maxAmount.currency}, bound to the destination`,
-              },
-            ]}
-          />
+          <PayoutJourneyFacts journey={phase.journey} />
           {phase.journey.stateName === "SPECIFYING_DESTINATION" ? (
             <Panel
               title="The explicit external destination"

@@ -9,6 +9,7 @@ import { CommandCenterShell } from "@/components/cc/command-center-shell";
 import { RoleSwitcher } from "@/components/cc/role-switcher";
 import { getServerCcState } from "@/lib/cc/server-state";
 import { navigationForState } from "@/lib/cc/render-state";
+import { ccSessionLine } from "@/lib/cc/session-seam";
 
 export const metadata: Metadata = {
   title: "Command Center",
@@ -28,12 +29,7 @@ export const metadata: Metadata = {
 export default async function CommandCenterLayout({ children }: { children: ReactNode }) {
   const state = await getServerCcState();
   const nav = navigationForState(state);
-  const sessionLine =
-    state.session.status === "authenticated"
-      ? `Signed in${state.session.principal.role ? ` — ${state.session.principal.role}` : ""}`
-      : state.session.status === "unauthenticated"
-        ? "Not signed in"
-        : "Session plane: not wired (honest)";
+  const sessionLine = ccSessionLine(state.session);
   return (
     <CommandCenterShell
       nav={nav}

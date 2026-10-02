@@ -45,6 +45,66 @@ function minorUnitsInput(value: string): string | null {
   return trimmed.replace(/^0+(?=\d)/, "");
 }
 
+/** The live-journey view (every state except composing) — exported for tests. */
+export function CollectJourneyView({
+  journey,
+  onAction,
+}: {
+  readonly journey: CollectJourney;
+  readonly onAction: (action: ViewAction) => void;
+}) {
+  const pill = STATE_PILLS[journey.stateName] ?? null;
+  const share = deriveShareableRequest(journey);
+  return (
+    <>
+      {pill !== null ? (
+        <p>
+          <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
+        </p>
+      ) : null}
+      <KeyValue
+        entries={[
+          {
+            key: "Amount",
+            value: `${journey.amount.minorUnits} ${journey.amount.currency} (minor units)`,
+            mono: true,
+          },
+          { key: "Payer", value: journey.payer, mono: true },
+          { key: "Journey state", value: journey.stateName, mono: true },
+          {
+            key: "Connected collect-capable instances",
+            value: String(journey.collectCapableInstances.length),
+          },
+        ]}
+      />
+      {share !== null && "requestRef" in share ? (
+        <Panel
+          title="Shareable request"
+          description="An OPAQUE reference the payer surface binds to — sharing carries no envelope and no authority."
+        >
+          <p className="ps-mono">{share.requestRef}</p>
+        </Panel>
+      ) : null}
+      {journey.stateName === "COMPOSING_REQUEST" &&
+      journey.collectCapableInstances.length === 0 ? (
+        <EmptyState
+          title="No connected capability permits collecting"
+          description={
+            <>
+              Request creation draws ONLY from connected instances whose
+              authority records permit collecting — and none exist for this
+              viewer yet. This is the honest empty state, not an error.{" "}
+              <Link href="/app/capabilities">See provider coverage and connect a capability</Link>{" "}
+              once the connection plane ships (parallel work stream).
+            </>
+          }
+        />
+      ) : null}
+      <JourneyActionList heading="Actions" actions={journey.actions} onAction={onAction} />
+    </>
+  );
+}
+
 export function CollectJourneySurface({
   collectCapableInstances,
   autoStart,
@@ -61,7 +121,6 @@ export function CollectJourneySurface({
   const [error, setError] = useState<string | null>(null);
 
   const canCompose = minorUnitsInput(amountMinor) !== null && payer.trim().length > 0 && /^[A-Z]{3}$/.test(currency);
-
   function begin(): void {
     const minorUnits = minorUnitsInput(amountMinor);
     if (minorUnits === null || payer.trim().length === 0 || !/^[A-Z]{3}$/.test(currency)) {
@@ -108,9 +167,6 @@ export function CollectJourneySurface({
         return;
     }
   }
-
-  const share = phase.kind === "JOURNEY" ? deriveShareableRequest(phase.journey) : null;
-  const pill = phase.kind === "JOURNEY" ? (STATE_PILLS[phase.journey.stateName] ?? null) : null;
 
   return (
     <div className="cc-stack">
@@ -170,53 +226,7 @@ export function CollectJourneySurface({
           </div>
         </Panel>
       ) : (
-        <>
-          {pill !== null ? (
-            <p>
-              <StatusPill tone={pill.tone}>{pill.label}</StatusPill>
-            </p>
-          ) : null}
-          <KeyValue
-            entries={[
-              {
-                key: "Amount",
-                value: `${phase.journey.amount.minorUnits} ${phase.journey.amount.currency} (minor units)`,
-                mono: true,
-              },
-              { key: "Payer", value: phase.journey.payer, mono: true },
-              { key: "Journey state", value: phase.journey.stateName, mono: true },
-              {
-                key: "Connected collect-capable instances",
-                value: String(phase.journey.collectCapableInstances.length),
-              },
-            ]}
-          />
-          {share !== null && "requestRef" in share ? (
-            <Panel
-              title="Shareable request"
-              description="An OPAQUE reference the payer surface binds to — sharing carries no envelope and no authority."
-            >
-              <p className="ps-mono">{share.requestRef}</p>
-            </Panel>
-          ) : null}
-          {phase.journey.stateName === "COMPOSING_REQUEST" &&
-          phase.journey.collectCapableInstances.length === 0 ? (
-            <EmptyState
-              title="No connected capability permits collecting"
-              description={
-                <>
-                  Request creation draws ONLY from connected instances whose
-                  authority records permit collecting — and none exist for
-                  this viewer yet. This is the honest empty state, not an
-                  error.{" "}
-                  <Link href="/app/capabilities">See provider coverage and connect a capability</Link>{" "}
-                  once the connection plane ships (parallel work stream).
-                </>
-              }
-            />
-          ) : null}
-          <JourneyActionList heading="Actions" actions={phase.journey.actions} onAction={onAction} />
-        </>
+        <CollectJourneyView journey={phase.journey} onAction={onAction} />
       )}
     </div>
   );

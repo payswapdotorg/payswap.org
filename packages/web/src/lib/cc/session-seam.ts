@@ -107,3 +107,15 @@ export function isPreviewMode(
     effectiveNavigationRole(session, rolePreference) !== null
   );
 }
+
+/** The honest one-liner the shell footer renders for the session state. */
+export function ccSessionLine(session: CcSessionResolution): string {
+  switch (session.status) {
+    case "authenticated":
+      return `Signed in${session.principal.role ? ` — ${session.principal.role}` : ""}`;
+    case "unauthenticated":
+      return "Not signed in";
+    case "not-wired":
+      return "Session plane: not wired (honest)";
+  }
+}

@@ -18,7 +18,7 @@
  *   integer, never parsed from a formatted currency string.
  */
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import type {
   ConnectedCapabilityInstanceRecord,
@@ -67,6 +67,93 @@ function minorUnitsInput(value: string): string | null {
     return null;
   }
   return trimmed.replace(/^0+(?=\d)/, "");
+}
+
+/** The live-journey view (every state except composing) — exported for tests. */
+export function PayJourneyView({
+  journey,
+  onAction,
+}: {
+  readonly journey: PayJourney;
+  readonly onAction: (action: ViewAction) => void;
+}) {
+  const statePill = STATE_PILLS[journey.stateName] ?? { tone: "unknown" as const, label: journey.stateName };
+  return (
+    <>
+      <div>
+        <StatusPill tone={statePill.tone}>{statePill.label}</StatusPill>
+      </div>
+      <KeyValue
+        entries={[
+          {
+            key: "Amount",
+            value: `${journey.request.amount.minorUnits} ${journey.request.amount.currency} (minor units)`,
+            mono: true,
+          },
+          { key: "Recipient", value: journey.request.recipient, mono: true },
+          { key: "Journey state", value: journey.stateName, mono: true },
+        ]}
+      />
+      {journey.stateName === "SELECTING_CAPABILITY" ? (
+        journey.options.length === 0 ? (
+          <EmptyState
+            title="No connected capability"
+            description={
+              <>
+                Capability selection draws ONLY from connected instances
+                (authority records) — and none exist for this viewer yet.
+                This is the honest empty state, not an error: the provider
+                catalogue is never treated as executable authority.{" "}
+                <Link href="/app/capabilities">See provider coverage and connect a capability</Link>{" "}
+                once the connection plane ships (parallel work stream).
+              </>
+            }
+          />
+        ) : null
+      ) : null}
+      {journey.stateName === "REVIEWING_ROUTE" && (journey.routeCandidates?.length ?? 0) > 0 ? (
+        <Panel
+          title="Route comparison"
+          description="Catalogue-derived entries are clearly marked COMPARISON-ONLY — the catalogue is never an execution surface. Only routes executing on your connected instance can be submitted."
+        >
+          <ul className="cc-actions">
+            {(journey.routeCandidates ?? []).map((candidate) => (
+              <li key={candidate.methodId} className="cc-actions__item">
+                <span className="ps-mono">{candidate.methodId}</span>
+                <span className="cc-actions__reason">
+                  fees {candidate.fees.minorUnits} {candidate.fees.currency} · rail{" "}
+                  {candidate.railPath.join(" → ")} · ~{candidate.completionMs}ms
+                </span>
+                <StatusPill tone={candidate.basedOnInstanceId !== undefined ? "ok" : "disabled"}>
+                  {candidate.basedOnInstanceId !== undefined ? "Executable" : "Comparison-only"}
+                </StatusPill>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      ) : null}
+      {journey.stateName === "RECONCILING" ? (
+        <UnknownState
+          title="Outcome unknown — reconciling"
+          description="Absence of knowledge is not failure. Reconciliation is authoritative for ambiguous external effects (INV-X03); the external write is never blindly retried (INV-X02)."
+          action={
+            <Link className="ps-button ps-button--sm ps-button--secondary" href="/app/evidence">
+              View the evidence recorded so far
+            </Link>
+          }
+        />
+      ) : null}
+      {journey.stateName === "FAILED" ? (
+        <Panel title="Failed" description="The failure reason comes from protocol evidence, not inference. Retry only as a NEW intent with a fresh idempotency key.">
+          <p className="cc-actions__reason">
+            The failure evidence is preserved on the journey — view it from the
+            actions below.
+          </p>
+        </Panel>
+      ) : null}
+      <JourneyActionList heading="Actions" actions={journey.actions} onAction={onAction} />
+    </>
+  );
 }
 
 export function PayJourneySurface({
@@ -165,13 +252,6 @@ export function PayJourneySurface({
     }
   }
 
-  const statePill = useMemo(() => {
-    if (phase.kind !== "JOURNEY") {
-      return null;
-    }
-    return STATE_PILLS[phase.journey.stateName] ?? { tone: "unknown" as const, label: phase.journey.stateName };
-  }, [phase]);
-
   return (
     <div className="cc-stack">
       {phase.kind === "COMPOSING" ? (
@@ -241,84 +321,7 @@ export function PayJourneySurface({
           </div>
         </Panel>
       ) : (
-        <>
-          <div>
-            {statePill !== null ? <StatusPill tone={statePill.tone}>{statePill.label}</StatusPill> : null}
-          </div>
-          <KeyValue
-            entries={[
-              {
-                key: "Amount",
-                value: `${phase.journey.request.amount.minorUnits} ${phase.journey.request.amount.currency} (minor units)`,
-                mono: true,
-              },
-              { key: "Recipient", value: phase.journey.request.recipient, mono: true },
-              { key: "Journey state", value: phase.journey.stateName, mono: true },
-            ]}
-          />
-          {phase.journey.stateName === "SELECTING_CAPABILITY" ? (
-            phase.journey.options.length === 0 ? (
-              <EmptyState
-                title="No connected capability"
-                description={
-                  <>
-                    Capability selection draws ONLY from connected instances
-                    (authority records) — and none exist for this viewer yet.
-                    This is the honest empty state, not an error: the provider
-                    catalogue is never treated as executable authority.{" "}
-                    <Link href="/app/capabilities">See provider coverage and connect a capability</Link>{" "}
-                    once the connection plane ships (parallel work stream).
-                  </>
-                }
-              />
-            ) : null
-          ) : null}
-          {phase.journey.stateName === "REVIEWING_ROUTE" && (phase.journey.routeCandidates?.length ?? 0) > 0 ? (
-            <Panel
-              title="Route comparison"
-              description="Catalogue-derived entries are clearly marked COMPARISON-ONLY — the catalogue is never an execution surface. Only routes executing on your connected instance can be submitted."
-            >
-              <ul className="cc-actions">
-                {(phase.journey.routeCandidates ?? []).map((candidate) => (
-                  <li key={candidate.methodId} className="cc-actions__item">
-                    <span className="ps-mono">{candidate.methodId}</span>
-                    <span className="cc-actions__reason">
-                      fees {candidate.fees.minorUnits} {candidate.fees.currency} · rail{" "}
-                      {candidate.railPath.join(" → ")} · ~{candidate.completionMs}ms
-                    </span>
-                    <StatusPill tone={candidate.basedOnInstanceId !== undefined ? "ok" : "disabled"}>
-                      {candidate.basedOnInstanceId !== undefined ? "Executable" : "Comparison-only"}
-                    </StatusPill>
-                  </li>
-                ))}
-              </ul>
-            </Panel>
-          ) : null}
-          {phase.journey.stateName === "RECONCILING" ? (
-            <UnknownState
-              title="Outcome unknown — reconciling"
-              description="Absence of knowledge is not failure. Reconciliation is authoritative for ambiguous external effects (INV-X03); the external write is never blindly retried (INV-X02)."
-              action={
-                <Link className="ps-button ps-button--sm ps-button--secondary" href="/app/evidence">
-                  View the evidence recorded so far
-                </Link>
-              }
-            />
-          ) : null}
-          {phase.journey.stateName === "FAILED" ? (
-            <Panel title="Failed" description="The failure reason comes from protocol evidence, not inference. Retry only as a NEW intent with a fresh idempotency key.">
-              <p className="cc-actions__reason">
-                The failure evidence is preserved on the journey — view it
-                from the actions below.
-              </p>
-            </Panel>
-          ) : null}
-          <JourneyActionList
-            heading="Actions"
-            actions={phase.journey.actions}
-            onAction={onAction}
-          />
-        </>
+        <PayJourneyView journey={phase.journey} onAction={onAction} />
       )}
     </div>
   );
