@@ -239,7 +239,7 @@ describe("dependency audit — Resend and Apify are absent (hard law)", () => {
       for (const section of DEP_SECTIONS) {
         for (const [name, version] of Object.entries(raw[section] ?? {})) {
           if (typeof version === "string" && version.startsWith("npm:")) {
-            const aliased = version.slice(4).split("@")[0];
+            const aliased = version.slice(4).split("@")[0] ?? "";
             if (isBanned(aliased) || isBanned(name)) {
               violations.push(`${manifest.file} → ${section} → ${name}@${version}`);
             }

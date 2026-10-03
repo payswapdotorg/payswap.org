@@ -11,12 +11,14 @@
  *   nothing is here to fake it.
  *
  * - READINESS: can this deployment actually reach the authoritative PaySwap
- *   API runtime? Resolved honestly per request:
+ *   API runtime? Resolved honestly per request, THROUGH the thin transport
+ *   (`src/lib/api.ts` fetchJson — the single place that knows how to reach
+ *   the API; the health route adds no parallel transport):
  *     * NEXT_PUBLIC_PAYSWAP_API_URL unconfigured → readiness "unknown"
  *       (cannot be determined — UNKNOWN is NOT failure, INV-X01 doctrine);
- *     * configured → a single bounded probe of GET /v1/health on the API
- *       runtime. 2xx → "ready". Non-2xx, transport failure or timeout →
- *       "degraded" with the verbatim reason — never faked as success.
+ *     * configured → one bounded probe of GET /v1/health. ok → "ready";
+ *       non-2xx, transport failure or timeout → "degraded" with the
+ *       verbatim reason — never faked as success.
  *
  * This endpoint carries NO financial state (the authoritative PaySwap API
  * owns all financial truth); the probe reports TRANSPORT health only.
@@ -25,7 +27,7 @@
  * unavailable they are reported as null — never fabricated.
  */
 
-import { API_BASE_URL_ENV_VAR, apiRuntimeState, buildApiUrl } from "@/lib/api";
+import { API_BASE_URL_ENV_VAR, apiRuntimeState, fetchJson } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -54,8 +56,10 @@ function resolveProbeTimeoutMs(raw: string | undefined): number {
 }
 
 /** What actually happened on the readiness probe — verbatim, never guessed. */
+type ProbeOutcome = "ok" | "http-error" | "network-error" | "timeout" | "not-attempted";
+
 interface ProbeReport {
-  readonly outcome: "ok" | "http-error" | "network-error" | "timeout" | "not-attempted";
+  readonly outcome: ProbeOutcome;
   readonly statusCode: number | null;
   readonly message: string | null;
 }
@@ -70,7 +74,7 @@ interface ReadinessReport {
     readonly probe: {
       readonly path: string;
       readonly timeoutMs: number;
-      readonly outcome: ProbeReport["outcome"];
+      readonly outcome: ProbeOutcome;
       readonly statusCode: number | null;
       readonly message: string | null;
     };
@@ -78,43 +82,47 @@ interface ReadinessReport {
 }
 
 /**
- * Probe the API runtime's own health endpoint once, bounded by a timeout.
- * The probe outcome is transport truth only — a 2xx means "reachable and
- * answering", it does NOT interpret any financial state.
+ * Probe the API runtime's own health endpoint once, bounded by a timeout,
+ * through the thin transport (fetchJson). The union's honest outcomes map
+ * 1:1 to the probe report; a timeout is detected by the signal having
+ * aborted (the bounded-budget outcome), not by string-sniffing errors.
+ * The probe reports transport reachability only — it never interprets any
+ * financial state.
  */
-async function probeApiRuntime(
-  url: string,
-  timeoutMs: number,
-): Promise<ProbeReport> {
+async function probeApiRuntime(timeoutMs: number): Promise<ProbeReport> {
   const signal = AbortSignal.timeout(timeoutMs);
-  try {
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { accept: "application/json" },
-      cache: "no-store",
-      signal,
-    });
-    if (response.ok) {
-      return { outcome: "ok", statusCode: response.status, message: null };
-    }
-    return {
-      outcome: "http-error",
-      statusCode: response.status,
-      message: `GET ${READINESS_PROBE_PATH} answered HTTP ${response.status} on the API runtime`,
-    };
-  } catch (error) {
-    if (signal.aborted) {
+  const result = await fetchJson<unknown>(READINESS_PROBE_PATH, { signal });
+  switch (result.status) {
+    case "ok":
+      // The transport answered 2xx; the union carries no code — null, not
+      // an assumed 200 (nothing is fabricated, not even a status code).
+      return { outcome: "ok", statusCode: null, message: null };
+    case "http-error":
       return {
-        outcome: "timeout",
+        outcome: "http-error",
+        statusCode: result.statusCode,
+        message: `GET ${READINESS_PROBE_PATH} answered HTTP ${result.statusCode} on the API runtime`,
+      };
+    case "network-error": {
+      if (signal.aborted) {
+        return {
+          outcome: "timeout",
+          statusCode: null,
+          message: `probe did not complete within ${timeoutMs} ms`,
+        };
+      }
+      return {
+        outcome: "network-error",
         statusCode: null,
-        message: `probe did not complete within ${timeoutMs} ms`,
+        message: result.message,
       };
     }
-    return {
-      outcome: "network-error",
-      statusCode: null,
-      message: error instanceof Error ? error.message : String(error),
-    };
+    default:
+      return {
+        outcome: "network-error",
+        statusCode: null,
+        message: `unexpected transport outcome: ${JSON.stringify(result)}`,
+      };
   }
 }
 
@@ -125,11 +133,7 @@ export async function GET() {
 
   let readiness: ReadinessReport;
   if (runtimeState.configured && runtimeState.baseUrl !== null) {
-    const url = buildApiUrl(runtimeState, READINESS_PROBE_PATH);
-    const probe =
-      url === null
-        ? { outcome: "not-attempted" as const, statusCode: null, message: "URL construction refused" }
-        : await probeApiRuntime(url, timeoutMs);
+    const probe = await probeApiRuntime(timeoutMs);
     readiness = {
       state: probe.outcome === "ok" ? "ready" : "degraded",
       apiRuntime: {

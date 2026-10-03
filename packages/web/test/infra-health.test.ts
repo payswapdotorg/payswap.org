@@ -152,7 +152,9 @@ describe("health route — readiness probe outcomes (configured)", () => {
 
   it("is READY when the API runtime answers GET /v1/health with 2xx", async () => {
     process.env[API_URL_ENV] = API_BASE;
-    const fetchSpy = vi.fn(async () => jsonResponse(200));
+    const fetchSpy = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse(200),
+    );
     vi.stubGlobal("fetch", fetchSpy);
 
     const { status, body } = await callHealth();
@@ -162,14 +164,18 @@ describe("health route — readiness probe outcomes (configured)", () => {
     expect(body.readiness.apiRuntime.configured).toBe(true);
     expect(body.readiness.apiRuntime.baseUrl).toBe(API_BASE);
     expect(body.readiness.apiRuntime.probe.outcome).toBe("ok");
-    expect(body.readiness.apiRuntime.probe.statusCode).toBe(200);
+    // ok carries no code from the transport — null, never an assumed 200.
+    expect(body.readiness.apiRuntime.probe.statusCode).toBeNull();
+    expect(body.readiness.apiRuntime.probe.message).toBeNull();
     expect(body.readiness.apiRuntime.probe.path).toBe("/v1/health");
 
+    // The probe went through the thin transport (lib/api.ts fetchJson) to
+    // the API runtime's own health endpoint, bounded by an abort signal.
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     const [url, init] = fetchSpy.mock.calls[0] ?? [];
     expect(String(url)).toBe(`${API_BASE}/v1/health`);
-    expect(init?.method).toBe("GET");
-    expect(init?.signal).toBeInstanceOf(AbortSignal);
+    expect(init?.signal ?? (init as { signal?: AbortSignal } | undefined)?.signal)
+      .toBeInstanceOf(AbortSignal);
   });
 
   it("is DEGRADED (HTTP 503) when the API runtime answers non-2xx — never faked success", async () => {
