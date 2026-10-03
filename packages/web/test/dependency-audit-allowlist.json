@@ -187,6 +187,17 @@
         "vitest"
       ]
     },
+    "packages/onchain-security": {
+      "dependencies": [
+        "@payswap/capabilities",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
     "packages/operations": {
       "dependencies": [
         "@payswap/journeys",
@@ -322,5 +333,9 @@
       ]
     }
   },
-  "justifications": {}
+  "justifications": {
+    "packages/onchain-security|dependencies|@payswap/capabilities": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
+    "packages/onchain-security|dependencies|@payswap/protocol": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
+    "packages/onchain-security|dependencies|@payswap/trust": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate."
+  }
 }
