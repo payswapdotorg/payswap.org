@@ -62,7 +62,7 @@ export * from "./recheck.js";
 export * from "./pipeline.js";
 export * from "./signers.js";
 
-// EVM chain-family adapters (isolated from core contracts by law):
-// import from "@payswap/onchain-security/adapters/eip712" / ".../erc1271".
-export * as eip712 from "./adapters/eip712.js";
-export * as erc1271 from "./adapters/erc1271.js";
+// EVM chain-family adapters (isolated from core contracts by law) are
+// NOT re-exported here: import them via the package subpath exports
+// (./adapters/eip712 and ./adapters/erc1271) so the core barrel stays
+// provider-neutral.
