@@ -359,9 +359,45 @@
         "typescript",
         "vitest"
       ]
+    },
+    "packages/best-execution": {
+      "dependencies": [
+        "@payswap/onchain-domain",
+        "@payswap/onchain-security",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/onchain-venues": {
+      "dependencies": [
+        "@payswap/best-execution",
+        "@payswap/capabilities",
+        "@payswap/onchain-domain",
+        "@payswap/onchain-security",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
     }
   },
   "justifications": {
+    "packages/best-execution|dependencies|@payswap/onchain-domain": "P4-W2-002 best-execution core: reuses the neutral swap-kind/chain-key/connected-protocol-instance vocabulary and the canonical protocol capability identity (never redefines it); the core stays venue-agnostic",
+    "packages/best-execution|dependencies|@payswap/onchain-security": "P4-W2-002 best-execution core: drives every candidate route through the kernel prepare/simulate/diff/gate stages (evaluateOnchainWriteGates, prepareWrite, recordSimulation, buildExpectedStateDiff) and composes AssetIdentity/AmountSpec — the kernel owns authority, never this package",
+    "packages/best-execution|dependencies|@payswap/protocol": "P4-W2-002 best-execution core: canonical ValidationError-based fail-closed validation and the error taxonomy base classes",
+    "packages/best-execution|dependencies|@payswap/trust": "P4-W2-002 best-execution core: AmountSpec exact-money wire shapes for swap requests and quote amounts (INV-F01; no floating point, no Money construction)",
+    "packages/onchain-venues|dependencies|@payswap/best-execution": "P4-W2-002 venue extension packs: implement the neutral ExecutionVenue port (quote/observeHealth/planWrite/simulate) so venues register as capability packs behind the venue-agnostic core (dependency direction venue → core)",
+    "packages/onchain-venues|dependencies|@payswap/capabilities": "P4-W2-002 venue extension packs: SmartContractExtension-typed INV-SC01 declarations compose the packs' ProtocolDefinitions",
+    "packages/onchain-venues|dependencies|@payswap/onchain-domain": "P4-W2-002 venue extension packs: built ON the canonical ProtocolDefinition/ProtocolImplementation/ConnectedProtocolInstance layers plus the DexCapability/IntentExecutionCapability flavors and their validators (one object, both canonical validators)",
+    "packages/onchain-venues|dependencies|@payswap/onchain-security": "P4-W2-002 venue extension packs: planWrite produces kernel-ready OnchainWriteRequests (router approvals, contract calls, protocol identity) consumed by the prepare/simulate/gate stages",
+    "packages/onchain-venues|dependencies|@payswap/protocol": "P4-W2-002 venue extension packs: canonical ValidationError-based fail-closed validation",
+    "packages/onchain-venues|dependencies|@payswap/trust": "P4-W2-002 venue extension packs: AmountSpec exact-money wire shapes for venue quote amounts and approvals (INV-F01)",
     "packages/onchain-adapters|dependencies|@payswap/capabilities": "P4-W2-001 multi-chain adapter SDK: SmartContractExtension-shaped protocol identity inputs flow through the kernel write requests the adapters feed (INV-SC01 contract declarations)",
     "packages/onchain-adapters|dependencies|@payswap/connectors": "P4-W2-001 multi-chain adapter SDK: ConnectedCapabilityInstance execution-scope shapes and the canonical execution-request validation (INV-C05/INV-C07) are consumed as-is — never redefined",
     "packages/onchain-adapters|dependencies|@payswap/onchain-domain": "P4-W2-001 multi-chain adapter SDK: implements chain-family adapters BEHIND the neutral onchain-domain contracts (directive/observation validation, catalogue-never-authorizes guards, settlement-mapping vocabulary — no parallel ledger)",

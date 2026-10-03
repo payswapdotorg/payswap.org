@@ -1,0 +1,29 @@
+{
+  "name": "@payswap/onchain-venues",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Onchain execution-venue extension packs (Work Order P4-W2-002): independent DEX/aggregator/intent venues modelled as capability packs BUILT ON @payswap/onchain-domain (ProtocolDefinition/ProtocolImplementation/ConnectedProtocolInstance composing the canonical INV-SC01 SmartContractExtension) and registered behind @payswap/best-execution's neutral ExecutionVenue port. The reference venue extension (uniswap), an independent 0x-style aggregator venue (its own extension pack — RFQ + AMM source aggregation with provider-native smart routing as the incumbent baseline), and an intent/solver-oriented venue (batch-auction settlement, solver competition) are SUBPATH exports so the core barrel stays venue-neutral (dependency direction: venue → core). Venue-specific shapes (router calldata encoding, RFQ source composition, intent payloads) live in the venue pack files — never in any core contract.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./uniswap": "./src/uniswap/index.ts",
+    "./aggregator": "./src/aggregator/index.ts",
+    "./intents": "./src/intents/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/best-execution": "*",
+    "@payswap/capabilities": "*",
+    "@payswap/onchain-domain": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/protocol": "*",
+    "@payswap/trust": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
