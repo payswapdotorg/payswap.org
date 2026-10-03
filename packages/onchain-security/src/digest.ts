@@ -38,10 +38,11 @@ function serialize(value: unknown): string {
       const keys = Object.keys(record).sort();
       const parts: string[] = [];
       for (const key of keys) {
-        if (key === undefined) {
-          continue;
+        const fieldValue = record[key];
+        if (fieldValue === undefined) {
+          continue; // undefined-valued keys are absent (deterministic absence semantics)
         }
-        parts.push(`${JSON.stringify(key)}:${serialize(record[key])}`);
+        parts.push(`${JSON.stringify(key)}:${serialize(fieldValue)}`);
       }
       return `{${parts.join(",")}}`;
     }

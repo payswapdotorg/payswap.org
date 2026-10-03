@@ -52,3 +52,7 @@ export const PACKAGE_NAME = "@payswap/onchain-security" as const;
 export * from "./types.js";
 export * from "./digest.js";
 export * from "./secrets.js";
+export * from "./write-intent.js";
+export * from "./simulation.js";
+export * from "./diff.js";
+export * from "./gates.js";

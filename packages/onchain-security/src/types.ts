@@ -48,19 +48,22 @@ export function validateChainRef(chain: ChainRef): void {
 }
 
 /**
- * Onchain asset identity: chain-scoped. `USDC` on `ethereum:mainnet` and
- * `USDC` on `solana:mainnet` are DIFFERENT assets (fake-token defense is
- * exact-match on chain + assetId + symbol).
+ * Onchain asset identity: chain-scoped. Two assets with the same symbol
+ * on different chains — and two tokens with the same symbol on one chain —
+ * are DIFFERENT assets (fake-token defense is exact-match on
+ * chain + assetId + symbol; never symbol alone).
  *
- * `symbol` is the exact-money currency code used in `AmountSpec` (the
- * currency must be registered with @payswap/protocol before exact amount
- * arithmetic — money semantics are protocol-owned).
+ * `symbol` follows the @payswap/trust AmountSpec currency law (exactly
+ * three uppercase A-Z letters — the protocol-owned exact-money wire
+ * format, e.g. ETH). The PRECISE token identity is (chain, assetId);
+ * multi-character onchain symbols arrive with P4-W1-001's AssetDefinition
+ * at the TL's integration station.
  */
 export interface AssetIdentity {
   readonly chain: ChainRef;
-  /** Canonical on-chain asset id: native symbol or token contract address. */
+  /** Canonical on-chain asset id: native instrument ref or token contract address. */
   readonly assetId: string;
-  /** Display/trading symbol; the AmountSpec currency for this asset. */
+  /** 3-letter symbol; the AmountSpec currency for this asset. */
   readonly symbol: string;
 }
 
@@ -71,9 +74,9 @@ export function validateAssetIdentity(asset: AssetIdentity): void {
       `assetId must be a non-empty canonical id of at most 128 characters, got '${asset.assetId}'`,
     );
   }
-  if (!/^[A-Z0-9]{2,10}$/.test(asset.symbol)) {
+  if (!/^[A-Z]{3}$/.test(asset.symbol)) {
     throw new IdentityValidationError(
-      `asset symbol '${asset.symbol}' must be 2-10 uppercase alphanumeric characters`,
+      `asset symbol '${asset.symbol}' must be exactly three uppercase A-Z letters (the AmountSpec currency law)`,
     );
   }
 }
@@ -173,6 +176,8 @@ export function validateAddress(address: string, label: string): void {
  */
 export interface ApprovalChangeRequest {
   readonly asset: AssetIdentity;
+  /** The account whose allowance changes (the signing account). */
+  readonly owner: string;
   /** The contract permitted to spend (e.g. a router). Exact identity. */
   readonly spender: string;
   /** New allowance. Exact integer minor units (INV-F01). */
