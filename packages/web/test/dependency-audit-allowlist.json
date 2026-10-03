@@ -344,9 +344,31 @@
         "typescript",
         "vitest"
       ]
+    },
+    "packages/onchain-adapters": {
+      "dependencies": [
+        "@payswap/capabilities",
+        "@payswap/connectors",
+        "@payswap/onchain-domain",
+        "@payswap/onchain-security",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "@payswap/settlement",
+        "typescript",
+        "vitest"
+      ]
     }
   },
   "justifications": {
+    "packages/onchain-adapters|dependencies|@payswap/capabilities": "P4-W2-001 multi-chain adapter SDK: SmartContractExtension-shaped protocol identity inputs flow through the kernel write requests the adapters feed (INV-SC01 contract declarations)",
+    "packages/onchain-adapters|dependencies|@payswap/connectors": "P4-W2-001 multi-chain adapter SDK: ConnectedCapabilityInstance execution-scope shapes and the canonical execution-request validation (INV-C05/INV-C07) are consumed as-is — never redefined",
+    "packages/onchain-adapters|dependencies|@payswap/onchain-domain": "P4-W2-001 multi-chain adapter SDK: implements chain-family adapters BEHIND the neutral onchain-domain contracts (directive/observation validation, catalogue-never-authorizes guards, settlement-mapping vocabulary — no parallel ledger)",
+    "packages/onchain-adapters|dependencies|@payswap/onchain-security": "P4-W2-001 multi-chain adapter SDK: the authorize stage drives the wallet/signer security kernel (OnchainWritePipeline, recordSimulation, Eip712SignerAdapter, assertNoSecretMaterial) — the kernel owns authority, adapters feed it",
+    "packages/onchain-adapters|dependencies|@payswap/protocol": "P4-W2-001 multi-chain adapter SDK: ValidationError-based fail-closed validation and the PaySwapError taxonomy for adapter-specific error classes",
+    "packages/onchain-adapters|dependencies|@payswap/trust": "P4-W2-001 multi-chain adapter SDK: Principal-shaped authorization inputs for the kernel authorize stage and the AmountSpec exact-money wire shapes carried in write requests",
+    "packages/onchain-adapters|devDependencies|@payswap/settlement": "P4-W2-001: TEST-ONLY compiled-against check — the adapter observation-derived settlement events are verified against the canonical settlement attempt state machine (same pattern as onchain-domain)",
     "packages/onchain-domain|dependencies|@payswap/capabilities": "P4-W1-001 onchain-domain kernel consumes the frozen capability vocabulary (SmartContractExtension INV-SC01, ProvenanceDescriptor)",
     "packages/onchain-domain|dependencies|@payswap/connectors": "P4-W1-001 onchain-domain kernel extends the canonical CapabilityDefinition/ProviderImplementation/ConnectedCapabilityInstance/CapabilityObservation model (never redefines it)",
     "packages/onchain-domain|dependencies|@payswap/protocol": "P4-W1-001 onchain-domain validators throw the canonical ValidationError; no Money construction (observations only)",
