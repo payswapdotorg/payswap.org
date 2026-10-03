@@ -15,7 +15,32 @@
   "status": "BLOCKED_UNTIL_COMPLETE"
  },
  "frontier": [],
- "active_work_orders": [],
+ "active_work_orders": [
+  {
+   "id": "P4-W1-003",
+   "owner": "worker-3",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-03",
+   "branch": "work/P4-W1-003",
+   "dispatch": "replay-session re-dispatch (first capacity-round chats reaped/zombied; sequenced re-run after Wave-1 kernels merged)"
+  },
+  {
+   "id": "P4-W2-001",
+   "owner": "worker-1",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-03",
+   "branch": "work/P4-W2-001",
+   "dispatch": "replay-session (base c7d1cf2)"
+  },
+  {
+   "id": "P4-W2-002",
+   "owner": "worker-2",
+   "status": "ACTIVE",
+   "activated_at": "2026-10-03",
+   "branch": "work/P4-W2-002",
+   "dispatch": "replay-session (base c7d1cf2)"
+  }
+ ],
  "completed_work_orders": [
   {
    "id": "P4-W1-001",
