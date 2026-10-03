@@ -19,6 +19,7 @@
     "@payswap/capabilities": "*"
   },
   "devDependencies": {
+    "@payswap/security": "*",
     "typescript": "^5.6.3",
     "vitest": "^3.2.4"
   }

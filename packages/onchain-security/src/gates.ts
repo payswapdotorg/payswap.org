@@ -24,7 +24,7 @@
  * simulation consistency.
  *
  * The immune-system composition is pure data: `OnchainSecurityState` is
- * supplied by the wiring layer from the REAL @payswap/security machinery
+ * supplied by the wiring layer from the REAL security immune-system machinery
  * (network SecurityEpoch, quarantine ledger, advisory restriction view);
  * test/security-composition.test.ts proves the composition with the real
  * machinery.
@@ -162,7 +162,7 @@ export interface OnchainSecurityPolicy {
 
 /**
  * Composed immune-system state — PURE DATA produced by the wiring layer
- * from the REAL @payswap/security machinery (SecurityEpochAuthority,
+ * from the REAL security immune-system machinery (SecurityEpochAuthority,
  * QuarantineLedger, SecurityAdvisoryRegistry). The gates treat these as
  * authoritative immune-system observations (INV-S01/S02/S03).
  */

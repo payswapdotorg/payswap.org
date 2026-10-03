@@ -40,7 +40,7 @@
  *
  * Boundary law: this package's src/** imports ONLY @payswap/protocol,
  * @payswap/trust and @payswap/capabilities. It composes with the
- * @payswap/security immune system through pure data inputs
+ * security immune system (the security workspace package) through pure data inputs
  * (OnchainSecurityState) — the wiring happens at the TL's integration
  * station, and the composition is proven in test/ with the REAL security
  * machinery (the security package's own boundary test forbids src-level

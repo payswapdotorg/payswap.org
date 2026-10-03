@@ -1,7 +1,7 @@
 /**
  * @payswap/onchain-security — package-local deterministic content digest.
  *
- * Same deliberately-local discipline as @payswap/security signatures.ts and
+ * Same deliberately-local discipline as the security package's signatures.ts and
  * the settlement package's command hash (the protocol kernel exports no
  * general content-addressing primitive at this stage): an FNV-1a 64-bit
  * digest over a canonical bigint-safe serialization. It detects structural

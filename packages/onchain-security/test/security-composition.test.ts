@@ -60,11 +60,12 @@ function composeSecurityState(input: {
       }
     }
   }
-  for (const record of input.quarantine.history()) {
-    if (record.eventType === "quarantined") {
-      quarantinedComponents.push(
-        `${record.record.component.kind}:${record.record.component.id}`,
-      );
+  // Projection follows the REAL ledger semantics: only ACTIVE quarantines
+  // block (QuarantineLedger.isQuarantined). A RELEASED quarantine (explicit
+  // remediation + advisory closure) must never keep blocking.
+  for (const record of input.quarantine.list()) {
+    if (record.status === "active") {
+      quarantinedComponents.push(`${record.component.kind}:${record.component.id}`);
     }
   }
   return {
@@ -209,4 +210,129 @@ describe("composition with the real security immune system", () => {
     const decision = evaluateOnchainWriteGates({ write, policy: basePolicy(), securityState: state, at: NOW });
     expect(decision.decision).toBe("ALLOW");
   });
+  it("a REAL restrict-action advisory (no quarantine) BLOCKs the write (INV-S01 global restriction)", () => {
+    const epochAuthority = new SecurityEpochAuthority();
+    const advisories = new SecurityAdvisoryRegistry();
+    const quarantine = new QuarantineLedger();
+    advisories.publish({
+      advisoryId: "adv-router-restricted",
+      title: "Router venue under active investigation",
+      severity: "high",
+      description: "Anomalous routing behavior; restrict while investigating",
+      affected: [ROUTER_COMPONENT],
+      action: "restrict",
+      remediation: { summary: "Complete investigation", workarounds: [] },
+      declaredBy: "security:incident-response",
+      publishedAt: NOW,
+    });
+    const state = composeSecurityState({ epochAuthority, advisories, quarantine, at: NOW });
+    expect(state.restrictedComponents).toContain(`extension:${ROUTER_COMPONENT.id}`);
+    expect(state.quarantinedComponents).toEqual([]);
+    const writeRequest = {
+      ...baseWriteRequest(),
+      approvals: [
+        {
+          asset: USC_ASSET,
+          owner: "0x1111111111111111111111111111111111111111",
+          spender: ROUTER_COMPONENT.id,
+          amount: { currency: "USC", minorUnits: "1000000" },
+          unlimited: false,
+        },
+      ],
+    };
+    const decision = evaluateOnchainWriteGates({
+      write: prepareWrite(writeRequest, NOW),
+      policy: basePolicy(),
+      securityState: state,
+      at: NOW,
+    });
+    expect(decision.decision).toBe("BLOCK");
+    if (decision.decision === "BLOCK") {
+      expect(
+        decision.reasons.some(
+          (r) => r.dimension === "security_state" && r.code === "component_quarantined_or_restricted",
+        ),
+      ).toBe(true);
+    }
+  });
+
+  it("a RELEASED quarantine (remediation + advisory closure) no longer blocks", () => {
+    const epochAuthority = new SecurityEpochAuthority();
+    const advisories = new SecurityAdvisoryRegistry();
+    const quarantine = new QuarantineLedger();
+    advisories.publish({
+      advisoryId: "adv-router-fix",
+      title: "Router exploit patched",
+      severity: "critical",
+      description: "Exploit confirmed at publication; patched router verified since",
+      affected: [ROUTER_COMPONENT],
+      action: "quarantine",
+      remediation: { summary: "Upgrade to the patched router", patchedVersion: "1.1.0", workarounds: [] },
+      declaredBy: "security:incident-response",
+      publishedAt: NOW - 10_000,
+    });
+    const record = quarantine.quarantine({
+      component: ROUTER_COMPONENT,
+      reason: "adv-router-fix: drain attack observed",
+      advisoryRefs: ["adv-router-fix"],
+      at: NOW - 10_000,
+    });
+    advisories.close({
+      advisoryId: "adv-router-fix",
+      closedAt: NOW - 5_000,
+      closureNote: "patched router verified onchain",
+      remediationVerified: true,
+    });
+    quarantine.release({
+      quarantineId: record.quarantineId,
+      remediation: {
+        releaseNote: "patched and verified",
+        evidence: [
+          { evidenceId: "ev-1", artifactRef: "artifact:router-fix", contentDigest: "fnv1a64:1" },
+        ],
+      },
+      advisories,
+      at: NOW - 5_000,
+    });
+    const state = composeSecurityState({ epochAuthority, advisories, quarantine, at: NOW });
+    expect(state.quarantinedComponents).toEqual([]);
+    expect(state.restrictedComponents).toEqual([]);
+    const writeRequest = {
+      ...baseWriteRequest(),
+      approvals: [
+        {
+          asset: USC_ASSET,
+          owner: "0x1111111111111111111111111111111111111111",
+          spender: ROUTER_COMPONENT.id,
+          amount: { currency: "USC", minorUnits: "1000000" },
+          unlimited: false,
+        },
+      ],
+    };
+    const decision = evaluateOnchainWriteGates({
+      write: prepareWrite(writeRequest, NOW),
+      policy: basePolicy(),
+      securityState: state,
+      at: NOW,
+    });
+    expect(decision.decision).toBe("ALLOW");
+  });
+
+  it("a STALE composed security state surfaces UNKNOWN — never a guessed ALLOW (INV-X01 discipline)", () => {
+    const epochAuthority = new SecurityEpochAuthority();
+    const advisories = new SecurityAdvisoryRegistry();
+    const quarantine = new QuarantineLedger();
+    const state = composeSecurityState({ epochAuthority, advisories, quarantine, at: NOW - 60_000 });
+    const decision = evaluateOnchainWriteGates({
+      write: prepareWrite(baseWriteRequest(), NOW),
+      policy: basePolicy(), // maxSecurityStateAgeMs: 5_000
+      securityState: state,
+      at: NOW,
+    });
+    expect(decision.decision).toBe("UNKNOWN");
+    if (decision.decision === "UNKNOWN") {
+      expect(decision.dimensions.some((d) => d.code === "security_state_stale")).toBe(true);
+    }
+  });
 });
+
