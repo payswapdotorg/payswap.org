@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "record_type": "r2-posture",
+  "workOrder": "P3-W1-003",
+  "recorded_at": "2026-10-02",
+  "purpose": "Explicit storage/egress/retention posture for the Cloudflare R2 evidence buckets. This record IS the posture data: scripts/deployment/r2-posture-probe.ts (SigV4, zero-dependency) loads it and verifies the live buckets against it when credentials are present; without credentials it reports credential-gated and executes nothing. Secret hygiene: env NAMES, bucket names and endpoint facts only — never key values.",
+  "binding": {
+    "provider": "Cloudflare R2 (S3-compatible API, SigV4 signing)",
+    "endpointEnvNames": ["R2_S3_ENDPOINT", "OBJECT_STORAGE_ENDPOINT"],
+    "accessKeyEnvNames": ["R2_ACCESS_KEY_ID", "OBJECT_STORAGE_ACCESS_KEY_ID"],
+    "secretKeyEnvNames": ["R2_SECRET_ACCESS_KEY", "OBJECT_STORAGE_SECRET_ACCESS_KEY"],
+    "region": "auto",
+    "vaultPosture": "S3 access keys live only in the operator vault; the hosting plane holds them in its encrypted env store (runtime-plane-probe.json projectEnvKeys records the NAMES OBJECT_STORAGE_ACCESS_KEY_ID / OBJECT_STORAGE_SECRET_ACCESS_KEY)",
+    "noSdkLaw": "the probe signs SigV4 with node:crypto directly (the same zero-dependency pattern as scripts/deployment/runtime-plane-probe.ts) — no AWS SDK dependency is added (free/low-cost bias + no unexpected dependency)"
+  },
+  "providerFreeTierCeiling": {
+    "storage": "10 GB-month",
+    "classAOperationsPerMonth": 1000000,
+    "classBOperationsPerMonth": 10000000,
+    "egress": "zero egress fees (R2's contractual differentiator — bandwidth out is never billed)",
+    "source": "provider-documented free tier, cross-checked against public Cloudflare pricing references on 2026-10-02; live confirmation via the Cloudflare console is CREDENTIAL-GATED until the operator vault is re-supplied",
+    "headroomPolicy": "self-imposed budgets keep >= 90% headroom below the storage ceiling for the evidence workload (early-stage posture)"
+  },
+  "selfImposedBudgets": {
+    "storageTotalBytes": 1073741824,
+    "storageWarnThresholdBytes": 734003200,
+    "classAOperationsPerMonth": 100000,
+    "classBOperationsPerMonth": 500000,
+    "notes": "1 GB total across both buckets (10% of the free-tier storage); writes/lists (Class A) budgeted at 10% of ceiling, reads (Class B) at 5%; evidence is write-once/read-rare so Class B stays near zero"
+  },
+  "buckets": [
+    {
+      "name": "payswap-evidence-prod",
+      "purpose": "immutable, content-addressed evidence artifacts for the PRODUCTION plane (rail/provider execution evidence, reconciliation records, probe artifacts) — NOT financial truth (topology section 4: object storage holds evidence, the ledger is PostgreSQL)",
+      "storageClass": "Standard (R2's only hot class; no infrequent-access/archive tiering is used)",
+      "environment": "production",
+      "prefixLayout": {
+        "probe/": "operator/driver verification artifacts (content-addressed <sha256>.txt)",
+        "evidence/": "protocol evidence artifacts (INV-E02 execution evidence, content-addressed)"
+      },
+      "retentionPolicy": {
+        "policy": "INDEFINITE RETENTION — required by INV-E05 (historical evidence is immutable): evidence artifacts may not be deleted or expired by a lifecycle rule; deletion is a governance decision (ADR) only",
+        "lifecycleRules": [
+          {
+            "rule": "abort incomplete multipart uploads after 7 days",
+            "rationale": "hygiene only — reclaims bytes from interrupted uploads; deletes no complete object",
+            "status": "required posture; application is credential-gated (Cloudflare API/console), not executed"
+          }
+        ]
+      },
+      "egressExpectations": {
+        "expected": "near-zero — evidence is written by worker roles and read by authorized verification only; no public serving from R2",
+        "costPosture": "zero egress fees by provider contract; the risk surface is operations, not bandwidth"
+      },
+      "separationLaw": "PRODUCTION bucket only — preview artifacts must never land here (the probe driver asserts prefix hygiene per bucket)"
+    },
+    {
+      "name": "payswap-evidence-preview",
+      "purpose": "evidence artifacts for the PREVIEW plane (preview deployments, drills, transient verification)",
+      "storageClass": "Standard",
+      "environment": "preview",
+      "prefixLayout": {
+        "probe/": "preview probe artifacts",
+        "evidence/": "preview-plane evidence artifacts"
+      },
+      "retentionPolicy": {
+        "policy": "PROPOSED: delete objects after 30 days (preview evidence is transient; the preview bucket is not a system of record). PENDING TL APPROVAL — until approved and applied, retention is indefinite and honestly recorded as such; no rule deletes anything today",
+        "lifecycleRules": [
+          {
+            "rule": "abort incomplete multipart uploads after 1 day",
+            "rationale": "hygiene; preview uploads are short-lived",
+            "status": "required posture; application is credential-gated, not executed"
+          },
+          {
+            "rule": "delete objects after 30 days (prefix: entire bucket)",
+            "rationale": "preview artifacts are transient; keeps the free tier uncluttered",
+            "status": "PROPOSED — pending TL approval; NOT applied; not enforceable against INV-E05 (preview evidence is not historical protocol evidence)"
+          }
+        ]
+      },
+      "egressExpectations": {
+        "expected": "near-zero (same as production)",
+        "costPosture": "zero egress fees by provider contract"
+      },
+      "separationLaw": "PREVIEW bucket only — production artifacts must never land here"
+    }
+  ],
+  "lifecycleManagementPlane": "R2 lifecycle rules are managed via the Cloudflare API/console, NOT the S3 API (the S3-compatible surface supports object operations; GetBucketLifecycleConfiguration may answer NotImplemented). The probe driver ATTEMPTS the S3 lifecycle read and records the honest answer; rule APPLICATION requires the Cloudflare plane (credential-gated, recorded, never faked).",
+  "verification": {
+    "driver": "scripts/deployment/r2-posture-probe.ts",
+    "usage": "bun scripts/deployment/r2-posture-probe.ts [--record]",
+    "credentialGatedEnv": [
+      "R2_S3_ENDPOINT (+ OBJECT_STORAGE_ENDPOINT alias)",
+      "R2_ACCESS_KEY_ID (+ OBJECT_STORAGE_ACCESS_KEY_ID alias)",
+      "R2_SECRET_ACCESS_KEY (+ OBJECT_STORAGE_SECRET_ACCESS_KEY alias)"
+    ],
+    "gatedBehavior": "without credentials the driver prints and (with --record) writes an honest credential-gated verification record and exits 0 — no live reading is fabricated",
+    "liveChecks": [
+      "ListBuckets — both expected buckets exist; no unexpected third bucket",
+      "HeadBucket per expected bucket",
+      "ListObjectsV2 (bounded pages) per bucket — object count + total size vs the storage budget",
+      "prefix hygiene — only declared prefixes (probe/, evidence/) present",
+      "GetBucketLifecycleConfiguration attempted per bucket — honest classification of the answer (rules / not-configured / not-supported-via-s3)"
+    ],
+    "lastExecution": "credential-gated, not executed (operator vault lost to sandbox reset 2026-10-02; the last live R2 round trip is the activation probe in spec/development-state/runtime-plane-probe.json — digest-verified PUT+GET on payswap-evidence-prod)"
+  },
+  "digest": "fnv1a64:b294b37a19750136"
+}

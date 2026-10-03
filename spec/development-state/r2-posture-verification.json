@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "record_type": "r2-posture-verification",
+  "workOrder": "P3-W1-003",
+  "probed_at": "2026-10-03T00:12:40.004Z",
+  "binding": {
+    "endpoint": "(vault-resolved at run time — never recorded)",
+    "envNames": [
+      "R2_S3_ENDPOINT",
+      "R2_ACCESS_KEY_ID",
+      "R2_SECRET_ACCESS_KEY"
+    ]
+  },
+  "status": "credential-gated",
+  "statusDetail": "the operator vault holding the live R2 S3 access keys was lost to a sandbox reset (2026-10-02); no live verification was executed and NONE is fabricated here (UNKNOWN is not FAILED, AGENTS.md rule 4). The last live R2 evidence on record is the digest-verified activation round trip in spec/development-state/runtime-plane-probe.json.",
+  "postureLoadedFrom": "spec/development-state/r2-posture.json",
+  "postureSummary": {
+    "buckets": [
+      "payswap-evidence-prod",
+      "payswap-evidence-preview"
+    ],
+    "storageBudgetBytes": 1073741824
+  },
+  "checksNotExecuted": [
+    "ListBuckets — expected buckets exist, no unexpected third bucket",
+    "HeadBucket per bucket",
+    "ListObjectsV2 per bucket — count/size vs storage budget",
+    "prefix hygiene vs declared prefixLayout",
+    "lifecycle read attempt per bucket"
+  ],
+  "verdict": "CREDENTIAL_GATED_NOT_EXECUTED"
+}

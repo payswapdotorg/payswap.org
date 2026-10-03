@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "record_type": "neon-separation",
+  "workOrder": "P3-W1-003",
+  "recorded_at": "2026-10-02",
+  "purpose": "What Neon production/preview separation REQUIRES for the PaySwap runtime plane, plus the verification status (honest: live execution is credential-gated until the operator vault is re-supplied). scripts/deployment/neon-separation-probe.ts executes every requirement below when the connection bindings are present at run time.",
+  "binding": {
+    "provider": "Neon PostgreSQL",
+    "project": "payswap (aws-us-east-1, pg 17)",
+    "connectionStringEnvNames": [
+      "PAYSWAP_DATABASE_URL_PROD",
+      "PAYSWAP_DATABASE_URL_PREVIEW",
+      "DATABASE_URL (topology section 3.1 name; per-environment value supplied at deploy time)"
+    ],
+    "neonApiEnvNames": ["NEON_API_KEY", "NEON_PROJECT_ID"],
+    "vaultPosture": "connection strings and API keys are vault-resolved ONLY — values never enter git, logs, records or reports; records carry host/user/database FACTS only (the pgFacts pattern from runtime-plane-probe.ts)",
+    "recordedBindingEvidence": "spec/development-state/runtime-plane-probe.json databaseConnectivity.binding (prod pooler host ep-hidden-lab-*, preview pooler host ep-mute-art-*; both databases neondb; both users neondb_owner)"
+  },
+  "separationRequirements": [
+    {
+      "requirement": "BRANCH-LEVEL SEPARATION — production and preview are distinct Neon branches with distinct connection endpoints",
+      "assertion": "the production and preview connection strings resolve to DIFFERENT hosts (per-branch pooler endpoints); the Neon API (when bound) lists the main and preview branches in project payswap",
+      "rationale": "topology section 2: environments are explicit and checked; preview must never silently share production state",
+      "verification": "credential-gated, not executed"
+    },
+    {
+      "requirement": "ROLE SCOPING — the production credential must not authenticate against the preview branch, and vice versa",
+      "assertion": "connecting with the production connection string against the PREVIEW host must be REJECTED (cross-branch credential use fails closed); each branch's role is branch-scoped",
+      "rationale": "a shared credential would collapse the separation: any preview leak would be a production credential leak (INV-S02 spirit: scoped authority)",
+      "verification": "credential-gated, not executed"
+    },
+    {
+      "requirement": "STATE SEPARATION — a write on the preview branch must never be visible on the production branch",
+      "assertion": "the probe creates a transient marker table on PREVIEW, observes it there, asserts its ABSENCE on PRODUCTION (read-only), then cleans up; production receives NO writes from the probe",
+      "rationale": "PostgreSQL is the system of record (topology section 4); preview state is disposable, production state is authoritative",
+      "verification": "credential-gated, not executed"
+    },
+    {
+      "requirement": "PRODUCTION READ-ONLY PROBING — no verification may mutate production",
+      "assertion": "production is probed with read-only catalog queries only (current_database/current_user/version/to_regclass)",
+      "rationale": "INV-F06/INV-O02 spirit: no tooling mutates authoritative state outside the protocol path",
+      "verification": "credential-gated, not executed"
+    },
+    {
+      "requirement": "CONNECTION-STRING HYGIENE — values are vault-resolved at run time and never recorded",
+      "assertion": "the driver prints/records host, user and database names only; any accidental value in output would be a violation of the secret law (AGENTS rule: no secret VALUE ever enters git/logs/reports)",
+      "verification": "enforced in driver code (pgFacts extraction before any logging); live execution credential-gated"
+    },
+    {
+      "requirement": "PREVIEW WRITES ARE CLEANED UP — transient probe artifacts are dropped before exit",
+      "assertion": "the marker table is dropped from preview at the end of the probe (best-effort with honest error reporting)",
+      "rationale": "free-tier hygiene: preview branch storage is budgeted (Neon free plan; see providerContext)",
+      "verification": "credential-gated, not executed"
+    }
+  ],
+  "providerContext": {
+    "plan": "free plan",
+    "documentedFreePlanFacts": "provider-documented free plan (public pricing references, cross-checked 2026-10-02): metered compute hours per project, ~0.5 GB storage per project, branch isolation per project; exact current quotas are confirmed in the Neon console — CREDENTIAL-GATED",
+    "separationModel": "Neon branches are copy-on-write isolated PostgreSQL clusters: per-branch endpoint hosts, per-branch roles, per-branch credentials — separation is a first-class provider property this plane relies on",
+    "upgradePath": "a separate Neon PROJECT for preview is the stronger isolation upgrade if preview workloads ever risk the shared project quota; recorded, not required at current scale"
+  },
+  "verification": {
+    "driver": "scripts/deployment/neon-separation-probe.ts",
+    "usage": "bun scripts/deployment/neon-separation-probe.ts [--record]",
+    "credentialGatedEnv": [
+      "PAYSWAP_DATABASE_URL_PROD",
+      "PAYSWAP_DATABASE_URL_PREVIEW",
+      "NEON_API_KEY (optional — enables the branch-listing cross-check)",
+      "NEON_PROJECT_ID (optional)"
+    ],
+    "gatedBehavior": "without the connection strings the driver prints and (with --record) writes an honest credential-gated verification record and exits 0 — no live reading is fabricated (UNKNOWN is not FAILED)",
+    "liveChecks": [
+      "parse both connection strings to host/user/database facts (values never logged)",
+      "assert distinct hosts (branch separation)",
+      "connect PROD (read-only catalog probe) and PREVIEW; record versions/latencies",
+      "marker-table round trip: create on preview -> observe on preview -> assert ABSENT on prod -> drop on preview",
+      "cross-branch credential check: PROD connection string against PREVIEW host must be REJECTED (role scoping); a successful cross-login is a separation VIOLATION (exit non-zero)",
+      "optional Neon API branch listing when NEON_API_KEY is bound"
+    ],
+    "lastExecution": "credential-gated, not executed (operator vault lost to sandbox reset 2026-10-02). The last live per-role database connectivity evidence is spec/development-state/runtime-plane-probe.json (five roles, all ok, PostgreSQL 17.11, distinct prod/preview hosts recorded)."
+  },
+  "digest": "fnv1a64:09b0d9c15347d693"
+}

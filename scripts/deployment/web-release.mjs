@@ -38,6 +38,14 @@
  *     record-date      YYYY-MM-DD (default: today, UTC)
  *     production-url   optional; recorded verbatim once the TL has deployed
  *     preview-url      optional; recorded verbatim once the TL has deployed
+ *
+ *   node scripts/deployment/web-release.mjs --reverify [record-date]
+ *     P3-W1-003 release-reproducibility mode: builds @payswap/web TWICE from
+ *     the same sources, asserts the two BUILD_IDs are identical (byte-identical
+ *     build ids) and that both equal the independently recomputed source
+ *     digest; compares the result against the existing release records; and
+ *     writes spec/development-state/web-release-reverification-<date>.json.
+ *     The historical release record is NEVER touched by this mode.
  */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -72,12 +80,14 @@ if (readPackageName(WEB_ROOT) !== "@payswap/web") {
 
 // --- inputs -----------------------------------------------------------------
 
-const recordDate = process.argv[2] ?? new Date().toISOString().slice(0, 10);
+const REVERIFY = process.argv.includes("--reverify");
+const positional = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
+const recordDate = positional[0] ?? new Date().toISOString().slice(0, 10);
 if (!/^\d{4}-\d{2}-\d{2}$/.test(recordDate)) {
-  fail(`record-date must be YYYY-MM-DD, got ${JSON.stringify(process.argv[2] ?? "")}`);
+  fail(`record-date must be YYYY-MM-DD, got ${JSON.stringify(positional[0] ?? "")}`);
 }
-const productionUrl = process.argv[3]?.trim() || null;
-const previewUrl = process.argv[4]?.trim() || null;
+const productionUrl = positional[1]?.trim() || null;
+const previewUrl = positional[2]?.trim() || null;
 
 // --- release identity -------------------------------------------------------
 
@@ -96,21 +106,29 @@ const commitSha = gitCommitSha();
 
 // --- the build --------------------------------------------------------------
 
-console.log("web-release: running the @payswap/web production build ...");
-const build = spawnSync(
-  "npm",
-  ["run", "build", "--workspace", "@payswap/web"],
-  { cwd: ROOT, stdio: "inherit" },
-);
-if (build.status !== 0) {
-  fail("the @payswap/web build failed — no release record was written");
+function buildIdPath() {
+  return path.join(WEB_ROOT, ".next", "BUILD_ID");
 }
 
-const buildIdPath = path.join(WEB_ROOT, ".next", "BUILD_ID");
-if (!fs.existsSync(buildIdPath)) {
-  fail("the build did not produce .next/BUILD_ID — cannot verify build identity");
+/** Run the production build and return its BUILD_ID (fail-loud). */
+function runWebBuild(label) {
+  console.log(`web-release: running the @payswap/web production build (${label}) ...`);
+  const build = spawnSync(
+    "npm",
+    ["run", "build", "--workspace", "@payswap/web"],
+    { cwd: ROOT, stdio: "inherit" },
+  );
+  if (build.status !== 0) {
+    fail(`the @payswap/web build failed (${label}) — no release record was written`);
+  }
+  const idPath = buildIdPath();
+  if (!fs.existsSync(idPath)) {
+    fail("the build did not produce .next/BUILD_ID — cannot verify build identity");
+  }
+  return fs.readFileSync(idPath, "utf8").trim();
 }
-const buildId = fs.readFileSync(buildIdPath, "utf8").trim();
+
+const buildId = runWebBuild("release");
 
 // --- independent digest recomputation (mirrors next.config.ts) -------------
 
@@ -219,6 +237,88 @@ function contentDigest(value) {
   return `fnv1a64:${hash.toString(16).padStart(16, "0")}`;
 }
 
+// --- P3-W1-003: --reverify mode (release reproducibility) -------------------
+
+if (REVERIFY) {
+  // A re-run from the same sources must reproduce BYTE-IDENTICAL build ids.
+  const buildIdRun2 = runWebBuild("reverification");
+  const byteIdenticalBuildIds = buildId === buildIdRun2;
+  const matchesSourceDigest = sourceDigest === buildId && sourceDigest === buildIdRun2;
+
+  // Honest comparison against the existing release records: a record for the
+  // CURRENT commit must match; the absence of a record for this commit is
+  // recorded honestly (the TL writes release records at the review gate).
+  const existingRecords = [];
+  for (const file of fs.readdirSync(OUT_DIR)) {
+    if (!/^web-release-.*\.json$/.test(file) || file.includes("reverification")) continue;
+    try {
+      const parsed = JSON.parse(fs.readFileSync(path.join(OUT_DIR, file), "utf8"));
+      if (parsed?.release?.commit && parsed?.release?.buildId) {
+        existingRecords.push({
+          file,
+          commit: parsed.release.commit,
+          buildId: parsed.release.buildId,
+          sameCommitAsHead: parsed.release.commit === commitSha,
+          buildIdMatchesThisRun: parsed.release.buildId === buildId,
+        });
+      }
+    } catch {
+      /* skip unparseable */
+    }
+  }
+  const currentCommitRecord = existingRecords.find((entry) => entry.sameCommitAsHead) ?? null;
+
+  const reverification = {
+    schema_version: "1.0",
+    record_type: "web-release-reverification",
+    workOrder: "P3-W1-003",
+    package: "@payswap/web",
+    date: recordDate,
+    commit: commitSha,
+    reproduction: {
+      run1BuildId: buildId,
+      run2BuildId: buildIdRun2,
+      byteIdenticalBuildIds,
+      buildIdScheme:
+        "sha256 over the sorted packages/web build inputs (src/ + public/ + package.json + postcss.config.mjs + next.config.ts), truncated to 16 hex — same sources always produce the same build id",
+      bothRunsMatchIndependentlyRecomputedSourceDigest: matchesSourceDigest,
+      sourceDigest: sourceDigest,
+    },
+    existingRecordComparison: {
+      records: existingRecords,
+      recordForCurrentCommit: currentCommitRecord,
+      finding: currentCommitRecord
+        ? currentCommitRecord.buildIdMatchesThisRun
+          ? `the existing release record for this commit (${currentCommitRecord.file}) carries the SAME build id — the release is reproducible across independent runs`
+          : `the existing release record for this commit (${currentCommitRecord.file}) carries a DIFFERENT build id — the sources changed since that record was written; re-record the release`
+        : "no release record exists for the current commit yet (the TL records releases at the review gate) — this reverification stands on the two independent builds above",
+    },
+    commands: [
+      "node scripts/deployment/web-release.mjs --reverify " + recordDate,
+    ],
+  };
+  reverification.digest = contentDigest(reverification);
+  const reverificationPath = path.join(OUT_DIR, `web-release-reverification-${recordDate}.json`);
+  fs.writeFileSync(reverificationPath, JSON.stringify(reverification, null, 2) + "\n");
+
+  console.log("=== PaySwap web release REVERIFICATION ===");
+  console.log("record written:  ", path.relative(ROOT, reverificationPath));
+  console.log("commit:          ", commitSha);
+  console.log("build id run 1:  ", buildId);
+  console.log("build id run 2:  ", buildIdRun2);
+  console.log("byte-identical:  ", byteIdenticalBuildIds ? "YES — same sources reproduce the same build id" : "NO — REPRODUCIBILITY VIOLATION");
+  console.log("source digest:   ", sourceDigest, matchesSourceDigest ? "(matches both runs)" : "(MISMATCH)");
+  console.log(
+    "record for HEAD: ",
+    currentCommitRecord
+      ? currentCommitRecord.buildIdMatchesThisRun
+        ? `${currentCommitRecord.file} (same build id)`
+        : `${currentCommitRecord.file} (DIFFERENT build id — sources changed since)`
+      : "(none yet — TL records releases at the review gate)",
+  );
+  process.exit(byteIdenticalBuildIds && matchesSourceDigest ? 0 : 1);
+}
+
 // --- the record --------------------------------------------------------------
 
 const record = {
@@ -272,6 +372,26 @@ record.digest = contentDigest(record);
 
 fs.mkdirSync(OUT_DIR, { recursive: true });
 const outPath = path.join(OUT_DIR, `web-release-${recordDate}.json`);
+
+// P3-W1-003 immutability guard: a release record file that already exists
+// may only be overwritten when it belongs to the SAME commit (the TL's
+// documented re-run flow — e.g. recording the live deployment URLs at the
+// review gate). Overwriting a DIFFERENT commit's record would silently
+// rewrite release history — refused loudly instead.
+if (fs.existsSync(outPath)) {
+  let existing;
+  try {
+    existing = JSON.parse(fs.readFileSync(outPath, "utf8"));
+  } catch {
+    fail(`refusing to overwrite unparseable record ${path.relative(ROOT, outPath)}`);
+  }
+  if (existing?.release?.commit && existing.release.commit !== commitSha) {
+    fail(
+      `refusing to overwrite ${path.relative(ROOT, outPath)}: it records commit ${existing.release.commit.slice(0, 12)} ` +
+        `but the current commit is ${commitSha.slice(0, 12)} (release history is immutable — choose a new record date for a new commit)`,
+    );
+  }
+}
 fs.writeFileSync(outPath, JSON.stringify(record, null, 2) + "\n");
 
 console.log("=== PaySwap web release record ===");

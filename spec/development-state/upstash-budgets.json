@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "record_type": "upstash-budgets",
+  "workOrder": "P3-W1-003",
+  "recorded_at": "2026-10-02",
+  "purpose": "Explicit, enforceable Upstash usage budgets for the PaySwap runtime plane (free-tier-first). This record IS the budget data: scripts/deployment/upstash-budget-probe.ts loads it and measures live usage against it. Secret hygiene: env NAMES only — never values; the REST endpoint/token live only in the operator vault.",
+  "binding": {
+    "provider": "Upstash Redis",
+    "plan": "free tier — single database per account",
+    "restEndpointEnvNames": [
+      "UPSTASH_REDIS_REST_URL",
+      "PAYSWAP_REDIS_REST_URL_PROD"
+    ],
+    "restTokenEnvNames": [
+      "UPSTASH_REDIS_REST_TOKEN",
+      "PAYSWAP_REDIS_REST_TOKEN_PROD"
+    ],
+    "vaultPosture": "operator vault only; the earlier operator-supplied endpoint hostnames are recorded in spec/development-state/runtime-activation.json / runtime-plane-probe.json (polished-yeti-167554.upstash.io was the live binding; meet-ewe-145933.upstash.io was verified NXDOMAIN and never used)",
+    "separationPosture": "single free-tier database => production/preview separation is NAMESPACE-PREFIX-LEVEL ONLY (unlike Neon branch-level and R2 bucket-level separation). The recorded upgrade path (runtime-activation.json) is a dedicated database per environment once usage justifies it.",
+    "namespaceLaw": "every key MUST live under the payswap:* namespace prefix; keys outside payswap:* are a budget violation by definition"
+  },
+  "providerFreeTierCeiling": {
+    "commandsPerDay": 10000,
+    "maxDataSizeBytes": 268435456,
+    "notes": "provider-documented free tier (10,000 commands/day; 256 MB max data size), cross-checked against public provider/pricing references on 2026-10-02; live confirmation against the Upstash console is CREDENTIAL-GATED until the operator vault is re-supplied — recorded values are the budgeting baseline, not a fabricated live reading",
+    "headroomPolicy": "self-imposed budgets keep >= 20% headroom below every provider ceiling"
+  },
+  "namespaceInventory": [
+    {
+      "namespace": "payswap:observability:production",
+      "type": "stream",
+      "role": "taxonomy-validated observability sink written by the hosting plane's ingestion endpoint (W3-007 taxonomy events: terminal transitions, UNKNOWN outcomes, reconciliation, deployment gates)",
+      "evidence": "spec/development-state/runtime-plane-probe.json observability receipts (4 accepted events, 2026-10-02)",
+      "status": "observed-live-2026-10-02"
+    },
+    {
+      "namespace": "payswap:observability:preview",
+      "type": "stream",
+      "role": "preview-plane observability sink (same taxonomy, preview correlation)",
+      "evidence": "none yet — required by this posture record for preview/runtime separation symmetry",
+      "status": "required-posture; live presence verification credential-gated, not executed"
+    },
+    {
+      "namespace": "payswap:production:outbox-probe",
+      "type": "stream",
+      "role": "TRANSIENT outbox drain-drill stream (XADD/XREADGROUP/XACK/XPENDING probe); must be cleaned up (DEL) by the drill after verification",
+      "evidence": "spec/development-state/runtime-plane-probe.json queueOutbox drill (read 7, acked 7, pending 0)",
+      "status": "observed-live-2026-10-02 (transient)"
+    },
+    {
+      "namespace": "payswap:production:outbox:*",
+      "type": "stream",
+      "role": "protocol outbox drain queues for the production plane (topology section 3.1 QUEUE_URL/REDIS_URL consumers: protocol, adapter, reconciliation, notification workers)",
+      "evidence": "topology contract + runtime activation binding",
+      "status": "required-posture; live presence verification credential-gated, not executed"
+    },
+    {
+      "namespace": "payswap:preview:outbox:*",
+      "type": "stream",
+      "role": "preview-plane outbox drain queues (same shape, preview prefix)",
+      "evidence": "namespace-prefix separation posture",
+      "status": "required-posture; live presence verification credential-gated, not executed"
+    }
+  ],
+  "commandClassBudgets": {
+    "unit": "Upstash commands per UTC day (a REST call = 1 command)",
+    "perNamespace": [
+      {
+        "namespace": "payswap:observability:production",
+        "classes": {
+          "XADD (ingestion writes)": 1500,
+          "XREAD/XINFO/XLEN (reads)": 300,
+          "other": 200
+        },
+        "totalDaily": 2000
+      },
+      {
+        "namespace": "payswap:observability:preview",
+        "classes": {
+          "XADD (ingestion writes)": 750,
+          "XREAD/XINFO/XLEN (reads)": 150,
+          "other": 100
+        },
+        "totalDaily": 1000
+      },
+      {
+        "namespace": "payswap:production:outbox:*",
+        "classes": {
+          "XADD (enqueue)": 1000,
+          "XREADGROUP+XACK (drain, ~2-3 per message)": 1800,
+          "XPENDING/XAUTOCLAIM (reconciliation)": 200
+        },
+        "totalDaily": 3000
+      },
+      {
+        "namespace": "payswap:preview:outbox:*",
+        "classes": {
+          "XADD (enqueue)": 300,
+          "XREADGROUP+XACK (drain)": 550,
+          "XPENDING/XAUTOCLAIM": 50
+        },
+        "totalDaily": 900
+      },
+      {
+        "namespace": "payswap:production:outbox-probe (transient probes)",
+        "classes": {
+          "drill commands per run (XADD/XREADGROUP/XACK/XPENDING/DEL)": 200
+        },
+        "totalDaily": 200,
+        "cleanupLaw": "probe streams must be DELeted by the drill that created them; leftover probe keys are a violation"
+      },
+      {
+        "namespace": "all other payswap:* keys",
+        "classes": {
+          "any": 500
+        },
+        "totalDaily": 500
+      }
+    ],
+    "totalDailyAllNamespaces": 7600,
+    "totalDailyProviderCeiling": 10000,
+    "headroom": "24% below the provider ceiling (7600/10000)"
+  },
+  "rateCeilings": {
+    "sustainedCommandsPerSecond": 20,
+    "burstCommandsPerSecond": 50,
+    "burstWindowSeconds": 10,
+    "notes": "self-imposed ceilings to keep the free-tier database responsive and far from any provider throttling behavior; enforcement points are the producers (ingestion endpoint, workers, probe drivers); no repo-side rate limiter meters Upstash commands today — recorded honestly, see enforcement"
+  },
+  "memoryBudget": {
+    "selfImposedTotalBytes": 104857600,
+    "warnThresholdBytes": 73400320,
+    "providerCeilingBytes": 268435456,
+    "notes": "100 MB self-imposed (39% of the 256 MB provider ceiling); streams must stay bounded — the observability stream length is checked by the probe driver against streamLengthCeiling"
+  },
+  "streamLengthCeilings": {
+    "payswap:observability:production": 200000,
+    "payswap:observability:preview": 50000
+  },
+  "streamLengthCeilingsNotes": "entries; a stream approaching its ceiling requires a trim decision (XTRIM) — trimming observability evidence is a governance decision, never automatic (INV-E05: historical evidence is immutable; the ceiling exists to surface the decision, not to silently delete)",
+  "alertThresholds": {
+    "warn": {
+      "fractionOfNamespaceDailyBudget": 0.7,
+      "fractionOfProviderDailyCeiling": 0.7,
+      "fractionOfMemoryBudget": 0.7
+    },
+    "page": {
+      "fractionOfProviderDailyCeiling": 0.9,
+      "fractionOfProviderMemoryCeiling": 0.8,
+      "condition": "any namespace >= 90% of its daily budget, or all-namespace total >= 9000 commands/day, or memory >= 214 MB"
+    },
+    "alertingPosture": "thresholds are data for the observability plane (W3-007 no-orphan-alerts law: every alert must reference a runbook entry); wiring the alerts to a live channel is credential-gated and NOT executed in this record"
+  },
+  "enforcement": {
+    "honest": [
+      "The budgets above are ENFORCEABLE AS DATA: the probe driver (scripts/deployment/upstash-budget-probe.ts) loads this record and FAILS (non-zero exit) when a live measurement exceeds a budget or a key outside payswap:* is found.",
+      "The producers that generate Upstash traffic are the hosting-plane ingestion endpoint and the worker roles (runtime host + future workers) — their rate limiting is the runtime plane's responsibility, outside this repository's code. This record is the contract they must honor.",
+      "No in-repo component currently issues Upstash commands at runtime (packages/* contain no Upstash client); all recorded traffic comes from the deployed runtime plane and operator probes. If that changes, the issuing package must consume this record as its budget."
+    ]
+  },
+  "measurement": {
+    "driver": "scripts/deployment/upstash-budget-probe.ts",
+    "usage": "bun scripts/deployment/upstash-budget-probe.ts [--record]",
+    "credentialGatedEnv": [
+      "UPSTASH_REDIS_REST_URL (+ PAYSWAP_REDIS_REST_URL_PROD alias)",
+      "UPSTASH_REDIS_REST_TOKEN (+ PAYSWAP_REDIS_REST_TOKEN_PROD alias)"
+    ],
+    "gatedBehavior": "without credentials the driver prints and (with --record) writes an honest credential-gated measurement record and exits 0 — UNKNOWN is not FAILED; it never fabricates a live reading",
+    "liveChecks": [
+      "DBSIZE (total keys) vs namespace law",
+      "SCAN payswap:* inventory (bounded pages) vs namespaceInventory",
+      "XLEN per declared stream vs streamLengthCeilings",
+      "INFO used_memory vs memoryBudget",
+      "the probe's own command spend, reported and counted against the budget"
+    ],
+    "lastExecution": "credential-gated, not executed (operator vault lost to sandbox reset 2026-10-02; live execution deferred until the TL re-supplies the vault)"
+  },
+  "digest": "fnv1a64:055f7e1e7be00f2e"
+}

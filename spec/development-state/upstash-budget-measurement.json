@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "record_type": "upstash-budget-measurement",
+  "workOrder": "P3-W1-003",
+  "probed_at": "2026-10-03T00:12:39.981Z",
+  "binding": {
+    "restEndpoint": "(vault-resolved at run time — never recorded)",
+    "envNames": [
+      "UPSTASH_REDIS_REST_URL",
+      "UPSTASH_REDIS_REST_TOKEN"
+    ]
+  },
+  "status": "credential-gated",
+  "statusDetail": "the operator vault holding the live Upstash credentials was lost to a sandbox reset (2026-10-02); no live measurement was executed and NONE is fabricated here — UNKNOWN is not FAILED (AGENTS.md rule 4). Re-run this driver with the vault re-supplied to produce a live measurement.",
+  "budgetsLoadedFrom": "spec/development-state/upstash-budgets.json",
+  "budgetsSummary": {
+    "namespaces": 5,
+    "totalDailyAllNamespaces": 7600,
+    "providerDailyCeiling": 10000,
+    "memoryBudgetBytes": 104857600
+  },
+  "checksNotExecuted": [
+    "DBSIZE vs namespace law (every key under payswap:*)",
+    "SCAN payswap:* inventory vs namespaceInventory",
+    "XLEN per declared stream vs streamLengthCeilings",
+    "INFO used_memory vs memoryBudget",
+    "probe command spend vs budget"
+  ],
+  "verdict": "CREDENTIAL_GATED_NOT_EXECUTED"
+}

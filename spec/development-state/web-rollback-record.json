@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "record_type": "web-rollback-record",
+  "workOrder": "P3-W1-003",
+  "at": "2026-10-03T00:12:40.057Z",
+  "mode": "credential-gated-plan",
+  "project": "payswap-web",
+  "productionAlias": "https://payswap-web.vercel.app",
+  "executed": false,
+  "status": "CREDENTIAL_GATED_NOT_EXECUTED (operator vault lost to sandbox reset 2026-10-02; the rollback API leg is un-rehearsed — see runbook section 6)",
+  "releaseRecordsLoaded": 1
+}

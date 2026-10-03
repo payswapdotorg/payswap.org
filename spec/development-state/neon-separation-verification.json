@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "record_type": "neon-separation-verification",
+  "workOrder": "P3-W1-003",
+  "probed_at": "2026-10-03T00:12:40.029Z",
+  "binding": {
+    "connectionStrings": "(vault-resolved at run time — never recorded)",
+    "envNames": [
+      "PAYSWAP_DATABASE_URL_PROD",
+      "PAYSWAP_DATABASE_URL_PREVIEW"
+    ],
+    "neonApiEnvNames": [
+      "NEON_API_KEY",
+      "NEON_PROJECT_ID"
+    ]
+  },
+  "status": "credential-gated",
+  "statusDetail": "the operator vault holding the live Neon connection strings was lost to a sandbox reset (2026-10-02); no live separation check was executed and NONE is fabricated here (UNKNOWN is not FAILED, AGENTS.md rule 4). The requirements this driver will execute are recorded in spec/development-state/neon-separation.json; the last live connectivity evidence is spec/development-state/runtime-plane-probe.json.",
+  "requirementsLoadedFrom": "spec/development-state/neon-separation.json",
+  "checksNotExecuted": [
+    "distinct-host assertion (branch separation)",
+    "PROD read-only catalog probe",
+    "PREVIEW catalog probe + marker-table round trip (create -> observe -> assert absent on PROD -> drop)",
+    "cross-branch credential rejection (role scoping)",
+    "optional Neon API branch listing"
+  ],
+  "verdict": "CREDENTIAL_GATED_NOT_EXECUTED"
+}

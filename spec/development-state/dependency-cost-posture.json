@@ -1,0 +1,772 @@
+{
+  "schema_version": "1.0",
+  "record_type": "dependency-cost-posture",
+  "workOrder": "P3-W1-003",
+  "audited_at": "2026-10-03T00:12:40.100Z",
+  "scope": "every declared dependency of every workspace (root + packages/*): dependencies, devDependencies, peerDependencies, optionalDependencies",
+  "posture": "CLEAN — no paid-by-default dependency, no unjustified service binding, all external licenses within the OSS allowlist",
+  "summary": {
+    "workspacesAudited": 25,
+    "distinctDependencies": 39,
+    "internalWorkspacePackages": 21,
+    "externalPackages": 18,
+    "serviceBindingsPresent": [],
+    "mandatoryAbsences": [
+      {
+        "package": "resend",
+        "present": false,
+        "justification": null,
+        "ok": true
+      },
+      {
+        "package": "apify",
+        "present": false,
+        "justification": null,
+        "ok": true
+      }
+    ]
+  },
+  "findings": {
+    "resendApify": "ABSENT — no workflow in the repository requires an email provider (Resend) or a scraping service (Apify): the phase-3 state records them as OPTIONAL only; the provider-probe record holds Resend as UNVERIFIED-SEND; no package, no env binding and no code path references either. Finding: they stay OUT; adding either requires a recorded workflow justification (this record's RECORDED_JUSTIFICATIONS).",
+    "licensing": "every external dependency resolves to an allowlisted OSS license from the ACTUAL installed metadata (MIT/ISC/Apache-2.0/BSD-*) — zero copyleft, zero unknown",
+    "managedServices": "zero managed-service SDKs in code: Upstash is spoken to over REST (no SDK), R2 over SigV4 with node:crypto (no AWS SDK), Neon over postgres wire (no vendor SDK) — provider-neutral by construction (AGENTS.md rule 17)",
+    "observations": [
+      "scripts/deployment/run.mjs and run-rollout.mjs import esbuild, which is NOT declared in any package.json — it resolves transitively through vitest's dependency tree. Pre-existing condition (main), recorded here as an observation, not a paid/cost issue (esbuild is MIT). A dedicated root devDependency would make the resolution explicit."
+    ]
+  },
+  "violations": [],
+  "policy": {
+    "law": "topology section 7: a paid dependency must have an explicit capability reason recorded with the dependency; free tiers preferred; no vendor lock-in in domain contracts (AGENTS.md rule 17)",
+    "serviceBindingTierHints": "tier hints are policy data as of 2026-10-02 from provider public pricing — re-verify at the moment a binding is actually added; the guard's law does NOT rest on tier hints (any service binding needs a recorded reason)",
+    "licenseAllowlist": [
+      "MIT",
+      "ISC",
+      "Apache-2.0",
+      "Apache 2.0",
+      "BSD-2-Clause",
+      "BSD-3-Clause",
+      "BSD-2-Clause-FreeBSD",
+      "0BSD",
+      "Unlicense",
+      "CC0-1.0",
+      "CC-BY-4.0",
+      "Python-2.0",
+      "PostgreSQL",
+      "BlueOak-1.0.0",
+      "MPL-2.0"
+    ]
+  },
+  "dependencies": [
+    {
+      "name": "@payswap/adapters",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/journeys/package.json",
+        "packages/rails/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/agents",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/certification/package.json",
+        "packages/journeys/package.json",
+        "packages/lab/package.json",
+        "packages/security/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/api",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/ux/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/campaigns",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/capabilities",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/certification/package.json",
+        "packages/connectors/package.json",
+        "packages/journeys/package.json",
+        "packages/lab/package.json",
+        "packages/security/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/certification",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/connectors",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adapters/package.json",
+        "packages/adversarial/package.json",
+        "packages/certification/package.json",
+        "packages/execution/package.json",
+        "packages/journeys/package.json",
+        "packages/lab/package.json",
+        "packages/rails/package.json",
+        "packages/settlement/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/design",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/web/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/execution",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adapters/package.json",
+        "packages/adversarial/package.json",
+        "packages/journeys/package.json",
+        "packages/rails/package.json",
+        "packages/settlement/package.json",
+        "packages/ux/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/interfaces",
+      "internal": true,
+      "ranges": [
+        "^0.1.0",
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/api/package.json",
+        "packages/ux/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/journeys",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/operations/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/lab",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/certification/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/participation",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/campaigns/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/payment",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/execution/package.json",
+        "packages/journeys/package.json",
+        "packages/settlement/package.json",
+        "packages/ux/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/protocol",
+      "internal": true,
+      "ranges": [
+        "*",
+        "^0.1.0"
+      ],
+      "sections": [
+        "dependencies",
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/adapters/package.json",
+        "packages/adversarial/package.json",
+        "packages/agents/package.json",
+        "packages/api/package.json",
+        "packages/campaigns/package.json",
+        "packages/certification/package.json",
+        "packages/connectors/package.json",
+        "packages/execution/package.json",
+        "packages/journeys/package.json",
+        "packages/lab/package.json",
+        "packages/operations/package.json",
+        "packages/participation/package.json",
+        "packages/payment/package.json",
+        "packages/rails/package.json",
+        "packages/recourse/package.json",
+        "packages/security/package.json",
+        "packages/settlement/package.json",
+        "packages/trust/package.json",
+        "packages/ux/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/rails",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/recourse",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/security",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/certification/package.json",
+        "packages/journeys/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/settlement",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/journeys/package.json",
+        "packages/rails/package.json",
+        "packages/recourse/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/trust",
+      "internal": true,
+      "ranges": [
+        "*",
+        "^0.1.0"
+      ],
+      "sections": [
+        "dependencies",
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/adversarial/package.json",
+        "packages/agents/package.json",
+        "packages/api/package.json",
+        "packages/capabilities/package.json",
+        "packages/journeys/package.json",
+        "packages/security/package.json",
+        "packages/ux/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@payswap/ux",
+      "internal": true,
+      "ranges": [
+        "*"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/operations/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "internal-workspace"
+    },
+    {
+      "name": "@tailwindcss/postcss",
+      "internal": false,
+      "ranges": [
+        "^4.0.0",
+        "^4.3.3"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@testing-library/jest-dom",
+      "internal": false,
+      "ranges": [
+        "^6.6.3"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@testing-library/react",
+      "internal": false,
+      "ranges": [
+        "^16.1.0"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@testing-library/user-event",
+      "internal": false,
+      "ranges": [
+        "^14.5.2"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@types/node",
+      "internal": false,
+      "ranges": [
+        "^24.0.0"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@types/react",
+      "internal": false,
+      "ranges": [
+        "^19.0.0",
+        "^19.2.0"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@types/react-dom",
+      "internal": false,
+      "ranges": [
+        "^19.0.0",
+        "^19.2.0"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "@vitejs/plugin-react",
+      "internal": false,
+      "ranges": [
+        "^4.3.4"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "eslint",
+      "internal": false,
+      "ranges": [
+        "^9.39.0"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "eslint-config-next",
+      "internal": false,
+      "ranges": [
+        "^16.3.8"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "jsdom",
+      "internal": false,
+      "ranges": [
+        "^25.0.1"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "next",
+      "internal": false,
+      "ranges": [
+        "^16.3.8"
+      ],
+      "sections": [
+        "dependencies"
+      ],
+      "packages": [
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "postcss",
+      "internal": false,
+      "ranges": [
+        "^8.4.49",
+        "^8.5.6"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "react",
+      "internal": false,
+      "ranges": [
+        "^19.0.0",
+        ">=18.0.0",
+        "^19.3.0"
+      ],
+      "sections": [
+        "devDependencies",
+        "peerDependencies",
+        "dependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "react-dom",
+      "internal": false,
+      "ranges": [
+        "^19.0.0",
+        ">=18.0.0",
+        "^19.3.0"
+      ],
+      "sections": [
+        "devDependencies",
+        "peerDependencies",
+        "dependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "tailwindcss",
+      "internal": false,
+      "ranges": [
+        "^4.0.0",
+        "^4.3.3"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "packages/design/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    },
+    {
+      "name": "typescript",
+      "internal": false,
+      "ranges": [
+        "^5.6.3"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "package.json",
+        "packages/adapters/package.json",
+        "packages/adversarial/package.json",
+        "packages/agents/package.json",
+        "packages/api/package.json",
+        "packages/campaigns/package.json",
+        "packages/capabilities/package.json",
+        "packages/certification/package.json",
+        "packages/connectors/package.json",
+        "packages/design/package.json",
+        "packages/execution/package.json",
+        "packages/interfaces/package.json",
+        "packages/journeys/package.json",
+        "packages/lab/package.json",
+        "packages/operations/package.json",
+        "packages/participation/package.json",
+        "packages/payment/package.json",
+        "packages/protocol/package.json",
+        "packages/rails/package.json",
+        "packages/recourse/package.json",
+        "packages/security/package.json",
+        "packages/settlement/package.json",
+        "packages/trust/package.json",
+        "packages/ux/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (Apache-2.0)",
+      "license": "Apache-2.0"
+    },
+    {
+      "name": "vitest",
+      "internal": false,
+      "ranges": [
+        "^3.2.4"
+      ],
+      "sections": [
+        "devDependencies"
+      ],
+      "packages": [
+        "package.json",
+        "packages/adapters/package.json",
+        "packages/adversarial/package.json",
+        "packages/agents/package.json",
+        "packages/api/package.json",
+        "packages/campaigns/package.json",
+        "packages/capabilities/package.json",
+        "packages/certification/package.json",
+        "packages/connectors/package.json",
+        "packages/design/package.json",
+        "packages/execution/package.json",
+        "packages/interfaces/package.json",
+        "packages/journeys/package.json",
+        "packages/lab/package.json",
+        "packages/operations/package.json",
+        "packages/participation/package.json",
+        "packages/payment/package.json",
+        "packages/protocol/package.json",
+        "packages/rails/package.json",
+        "packages/recourse/package.json",
+        "packages/security/package.json",
+        "packages/settlement/package.json",
+        "packages/trust/package.json",
+        "packages/ux/package.json",
+        "packages/web/package.json"
+      ],
+      "classification": "open-source tooling (MIT)",
+      "license": "MIT"
+    }
+  ]
+}

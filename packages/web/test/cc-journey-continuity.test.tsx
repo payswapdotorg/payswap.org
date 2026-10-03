@@ -823,6 +823,13 @@ describe("no simulated financial effect reachable through the UI", () => {
       "lib/api-client.ts",
       "lib/api.ts",
       "lib/cc/api-server.ts",
+      // P3-W1-003: the health/readiness ROUTE (server-plane infrastructure,
+      // not a component data path). Its dependency probe must NOT go through
+      // the sanctioned API transports: those revalidate/cache responses, and
+      // a CACHED health answer would fabricate health — the exact fake-healthy
+      // state the hardened probe forbids. The probe fetch is no-store,
+      // timeout-bounded and classified on the honest scale by lib/health.ts.
+      "app/api/health/route.ts",
     ]);
     const offenders: string[] = [];
     const files = readdirSync(webSrc, { recursive: true }).filter(

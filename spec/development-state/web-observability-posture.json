@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "record_type": "web-observability-posture",
+  "workOrder": "P3-W1-003",
+  "recorded_at": "2026-10-02",
+  "purpose": "The verified observability wiring posture of the @payswap/web public surface: what it emits, where events land per the runtime-activation record, the contract any future emission must follow, and the honest status of live sink verification.",
+  "law": "spec/experience/DEPLOYMENT-TOPOLOGY.md section 4: observability is a vendor-neutral sink; every terminal-state transition, UNKNOWN outcome and reconciliation resolution is observable; request correlation via the response envelope requestId. The taxonomy (W3-007, @payswap/operations OBSERVABILITY_EVENT_TAXONOMY) owns the event vocabulary; alerts must reference runbook entries (no orphan alerts).",
+  "whatTheWebAppEmitsToday": {
+    "finding": "The public web surface (@payswap/web) emits NO independent telemetry of its own today — verified by source audit: no observability client, no sink URL, no event emission anywhere in packages/web/src (grep for observability/sink/taxonomy references: zero hits in application code). This is an honest recorded posture, not a gap being papered over.",
+    "signalsItDoesExpose": [
+      {
+        "signal": "GET /api/health — the liveness/readiness probe (hardened by this Work Order: dependency-bound checks, honest degraded reporting, never fake-healthy)",
+        "consumer": "any monitor / the rollback verification chain (scripts/deployment/web-rollback.mjs polls it and cross-checks build.id against the release records)",
+        "contract": "HTTP 200 = serving (ok or honestly degraded, body explains which); HTTP 503 = a CONFIGURED dependency failed; cache-control: no-store; body carries status/liveness/readiness/build/checkedAt"
+      },
+      {
+        "signal": "honest error surfacing in the rendered UI — every API fetch outcome is a discriminated union (unconfigured / network-error / http-error / ok) rendered verbatim (the api-client + cc/api-server doctrine); no fabricated success states",
+        "consumer": "the human user (and browser console remains error-free by acceptance law)",
+        "contract": "errors are surfaced, never swallowed or reinterpreted; UNKNOWN stays UNKNOWN"
+      },
+      {
+        "signal": "platform logs (Vercel function logs) — stdout/stderr of the deployment",
+        "consumer": "the hosting plane (Vercel dashboard)",
+        "contract": "platform-provided; no secret values are ever logged (the repo's secret hygiene law)"
+      }
+    ]
+  },
+  "whereEventsLand": {
+    "runtimePlaneSink": "per spec/development-state/runtime-activation.json: the taxonomy-validated ingestion endpoint on the hosting plane (https://payswap-mu.vercel.app/api/internal/observability) validates events against the W3-007 taxonomy (rejecting non-taxonomy events — verified in the 2026-10-02 probe) and appends them to the Upstash stream payswap:observability:production",
+    "webAppRelationship": "the web surface is a CONSUMER of the API runtime, NOT a writer to the observability stream: the sink is a runtime-plane binding (OBSERVABILITY_ENDPOINT belongs to the payswap API project's env, and the runtime-plane probe recorded it MISSING in the deployed web-api role env — runtime-plane-probe.json environmentCompleteness.deployed) — the boundary is deliberate: the web surface holds no financial state, so it has no terminal-state transitions, UNKNOWN outcomes or reconciliation resolutions of its own to emit (those are protocol-plane events owned by the runtime)",
+    "budgetNote": "the sink stream payswap:observability:production carries a command/length budget in spec/development-state/upstash-budgets.json"
+  },
+  "emissionContract": {
+    "law": "IF the web surface ever needs to emit (e.g. web-plane deployment gate events), the ONLY sanctioned path is the runtime plane's taxonomy-validated ingestion endpoint with W3-007 taxonomy events carrying protocol correlation keys (requestId et al.) — NO parallel logging channel, NO bespoke vendor SDK, NO client-side telemetry (AGENTS.md rule 17: no provider lock-in; topology section 4: vendor-neutral sink)",
+    "steps": [
+      "declare the event in @payswap/operations OBSERVABILITY_EVENT_TAXONOMY (W3-007 owns the vocabulary — a change there is a Work Order, not a drive-by)",
+      "emit server-side only, through the ingestion endpoint, with the required correlation keys",
+      "count the commands against spec/development-state/upstash-budgets.json (observability namespace budget)",
+      "wire the alert threshold to a runbook entry (no orphan alerts)"
+    ]
+  },
+  "liveSinkVerification": {
+    "status": "credential-gated, not executed",
+    "detail": "the operator vault (lost to the sandbox reset 2026-10-02) held the live bindings; the last LIVE sink verification on record is the runtime-plane activation probe (2026-10-02): 4 taxonomy events accepted with Upstash stream entry ids as receipts, and an invalid event correctly REJECTED (422) — evidence in spec/development-state/runtime-plane-probe.json observability section",
+    "reverificationPath": "re-run scripts/deployment/runtime-plane-probe.ts <release-sha> with the vault re-supplied (deploy:probe); for the web surface specifically, curl GET /api/health on the production alias (no credentials needed — public endpoint) and record the result in the next release record"
+  },
+  "healthEndpointNote": "the /api/health probe hardened by this Work Order is itself an observability improvement: the rollback runbook's verification chain (health probe -> build.id -> release record -> commit) makes every production deployment's identity machine-checkable without any vendor telemetry.",
+  "digest": "fnv1a64:3abbed47f5188a34"
+}
