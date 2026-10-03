@@ -385,6 +385,19 @@
         "typescript",
         "vitest"
       ]
+    },
+    "packages/onchain-threat-intel": {
+      "dependencies": [
+        "@payswap/best-execution",
+        "@payswap/onchain-security",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "@payswap/security",
+        "typescript",
+        "vitest"
+      ]
     }
   },
   "justifications": {
@@ -412,6 +425,11 @@
     "packages/onchain-security|dependencies|@payswap/capabilities": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
     "packages/onchain-security|dependencies|@payswap/protocol": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
     "packages/onchain-security|dependencies|@payswap/trust": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
-    "packages/onchain-security|devDependencies|@payswap/security": "P4-W1-002: TEST-ONLY dependency — the composition suite drives the real security immune-system machinery (epoch authority, advisory registry, quarantine ledger) to prove OnchainSecurityState projection; src/** never imports it (W2-005 boundary)."
+    "packages/onchain-security|devDependencies|@payswap/security": "P4-W1-002: TEST-ONLY dependency — the composition suite drives the real security immune-system machinery (epoch authority, advisory registry, quarantine ledger) to prove OnchainSecurityState projection; src/** never imports it (W2-005 boundary).",
+    "packages/onchain-threat-intel|dependencies|@payswap/best-execution": "P4-W3-003 adversarial onchain security: the MEV/sandwich-exposure detector consumes the P4-W2-002 typed quote disclosures (SlippageDisclosure, LiquidityImpactDisclosure) as its deterministic exposure inputs — no parallel quote vocabulary is defined (W2-002 owns it)",
+    "packages/onchain-threat-intel|dependencies|@payswap/onchain-security": "P4-W3-003 adversarial onchain security: built ON the W1-002 kernel — detectors analyze PreparedWrite/SimulationObservation, the no-downgrade seam composes with GateDecision, signals project onto the kernel AgentSecurityFlag channel, and every agent-facing artifact is secret-scanned by the kernel assertNoSecretMaterial (the kernel owns authority, never this package)",
+    "packages/onchain-threat-intel|dependencies|@payswap/protocol": "P4-W3-003 adversarial onchain security: canonical ValidationError-based fail-closed validation for the threat policy, evidence chains and observation bundle",
+    "packages/onchain-threat-intel|dependencies|@payswap/trust": "P4-W3-003 adversarial onchain security: AmountSpec exact-money comparisons (compareAmounts) for approval-cap threat deltas (INV-F01; no floating point anywhere)",
+    "packages/onchain-threat-intel|devDependencies|@payswap/security": "P4-W3-003: TEST-ONLY dependency — the immune-system composition suite drives the REAL SecurityAdvisoryRegistry/ThreatSignatureRegistry/SecurityGate/QuarantineLedger/SecurityEpochAuthority machines (the W1-002 composition-test pattern); src/** never imports it (the security package's own boundary test forbids src-level consumers)"
   }
 }
