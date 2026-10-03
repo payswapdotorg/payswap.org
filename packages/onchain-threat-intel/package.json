@@ -1,0 +1,25 @@
+{
+  "name": "@payswap/onchain-threat-intel",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Adversarial onchain security + threat intelligence (Work Order P4-W3-003): the adversarial transaction agent and the 13-family onchain threat model (malicious approvals/permits, unexpected spenders, token impersonation, honeypot restrictions, proxy/admin changes, oracle manipulation, bridge compromise, MEV/sandwich exposure, destination/chain confusion, replay/signature-domain issues, unexpected balance/state deltas, stale/changed simulations, finality/reorg anomalies) — every signal carries a mandatory evidence chain and an integer-bps calibrated confidence; the deterministic threat policy stays authoritative (ALLOW | ALLOW_WITH_CONSTRAINTS | REQUIRE_CONFIRMATION | BLOCK) and the agent can NEVER downgrade a BLOCK (kernel law security_agent_cannot_override_block); quarantine/restrict/retire flow through advisory proposals + signature packs that integrate with the existing immune-system machinery",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/best-execution": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/protocol": "*",
+    "@payswap/trust": "*"
+  },
+  "devDependencies": {
+    "@payswap/security": "*",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
