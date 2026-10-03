@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "record_type": "web-release-reverification",
+  "workOrder": "P3-W1-003",
+  "package": "@payswap/web",
+  "date": "2026-10-02",
+  "commit": "d1a50091ec89e5731a8ccd8d64b255946edefb9d",
+  "reproduction": {
+    "run1BuildId": "e25df0140738daf0",
+    "run2BuildId": "e25df0140738daf0",
+    "byteIdenticalBuildIds": true,
+    "buildIdScheme": "sha256 over the sorted packages/web build inputs (src/ + public/ + package.json + postcss.config.mjs + next.config.ts), truncated to 16 hex — same sources always produce the same build id",
+    "bothRunsMatchIndependentlyRecomputedSourceDigest": true,
+    "sourceDigest": "e25df0140738daf0"
+  },
+  "existingRecordComparison": {
+    "records": [
+      {
+        "file": "web-release-2026-10-02.json",
+        "commit": "c7a3856709d5fc5bdf98ebb70660aa2718e7c750",
+        "buildId": "dba11b45080e6786",
+        "sameCommitAsHead": false,
+        "buildIdMatchesThisRun": false
+      }
+    ],
+    "recordForCurrentCommit": null,
+    "finding": "no release record exists for the current commit yet (the TL records releases at the review gate) — this reverification stands on the two independent builds above"
+  },
+  "commands": [
+    "node scripts/deployment/web-release.mjs --reverify 2026-10-02"
+  ],
+  "digest": "fnv1a64:fc35acce1ba65412"
+}
