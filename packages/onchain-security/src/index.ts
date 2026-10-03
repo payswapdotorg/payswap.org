@@ -56,3 +56,13 @@ export * from "./write-intent.js";
 export * from "./simulation.js";
 export * from "./diff.js";
 export * from "./gates.js";
+export * from "./delegation.js";
+export * from "./authorization.js";
+export * from "./recheck.js";
+export * from "./pipeline.js";
+export * from "./signers.js";
+
+// EVM chain-family adapters (isolated from core contracts by law):
+// import from "@payswap/onchain-security/adapters/eip712" / ".../erc1271".
+export * as eip712 from "./adapters/eip712.js";
+export * as erc1271 from "./adapters/erc1271.js";
