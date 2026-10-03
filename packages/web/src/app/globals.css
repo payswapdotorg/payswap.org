@@ -19,6 +19,14 @@
   color: var(--color-stone-900);
 }
 
-html {
-  scroll-behavior: smooth;
+/*
+ * Smooth anchor scrolling is a MOTION effect: it is offered only to users
+ * who have not requested reduced motion (WCAG 2.3.3 posture — the same
+ * collapse the design system applies to its duration tokens). P3-W2-003
+ * defect fix: this rule previously applied unconditionally.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }

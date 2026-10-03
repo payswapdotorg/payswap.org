@@ -1,0 +1,1194 @@
+{
+  "generatedAt": "2026-10-02T22:57:25.940Z",
+  "baseUrl": "http://127.0.0.1:3111",
+  "browser": "HeadlessChrome/153.0.8010.12",
+  "harness": "packages/web/scripts/verify-visual.mjs (zero-dependency CDP)",
+  "viewports": [
+    {
+      "name": "desktop-1440",
+      "width": 1440,
+      "height": 900,
+      "mobile": false
+    },
+    {
+      "name": "mobile-390",
+      "width": 390,
+      "height": 844,
+      "mobile": true
+    }
+  ],
+  "health": {
+    "route": "/api/health",
+    "status": 200,
+    "body": {
+      "status": "ok",
+      "service": "@payswap/web",
+      "role": "public product surface — a consumer of the authoritative PaySwap API",
+      "build": {
+        "id": "0703c91644ffee9f",
+        "commit": "7092fca91f71a69a0ee18d82cc093c4bfb5daa54"
+      },
+      "apiRuntime": {
+        "baseUrl": null,
+        "configured": false,
+        "envVar": "NEXT_PUBLIC_PAYSWAP_API_URL",
+        "note": "referenced by name only — no value is stored in git"
+      },
+      "checkedAt": "2026-10-02T22:56:00.029Z"
+    },
+    "ms": 27
+  },
+  "entries": [
+    {
+      "route": "/",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: A non-custodial economic operating system for the payment providers and rails you already use.",
+        "consoleErrorCount": 0
+      },
+      "title": "PaySwap — the non-custodial economic operating system",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/home--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: A non-custodial economic operating system for the payment providers and rails you already use.",
+        "consoleErrorCount": 0
+      },
+      "title": "PaySwap — the non-custodial economic operating system",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/home--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/capabilities",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: What PaySwap can do — and exactly which providers are behind it today.",
+        "consoleErrorCount": 0
+      },
+      "title": "Capabilities & provider coverage — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/capabilities--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/capabilities",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: What PaySwap can do — and exactly which providers are behind it today.",
+        "consoleErrorCount": 0
+      },
+      "title": "Capabilities & provider coverage — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/capabilities--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/security",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: An operating system over your economic relationships — not another place your money lives.",
+        "consoleErrorCount": 0
+      },
+      "title": "Security & non-custody — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/security--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/security",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: An operating system over your economic relationships — not another place your money lives.",
+        "consoleErrorCount": 0
+      },
+      "title": "Security & non-custody — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/security--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/developers",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: The API is the authority. This website is just one client of it.",
+        "consoleErrorCount": 0
+      },
+      "title": "Developers — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/developers--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/developers",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: The API is the authority. This website is just one client of it.",
+        "consoleErrorCount": 0
+      },
+      "title": "Developers — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/developers--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/signin",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Sign in",
+        "consoleErrorCount": 0
+      },
+      "title": "Sign in — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/signin--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/signin",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Sign in",
+        "consoleErrorCount": 0
+      },
+      "title": "Sign in — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/signin--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/signout",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Sign out",
+        "consoleErrorCount": 0
+      },
+      "title": "Sign out — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/signout--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/signout",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Sign out",
+        "consoleErrorCount": 0
+      },
+      "title": "Sign out — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/signout--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/connect",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Connect a provider",
+        "consoleErrorCount": 0
+      },
+      "title": "Connect a provider — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/connect--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/connect",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Connect a provider",
+        "consoleErrorCount": 0
+      },
+      "title": "Connect a provider — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/connect--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/reauth",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Reauthorization",
+        "consoleErrorCount": 0
+      },
+      "title": "Reauthorization — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/reauth--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/reauth",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Reauthorization",
+        "consoleErrorCount": 0
+      },
+      "title": "Reauthorization — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/reauth--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/onboarding",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Onboarding",
+        "consoleErrorCount": 0
+      },
+      "title": "Onboarding — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/onboarding--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/onboarding",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Onboarding",
+        "consoleErrorCount": 0
+      },
+      "title": "Onboarding — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/onboarding--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Overview — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Overview — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/activity",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Activity",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-activity--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/activity",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Activity",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-activity--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/agents",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Agents",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-agents--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/agents",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Agents",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-agents--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/billing",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Billing",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-billing--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/billing",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Billing",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-billing--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/capabilities",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Capabilities",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-capabilities--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/capabilities",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Capabilities",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-capabilities--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/collections",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Collections",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-collections--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/collections",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Collections",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-collections--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/credit",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Credit",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-credit--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/credit",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Credit",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-credit--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/developers",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Developers",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-developers--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/developers",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Developers",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-developers--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/disputes",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Disputes",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-disputes--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/disputes",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Disputes",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-disputes--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/evidence",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Evidence",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-evidence--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/evidence",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Evidence",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-evidence--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/liquidity",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Liquidity",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-liquidity--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/liquidity",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Liquidity",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-liquidity--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/opportunities",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Opportunities",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-opportunities--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/opportunities",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Opportunities",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-opportunities--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/payments",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Payments",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-payments--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/payments",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Payments",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-payments--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/payouts",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Payouts",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-payouts--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/payouts",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Payouts",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-payouts--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/programs",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Programs",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-programs--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/programs",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Programs",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-programs--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/settings",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Settings",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-settings--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/settings",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /authentication required/i",
+        "consoleErrorCount": 0
+      },
+      "title": "Settings",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/app-settings--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/connect/stripe",
+      "viewport": "desktop-1440",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Connect Stripe",
+        "consoleErrorCount": 0
+      },
+      "title": "Connection review — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/connect-stripe--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/connect/stripe",
+      "viewport": "mobile-390",
+      "expectedStatus": 200,
+      "httpStatus": 200,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "h1: Connect Stripe",
+        "consoleErrorCount": 0
+      },
+      "title": "Connection review — PaySwap",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/connect-stripe--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/nonsense",
+      "viewport": "desktop-1440",
+      "expectedStatus": 404,
+      "httpStatus": 404,
+      "verdict": "PASS",
+      "note": "unmatched /app path: honest 404 notice (root boundary — see matrix §4.4)",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /Unrecognized Command Center path|Page not found/i",
+        "consoleErrorCount": 0
+      },
+      "title": "PaySwap — the non-custodial economic operating system",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/probe-app-unknown--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/app/nonsense",
+      "viewport": "mobile-390",
+      "expectedStatus": 404,
+      "httpStatus": 404,
+      "verdict": "PASS",
+      "note": "unmatched /app path: honest 404 notice (root boundary — see matrix §4.4)",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /Unrecognized Command Center path|Page not found/i",
+        "consoleErrorCount": 0
+      },
+      "title": "PaySwap — the non-custodial economic operating system",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/probe-app-unknown--mobile-390.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/does-not-exist",
+      "viewport": "desktop-1440",
+      "expectedStatus": 404,
+      "httpStatus": 404,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "honestStateMarkerOk": true,
+        "marker": "text: /Page not found/i",
+        "consoleErrorCount": 0
+      },
+      "title": "PaySwap — the non-custodial economic operating system",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/probe-root-404--desktop-1440.png",
+      "consoleErrorSamples": []
+    },
+    {
+      "route": "/does-not-exist",
+      "viewport": "mobile-390",
+      "expectedStatus": 404,
+      "httpStatus": 404,
+      "verdict": "PASS",
+      "checks": {
+        "httpStatusOk": true,
+        "noHorizontalOverflow": true,
+        "scrollWidth": 390,
+        "innerWidth": 390,
+        "honestStateMarkerOk": true,
+        "marker": "text: /Page not found/i",
+        "consoleErrorCount": 0
+      },
+      "title": "PaySwap — the non-custodial economic operating system",
+      "lang": "en",
+      "screenshot": "spec/phase-3/verification/evidence-local/probe-root-404--mobile-390.png",
+      "consoleErrorSamples": []
+    }
+  ],
+  "keyboardChecks": [
+    {
+      "name": "skip link is the first Tab stop on / (desktop)",
+      "ok": true,
+      "detail": "{\"afterTab\":{\"tag\":\"A\",\"href\":\"#main-content\"},\"afterEnter\":{\"hash\":\"#main-content\",\"activeId\":\"main-content\"}}"
+    },
+    {
+      "name": "Ctrl-K opens the command palette (focus on the combobox); Escape closes it",
+      "ok": true,
+      "detail": "{\"paletteOpen\":{\"open\":true,\"focused\":true},\"paletteClosed\":true}"
+    },
+    {
+      "name": "mobile menu button opens the nav drawer (dialog + focus inside); Escape closes it",
+      "ok": true,
+      "detail": "{\"opened\":{\"menuButton\":true},\"drawer\":{\"dialog\":true,\"focusInside\":true},\"closed\":true}"
+    }
+  ],
+  "deepLinks": {
+    "checked": 17,
+    "broken": []
+  },
+  "summary": {
+    "routeViewportCells": 56,
+    "pass": 56,
+    "fail": 0,
+    "consoleErrorTotal": 0,
+    "overflowFailures": 0,
+    "brokenDeepLinks": 0
+  }
+}

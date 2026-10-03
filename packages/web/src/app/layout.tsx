@@ -29,7 +29,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <SiteHeader />
-        <main id="main-content" className="flex flex-1 flex-col">
+        {/* tabIndex=-1 makes the skip-link target programmatically
+            focusable, so activating "Skip to content" actually MOVES focus
+            into the main region (the design system's SkipLink contract) —
+            without it, browsers only scroll and keyboard/AT users are left
+            at the top of the document. P3-W2-003 defect fix. */}
+        <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
           {children}
         </main>
         <SiteFooter />
