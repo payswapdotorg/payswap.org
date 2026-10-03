@@ -1,0 +1,24 @@
+{
+  "name": "@payswap/onchain-domain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Provider-neutral onchain domain and capability kernel: chain/asset/protocol definitions and observations, wallet/signer/smart-account capabilities, onchain execution vocabulary and canonical settlement mapping inside the existing Capability/Connector model (Work Order P4-W1-001)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/capabilities": "*",
+    "@payswap/connectors": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4",
+    "@payswap/settlement": "*"
+  }
+}
