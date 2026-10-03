@@ -16,8 +16,7 @@
   },
   "frontier": [
     "W3-001",
-    "W3-002",
-    "W3-003"
+    "W3-002"
   ],
   "active_work_orders": [
     {
@@ -56,6 +55,15 @@
       "branch": "work/P4-W2-002",
       "completed_at": "2026-10-03",
       "verification": "TL-verified at THIS station after the worker pushed f0c09e3 to origin: typecheck exit 0; kernel+venues package suites green (onchain-domain/onchain-security/onchain-venues); full workspace battery exit 0; verify:repo passed. Merged 62454ac by the console-TL (origin coordination: the delivery branch carried packages/onchain-venues \u2014 venue-agnostic best-execution core + Uniswap/aggregator/intent extension packs, 40 files / 9413 insertions). The console-TL's own parallel venues lane (superseded/console-P4-W2-002) was stood down as redundant."
+    },
+    {
+      "id": "P4-W3-003",
+      "owner": "worker (parallel lane, base 66d0835)",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-03",
+      "branch": "work/P4-W3-003",
+      "completed_at": "2026-10-03",
+      "verification": "TL-verified at this station: typecheck exit 0; onchain-threat-intel + kernel suites green; full battery exit 0; verify:repo passed. Merged from the worker's pushed branch f185190 (packages/onchain-threat-intel, 30 files / 8143 insertions)."
     }
   ],
   "max_concurrent_workers": 3,
