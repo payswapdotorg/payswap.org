@@ -1,0 +1,326 @@
+{
+  "$comment": "Curated direct-dependency allowlist for the PaySwap monorepo (Work Order P3-W1-003).\nEnforced by packages/web/test/dependency-audit.test.ts — the repository dependency surface is a CONTRACT:\nany addition or removal in any workspace package.json fails the build with a diff.\n\nESCAPE HATCH (justified additions): a new dependency may be introduced ONLY by editing this\nfile in the SAME commit that adds it, with a one-line justification recorded under\n\"justifications\" keyed as \"<workspace>|<section>|<package>\". Reviewers see both the diff\nand the justification atomically. Removals need no justification but still require the\nmatching allowlist edit so the contract stays exact.\n\nHARD LAW (no escape hatch): Resend and Apify SDKs (resend, @resend/*, apify, @apify/*,\napify-client) are ABSENT from every manifest and from the root lockfile. Re-introducing\nthem requires an explicit work-order amendment (Phase 3 law: absent unless an actual\nworkflow justifies them) — an allowlist edit can never authorize them.",
+  "sections": [
+    "dependencies",
+    "devDependencies",
+    "peerDependencies",
+    "optionalDependencies"
+  ],
+  "workspaces": {
+    ".": {
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/adapters": {
+      "dependencies": [
+        "@payswap/connectors",
+        "@payswap/execution",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/adversarial": {
+      "dependencies": [
+        "@payswap/agents",
+        "@payswap/campaigns",
+        "@payswap/capabilities",
+        "@payswap/certification",
+        "@payswap/connectors",
+        "@payswap/execution",
+        "@payswap/journeys",
+        "@payswap/lab",
+        "@payswap/participation",
+        "@payswap/payment",
+        "@payswap/protocol",
+        "@payswap/rails",
+        "@payswap/recourse",
+        "@payswap/security",
+        "@payswap/settlement",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/agents": {
+      "dependencies": [
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/api": {
+      "dependencies": [
+        "@payswap/interfaces",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/campaigns": {
+      "dependencies": [
+        "@payswap/participation",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/capabilities": {
+      "dependencies": [
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/certification": {
+      "dependencies": [
+        "@payswap/agents",
+        "@payswap/capabilities",
+        "@payswap/connectors",
+        "@payswap/lab",
+        "@payswap/protocol",
+        "@payswap/security"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/connectors": {
+      "dependencies": [
+        "@payswap/capabilities",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/design": {
+      "devDependencies": [
+        "@tailwindcss/postcss",
+        "@testing-library/jest-dom",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react",
+        "jsdom",
+        "postcss",
+        "react",
+        "react-dom",
+        "tailwindcss",
+        "typescript",
+        "vitest"
+      ],
+      "peerDependencies": [
+        "react",
+        "react-dom"
+      ]
+    },
+    "packages/execution": {
+      "dependencies": [
+        "@payswap/connectors",
+        "@payswap/payment",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/interfaces": {
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/journeys": {
+      "dependencies": [
+        "@payswap/adapters",
+        "@payswap/agents",
+        "@payswap/campaigns",
+        "@payswap/capabilities",
+        "@payswap/certification",
+        "@payswap/connectors",
+        "@payswap/execution",
+        "@payswap/lab",
+        "@payswap/participation",
+        "@payswap/payment",
+        "@payswap/protocol",
+        "@payswap/rails",
+        "@payswap/recourse",
+        "@payswap/security",
+        "@payswap/settlement",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/lab": {
+      "dependencies": [
+        "@payswap/agents",
+        "@payswap/capabilities",
+        "@payswap/connectors",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/operations": {
+      "dependencies": [
+        "@payswap/journeys",
+        "@payswap/protocol",
+        "@payswap/ux"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/participation": {
+      "dependencies": [
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/payment": {
+      "dependencies": [
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/protocol": {
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/rails": {
+      "dependencies": [
+        "@payswap/adapters",
+        "@payswap/connectors",
+        "@payswap/execution",
+        "@payswap/protocol",
+        "@payswap/settlement"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/recourse": {
+      "dependencies": [
+        "@payswap/protocol",
+        "@payswap/settlement"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/security": {
+      "dependencies": [
+        "@payswap/agents",
+        "@payswap/capabilities",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/settlement": {
+      "dependencies": [
+        "@payswap/connectors",
+        "@payswap/execution",
+        "@payswap/payment",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/trust": {
+      "dependencies": [
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/ux": {
+      "dependencies": [
+        "@payswap/api",
+        "@payswap/execution",
+        "@payswap/interfaces",
+        "@payswap/payment"
+      ],
+      "devDependencies": [
+        "@payswap/protocol",
+        "@payswap/trust",
+        "typescript",
+        "vitest"
+      ]
+    },
+    "packages/web": {
+      "dependencies": [
+        "@payswap/api",
+        "@payswap/design",
+        "@payswap/interfaces",
+        "@payswap/protocol",
+        "@payswap/trust",
+        "@payswap/ux",
+        "next",
+        "react",
+        "react-dom"
+      ],
+      "devDependencies": [
+        "@tailwindcss/postcss",
+        "@testing-library/jest-dom",
+        "@testing-library/react",
+        "@testing-library/user-event",
+        "@types/node",
+        "@types/react",
+        "@types/react-dom",
+        "eslint",
+        "eslint-config-next",
+        "jsdom",
+        "postcss",
+        "tailwindcss",
+        "typescript",
+        "vitest"
+      ]
+    }
+  },
+  "justifications": {}
+}
