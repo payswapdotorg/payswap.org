@@ -2,9 +2,9 @@
   "schema_version": "1.0",
   "record_type": "production-deployment",
   "release": {
-    "sha": "73a26002a22064c5bcae4332be7e3bce494d0c13",
-    "battery": "1844/1844 across 22 workspaces; typecheck 0; verify:repo green; GitHub CI run 36950992006 SUCCESS (release sha); post-activation tree battery re-certified in this commit",
-    "authorized_at": "2026-10-02T01:06:33Z",
+    "sha": "094797effab3d6ea45ff702f8bfd8d2210e2a475",
+    "battery": "3197",
+    "authorized_at": "2026-10-03",
     "authorization": "spec/development-state/deployment-authorization.json (operator directive, verbatim)",
     "topology_authority": "spec/experience/DEPLOYMENT-TOPOLOGY.md",
     "connected_providers": [],
@@ -17,7 +17,7 @@
         {
           "serviceId": "payswap-web-api",
           "role": "web-api",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "web-api",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -34,7 +34,7 @@
         {
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "protocol-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -52,7 +52,7 @@
         {
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "reconciliation-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -65,7 +65,7 @@
         {
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "lab-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -78,7 +78,7 @@
         {
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "notification-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -95,7 +95,7 @@
           }
         }
       ],
-      "configFingerprint": "fnv1a64:a0c3abee6b4d2d54"
+      "configFingerprint": "fnv1a64:b5d0f926afe56b19"
     },
     "production": {
       "environment": "production",
@@ -103,7 +103,7 @@
         {
           "serviceId": "payswap-web-api",
           "role": "web-api",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "web-api",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -120,7 +120,7 @@
         {
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "protocol-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -138,7 +138,7 @@
         {
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "reconciliation-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -151,7 +151,7 @@
         {
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "lab-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -164,7 +164,7 @@
         {
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
-          "version": "73a26002a220",
+          "version": "094797effab3",
           "config": {
             "WORKER_ROLE": "notification-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -181,7 +181,7 @@
           }
         }
       ],
-      "configFingerprint": "fnv1a64:55e0b896edfc0e85"
+      "configFingerprint": "fnv1a64:55cf889c25088464"
     }
   },
   "checks": {
@@ -267,8 +267,8 @@
           "serviceId": "payswap-web-api",
           "role": "web-api",
           "versionDrift": false,
-          "previewVersion": "73a26002a220",
-          "productionVersion": "73a26002a220",
+          "previewVersion": "094797effab3",
+          "productionVersion": "094797effab3",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -276,8 +276,8 @@
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
           "versionDrift": false,
-          "previewVersion": "73a26002a220",
-          "productionVersion": "73a26002a220",
+          "previewVersion": "094797effab3",
+          "productionVersion": "094797effab3",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -285,8 +285,8 @@
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
           "versionDrift": false,
-          "previewVersion": "73a26002a220",
-          "productionVersion": "73a26002a220",
+          "previewVersion": "094797effab3",
+          "productionVersion": "094797effab3",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -294,8 +294,8 @@
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
           "versionDrift": false,
-          "previewVersion": "73a26002a220",
-          "productionVersion": "73a26002a220",
+          "previewVersion": "094797effab3",
+          "productionVersion": "094797effab3",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -303,14 +303,14 @@
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
           "versionDrift": false,
-          "previewVersion": "73a26002a220",
-          "productionVersion": "73a26002a220",
+          "previewVersion": "094797effab3",
+          "productionVersion": "094797effab3",
           "unexpectedConfigDifferences": [],
           "passed": true
         }
       ],
       "passed": true,
-      "digest": "fnv1a64:811eb891c0319bc1"
+      "digest": "fnv1a64:4987c1ca245537ff"
     },
     "secretReferenceHygiene": {
       "production": {
