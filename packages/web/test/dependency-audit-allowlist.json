@@ -320,7 +320,24 @@
         "typescript",
         "vitest"
       ]
+    },
+    "packages/onchain-domain": {
+      "dependencies": [
+        "@payswap/capabilities",
+        "@payswap/connectors",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "@payswap/settlement",
+        "typescript",
+        "vitest"
+      ]
     }
   },
-  "justifications": {}
+  "justifications": {
+    "packages/onchain-domain|dependencies|@payswap/capabilities": "P4-W1-001 onchain-domain kernel consumes the frozen capability vocabulary (SmartContractExtension INV-SC01, ProvenanceDescriptor)",
+    "packages/onchain-domain|dependencies|@payswap/connectors": "P4-W1-001 onchain-domain kernel extends the canonical CapabilityDefinition/ProviderImplementation/ConnectedCapabilityInstance/CapabilityObservation model (never redefines it)",
+    "packages/onchain-domain|dependencies|@payswap/protocol": "P4-W1-001 onchain-domain validators throw the canonical ValidationError; no Money construction (observations only)",
+    "packages/onchain-domain|devDependencies|@payswap/settlement": "P4-W1-001 test-only compiled-against check: the observation-to-rail-outcome mapping is verified against the canonical settlement attempt state machine"
+  }
 }
