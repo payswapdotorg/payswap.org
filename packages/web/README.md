@@ -54,9 +54,9 @@ the id + commit into the runtime so `/api/health` reports them honestly.
 
 - **This web surface deploys as its own Vercel project: `payswap-web`.**
 - **Vercel project settings:** Root Directory `packages/web`, framework
-  Next.js (detected). Vercel's monorepo support installs the workspace
-  dependencies at the repository root; the build runs in the root
-  directory (`next build`, the default).
+  Next.js (explicit in `vercel.json`). Vercel's monorepo support installs the
+  workspace dependencies at the repository root; the build runs in the root
+  directory (`next build --webpack`, the project's build command).
 - **The API/runtime host is a different, existing Vercel project —
   `payswap`** — and a web deployment never touches it. One authority,
   many clients: this surface reaches the API exclusively through the thin
@@ -74,6 +74,35 @@ Environment variables are referenced **by name only** — no values, tokens
 or `.env` files live in this repository. When set, the value is baked at
 build time (Next.js `NEXT_PUBLIC_*` semantics).
 
+### Health: liveness vs readiness (hardened in P3-W1-003)
+
+`/api/health` reports two distinct signals, never conflated:
+
+- **liveness** — the route answering is itself the proof the surface is
+  alive (serverless: there is no deeper process to restart);
+- **readiness** — can this deployment actually reach the authoritative API
+  runtime? When the base URL is configured, each health request performs
+  ONE bounded probe (GET `/v1/health` on the API runtime, through the thin
+  transport, timeout default 5000 ms, env var name
+  `PAYSWAP_WEB_HEALTH_PROBE_TIMEOUT_MS`). Unconfigured ⇒ readiness
+  `unknown` — UNKNOWN is not failure. Probe failure ⇒ honest `degraded`
+  (HTTP 503) with the verbatim reason — never faked success.
+
+Monitoring note: poll at most once per minute (budget posture — see the
+free-tier budget contract).
+
+### Cost posture and infrastructure contracts (P3-W1-003)
+
+The deployment's free/low-cost posture is an explicit contract:
+
+- `spec/phase-3/infrastructure/free-tier-budgets.md` — per-service budgets
+  (Vercel, Neon, Upstash, R2) with limits, hooks and alert thresholds;
+- `spec/phase-3/infrastructure/tl-live-verification.md` — the TL's ordered
+  live verification with credentials (env var names only);
+- `packages/web/test/dependency-audit.test.ts` — machine-checked: no
+  Resend/Apify, and the dependency surface of every workspace equals the
+  curated allowlist (`packages/web/test/dependency-audit-allowlist.json`).
+
 ### Deploying (one command, performed at the TL review gate)
 
 With the `payswap-web` project linked and the environment variables set
@@ -81,6 +110,17 @@ per the table above, from this directory:
 
 ```sh
 vercel --prod
+```
+
+### Rolling back
+
+Follow `spec/phase-3/infrastructure/rollback-runbook.md`: a web rollback
+is an **alias re-point to a previous immutable deployment — never a
+rebuild** — and it never touches the `payswap` API-runtime project. After
+rolling back, record it reproducibly from the repository root:
+
+```sh
+node scripts/deployment/web-release.mjs rollback <record-date> <from-deployment> <to-deployment> "<reason>" [<to-build-id>] [<to-commit>]
 ```
 
 ### Release records
@@ -96,4 +136,7 @@ independent recomputation of the source digest, and writes the
 deterministic release record to
 `spec/development-state/web-release-<date>.json` (commit SHA, build hash,
 vercel project, deployment URL placeholders, the API-runtime project
-separation). Two runs with the same inputs produce byte-identical output.
+separation). Two runs with the same inputs produce byte-identical output —
+proven by the fixture-based reproducibility test
+(`packages/web/test/infra-release-repro.test.ts`, no network), which also
+regresses the driver byte-for-byte against the record P3-W1-001 shipped.
