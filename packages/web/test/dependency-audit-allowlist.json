@@ -194,6 +194,7 @@
         "@payswap/trust"
       ],
       "devDependencies": [
+        "@payswap/security",
         "typescript",
         "vitest"
       ]
@@ -336,6 +337,7 @@
   "justifications": {
     "packages/onchain-security|dependencies|@payswap/capabilities": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
     "packages/onchain-security|dependencies|@payswap/protocol": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
-    "packages/onchain-security|dependencies|@payswap/trust": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate."
+    "packages/onchain-security|dependencies|@payswap/trust": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
+    "packages/onchain-security|devDependencies|@payswap/security": "P4-W1-002: TEST-ONLY dependency — the composition suite drives the real security immune-system machinery (epoch authority, advisory registry, quarantine ledger) to prove OnchainSecurityState projection; src/** never imports it (W2-005 boundary)."
   }
 }
