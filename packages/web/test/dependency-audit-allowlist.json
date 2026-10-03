@@ -187,6 +187,18 @@
         "vitest"
       ]
     },
+    "packages/onchain-security": {
+      "dependencies": [
+        "@payswap/capabilities",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "@payswap/security",
+        "typescript",
+        "vitest"
+      ]
+    },
     "packages/operations": {
       "dependencies": [
         "@payswap/journeys",
@@ -338,6 +350,10 @@
     "packages/onchain-domain|dependencies|@payswap/capabilities": "P4-W1-001 onchain-domain kernel consumes the frozen capability vocabulary (SmartContractExtension INV-SC01, ProvenanceDescriptor)",
     "packages/onchain-domain|dependencies|@payswap/connectors": "P4-W1-001 onchain-domain kernel extends the canonical CapabilityDefinition/ProviderImplementation/ConnectedCapabilityInstance/CapabilityObservation model (never redefines it)",
     "packages/onchain-domain|dependencies|@payswap/protocol": "P4-W1-001 onchain-domain validators throw the canonical ValidationError; no Money construction (observations only)",
-    "packages/onchain-domain|devDependencies|@payswap/settlement": "P4-W1-001 test-only compiled-against check: the observation-to-rail-outcome mapping is verified against the canonical settlement attempt state machine"
+    "packages/onchain-domain|devDependencies|@payswap/settlement": "P4-W1-001 test-only compiled-against check: the observation-to-rail-outcome mapping is verified against the canonical settlement attempt state machine",
+    "packages/onchain-security|dependencies|@payswap/capabilities": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
+    "packages/onchain-security|dependencies|@payswap/protocol": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
+    "packages/onchain-security|dependencies|@payswap/trust": "P4-W1-002 wallet/signer authorization + blockchain security kernel: consumes the protocol money/state-machine primitives, the trust authorization/mandate model it extends, and the canonical smart-contract identity declarations its gates evaluate.",
+    "packages/onchain-security|devDependencies|@payswap/security": "P4-W1-002: TEST-ONLY dependency — the composition suite drives the real security immune-system machinery (epoch authority, advisory registry, quarantine ledger) to prove OnchainSecurityState projection; src/** never imports it (W2-005 boundary)."
   }
 }

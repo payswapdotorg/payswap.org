@@ -1,0 +1,26 @@
+{
+  "name": "@payswap/onchain-security",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Wallet/Signer Authorization + Blockchain Security Kernel (Work Order P4-W1-002): the trusted-surface boundary between intent preparation and user-controlled signing — onchain authorization requests, signing requests, simulation observations (never authority), user-readable expected-state diffs, deterministic BLOCK/ALLOW/UNKNOWN security gates, pre-broadcast recheck with stale-state invalidation, attenuated/revocable/expiring scoped signing delegation, and signer adapters (EIP-712 / ERC-1271 isolated from core contracts)",
+  "exports": {
+    ".": "./src/index.ts",
+    "./adapters/eip712": "./src/adapters/eip712.ts",
+    "./adapters/erc1271": "./src/adapters/erc1271.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/protocol": "*",
+    "@payswap/trust": "*",
+    "@payswap/capabilities": "*"
+  },
+  "devDependencies": {
+    "@payswap/security": "*",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
