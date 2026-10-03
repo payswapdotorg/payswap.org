@@ -127,6 +127,8 @@ const DERIVED_IDENTIFIER_KEY_FRAGMENTS = [
   "txid",
   "transactionid",
   "blockhash",
+  "blockref", // simulation provenance: the block the simulation ran against
+  "txref",
   "calldata",
   "domainseparator",
   "salt",
