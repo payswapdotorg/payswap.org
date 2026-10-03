@@ -1,0 +1,24 @@
+{
+  "name": "@payswap/best-execution",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The venue-agnostic best-execution core (Work Order P4-W2-002): execution venues register as capability packs behind the neutral ExecutionVenue port; the core evaluates the NET EXECUTABLE ECONOMIC OUTCOME (output, fees, gas, bridge/FX cost, slippage, liquidity impact, failure/retry risk, time/finality, health, policy, security — every dimension an explicit typed input, no hidden constants) through exact integer/rational arithmetic, carries full route provenance (which venues quoted, at what freshness, through which observation), drives every candidate route through the onchain-security prepare/simulate/diff/gate stages (a security BLOCK kills a route), invalidates stale routes deterministically (mandatory quote/observation freshness), and admits the quote→executed transition ONLY through a real execution observation (finality CANDIDATE or UNKNOWN — never assumed final). Provider-native optimization remains an incumbent baseline (INV-C08/rule 20): the core never hard-codes a venue and never structurally advantages composition.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/onchain-domain": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/protocol": "*",
+    "@payswap/trust": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}

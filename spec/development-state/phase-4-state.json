@@ -22,15 +22,7 @@
    "status": "ACTIVE",
    "activated_at": "2026-10-03",
    "branch": "work/P4-W1-003",
-   "dispatch": "replay-session re-dispatch (first capacity-round chats reaped/zombied; sequenced re-run after Wave-1 kernels merged)"
-  },
-  {
-   "id": "P4-W2-001",
-   "owner": "worker-1",
-   "status": "ACTIVE",
-   "activated_at": "2026-10-03",
-   "branch": "work/P4-W2-001",
-   "dispatch": "replay-session (base c7d1cf2)"
+   "dispatch": "chat 4c0e1c11 \u2014 generating (research+contracts)"
   },
   {
    "id": "P4-W2-002",
@@ -38,29 +30,27 @@
    "status": "ACTIVE",
    "activated_at": "2026-10-03",
    "branch": "work/P4-W2-002",
-   "dispatch": "replay-session (base c7d1cf2)"
+   "dispatch": "chat ea491c2c \u2014 1.5M batch, finishing"
   }
  ],
  "completed_work_orders": [
   {
    "id": "P4-W1-001",
    "owner": "worker-1",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-03",
    "branch": "work/P4-W1-001",
-   "completed_at": "2026-10-03",
-   "dispatch": "replay-session (operator directive: in-replay dispatch only)",
-   "verification": "TL-verified at the integration station after sandbox reset #21+ recovery: branch gates re-run from clean checkout (npm install OK; workspace typecheck exit 0; package vitest 145/145; root typecheck 0 errors across all workspaces; root battery 3342/3342 = 3197 base + 145 new, 0 failed). Merged 9fdc09c. Adversarial guards (secret-field scan, EVM-leak scan, catalogue-never-authorizes, observations-not-custody, no-float-money) green; dependency-audit allowlist registered same-commit."
+   "merged": "9fdc09c"
   },
   {
    "id": "P4-W1-002",
    "owner": "worker-2",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-03",
    "branch": "work/P4-W1-002",
-   "completed_at": "2026-10-03",
-   "dispatch": "replay-session (operator directive: in-replay dispatch only)",
-   "verification": "TL-verified at the integration station after sandbox reset #21+ recovery: branch gates re-run from clean checkout (npm install OK; typecheck exit 0; root battery 3352/3352 = 3197 base + 155 new, 0 failed; verify:repo green). Merged c2ab122 after union-resolving the dependency-audit-allowlist conflict (both workspaces' entries kept, 1010 total). prepare/simulate/diff stages, deterministic BLOCK/ALLOW/UNKNOWN gates, pre-broadcast recheck with stale-state invalidation, secret-boundary negatives all green."
+   "merged": "c2ab122"
+  },
+  {
+   "id": "P4-W2-001",
+   "owner": "worker-1",
+   "branch": "work/P4-W2-001",
+   "merged": "5453ea5"
   }
  ],
  "max_concurrent_workers": 3,
