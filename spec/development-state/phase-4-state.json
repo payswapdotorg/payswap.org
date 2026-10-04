@@ -29,6 +29,16 @@
  ],
  "completed_work_orders": [
   {
+   "id": "P4-W3-002",
+   "owner": "worker-2",
+   "status": "COMPLETE",
+   "activated_at": "2026-10-04",
+   "branch": "work/P4-W3-002",
+   "completed_at": "2026-10-04",
+   "dispatch": "replay-session (operator directive: in-replay dispatch only)",
+   "verification": "TL-verified at the integration station: package onchain-opportunities 153/153 (six-family discovery model with mandated first-class fields, structural never-authorization tier, no-guaranteed-returns vocabulary law with adversarial guarantee-language scans, deterministic eligibility policy over adversarial fixtures, observation-law staleness/invalidation, agent-cannot-execute proven against the REAL W1-002 kernel validators, Lab composition harness, type-level secret-free proof, package boundary guard); root typecheck 0 errors; root battery 4115/4115 = 3962 base + 153 new, 0 failed; verify:repo green. Two-commit delivery (src checkpoint then full test battery); empty-shell cure applied at dispatch (stale workspace release + nudge + full work-order re-send). Merged 1ea9f9f. WAVE 3 COMPLETE (W3-001 + W3-002 + W3-003)."
+  },
+  {
    "id": "P4-W3-001",
    "owner": "worker-1",
    "status": "COMPLETE",
