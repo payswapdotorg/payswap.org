@@ -29,7 +29,7 @@
 
 import { ValidationError } from "@payswap/protocol";
 import { isValidChainKey } from "@payswap/onchain-domain";
-import { compareRationals, validateExactRational } from "@payswap/best-execution";
+import { compareRationals, isRationalZero, validateExactRational } from "@payswap/best-execution";
 import type { ExactRational } from "@payswap/best-execution";
 import { assertNoGuaranteeLanguage } from "./vocabulary.js";
 import { DISCOVERY_TIER } from "./discovery-tier.js";
@@ -182,6 +182,11 @@ export function deriveArbitrageComponents(
   const [legA, legB] = legs as [ArbitrageLeg, ArbitrageLeg];
   validateExactRational(legA.price);
   validateExactRational(legB.price);
+  if (isRationalZero(legA.price) || isRationalZero(legB.price)) {
+    throw new OpportunityDiscoveryError(
+      "a venue price leg of exactly zero cannot ground a price-difference estimate (a zero price is malformed evidence — fail closed, never a fabricated zero spread)",
+    );
+  }
   const comparison = compareRationals(legA.price, legB.price);
   const lower = comparison <= 0 ? legA.price : legB.price;
   const higher = comparison <= 0 ? legB.price : legA.price;
@@ -190,10 +195,10 @@ export function deriveArbitrageComponents(
     toBigint(higher) * BigInt(lower.denominator) -
     toBigint(lower) * BigInt(higher.denominator);
   const denominator = toBigint(lower) * BigInt(higher.denominator);
-  const spread: ExactRational =
-    denominator === 0n
-      ? { ...ZERO }
-      : { numerator: numerator.toString(), denominator: denominator.toString() };
+  const spread: ExactRational = {
+    numerator: numerator.toString(),
+    denominator: denominator.toString(),
+  };
   const bothLegsLiquid =
     legA.withdrawalLiquidityMinorUnits !== null &&
     legA.withdrawalLiquidityMinorUnits !== "0" &&
