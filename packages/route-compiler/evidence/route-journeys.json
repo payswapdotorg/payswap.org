@@ -1,0 +1,1351 @@
+{
+  "law": "FIXTURE_PROVEN_LIVE_BROADCAST_IMPOSSIBLE_BY_LAW",
+  "journeys": [
+    {
+      "journeyId": "journey:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp",
+      "intentRef": "intent:route-1:crypto-dex-offramp-bank",
+      "shapeId": "mixed-dex-offramp",
+      "planDigest": "fnv1a64:aa25048f4ea09b5a",
+      "compositionClass": "MIXED",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:0:ONCHAIN_DEX_SWAP",
+          "legKind": "ONCHAIN_DEX_SWAP",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "uniswap-v2",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "evidence:pool-state:pair:eth-usc",
+              "write:fnv1a64:cbab8df53406025e",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+              "asset-observation:route-obs:eth:owner:1",
+              "policy:security-policy-route-compiler@1",
+              "write:fnv1a64:cbab8df53406025e",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+              "securityState:epoch-0"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:1:ONCHAIN_TRANSFER",
+          "legKind": "ONCHAIN_TRANSFER",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "28896165684"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:9daaebecd5a2e3f1",
+              "quote:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:2:OFF_RAMP_PAYOUT",
+          "legKind": "OFF_RAMP_PAYOUT",
+          "authorizationKind": "PAYOUT_TRANSFER_OUT_GRANT",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "EUR",
+            "amount": {
+              "currency": "EUR",
+              "minorUnits": "2658447"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:psp-payouts:1@1",
+              "payout-gate:instance:psp-payouts:1"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:3:BANK_SETTLEMENT",
+          "legKind": "BANK_SETTLEMENT",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_BANK_INSTRUMENT",
+              "externalRef": "iban:DE89370400440532013000"
+            },
+            "assetRef": "EUR",
+            "amount": {
+              "currency": "EUR",
+              "minorUnits": "2658447"
+            },
+            "evidenceRefs": [
+              "settlement-destination:dest:merchant-bank-eur"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_COMPLETED_ALL_LEGS_OBSERVED",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:0:ONCHAIN_DEX_SWAP",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:1:ONCHAIN_TRANSFER",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:2:OFF_RAMP_PAYOUT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:3:BANK_SETTLEMENT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "EXTERNAL_BANK_INSTRUMENT",
+          "assetRef": "EUR"
+        }
+      },
+      "evidenceRefs": [
+        "evidence:pool-state:pair:eth-usc",
+        "write:fnv1a64:cbab8df53406025e",
+        "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+        "asset-observation:route-obs:eth:owner:1",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0",
+        "write:fnv1a64:9daaebecd5a2e3f1",
+        "quote:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+        "capability-observation:instance:psp-payouts:1@1",
+        "payout-gate:instance:psp-payouts:1",
+        "settlement-destination:dest:merchant-bank-eur"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp",
+      "intentRef": "intent:route-1:crypto-dex-offramp-bank",
+      "shapeId": "mixed-dex-offramp",
+      "planDigest": "fnv1a64:aa25048f4ea09b5a",
+      "compositionClass": "MIXED",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:0:ONCHAIN_DEX_SWAP",
+          "legKind": "ONCHAIN_DEX_SWAP",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "uniswap-v2",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "evidence:pool-state:pair:eth-usc",
+              "write:fnv1a64:cbab8df53406025e",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+              "asset-observation:route-obs:eth:owner:1",
+              "policy:security-policy-route-compiler@1",
+              "write:fnv1a64:cbab8df53406025e",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+              "securityState:epoch-0"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:1:ONCHAIN_TRANSFER",
+          "legKind": "ONCHAIN_TRANSFER",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "28896165684"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:9daaebecd5a2e3f1",
+              "quote:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:2:OFF_RAMP_PAYOUT",
+          "legKind": "OFF_RAMP_PAYOUT",
+          "authorizationKind": "PAYOUT_TRANSFER_OUT_GRANT",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "EUR",
+            "amount": {
+              "currency": "EUR",
+              "minorUnits": "2658447"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:psp-payouts:1@1",
+              "payout-gate:instance:psp-payouts:1"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:3:BANK_SETTLEMENT",
+          "legKind": "BANK_SETTLEMENT",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_BANK_INSTRUMENT",
+              "externalRef": "iban:DE89370400440532013000"
+            },
+            "assetRef": "EUR",
+            "amount": {
+              "currency": "EUR",
+              "minorUnits": "2658447"
+            },
+            "evidenceRefs": [
+              "settlement-destination:dest:merchant-bank-eur"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_REQUIRES_RECONCILIATION",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:0:ONCHAIN_DEX_SWAP",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:1:ONCHAIN_TRANSFER",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:2:OFF_RAMP_PAYOUT",
+            "status": "OUTCOME_UNKNOWN"
+          },
+          {
+            "legId": "route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:3:BANK_SETTLEMENT",
+            "status": "NOT_EXECUTED"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "EXTERNAL_PROVIDER",
+          "assetRef": "0xaaaa111111111111111111111111111111111111"
+        },
+        "reconciliation": {
+          "reasons": [
+            "leg 'route-plan:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp:leg:2:OFF_RAMP_PAYOUT' (OFF_RAMP_PAYOUT) resolved OUTCOME_UNKNOWN: injected evidence-journey fault: the provider API timed out mid-hop — UNKNOWN is an honest terminal state (INV-X01)",
+            "the value position between 'provider:psp-mock' and 'provider:psp-mock' is UNKNOWN — reconciliation resolves it; blind retry is forbidden (INV-X02)"
+          ],
+          "blindRetryForbidden": true,
+          "resolver": "SETTLEMENT_RECONCILIATION_AUTHORITY"
+        }
+      },
+      "evidenceRefs": [
+        "evidence:pool-state:pair:eth-usc",
+        "write:fnv1a64:cbab8df53406025e",
+        "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+        "asset-observation:route-obs:eth:owner:1",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0",
+        "write:fnv1a64:9daaebecd5a2e3f1",
+        "quote:uniswap-v2-quote-route-swap:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp-1790985600000",
+        "capability-observation:instance:psp-payouts:1@1",
+        "payout-gate:instance:psp-payouts:1",
+        "settlement-destination:dest:merchant-bank-eur"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp",
+      "intentRef": "intent:route-2:fiat-psp-stablecoin-chain",
+      "shapeId": "mixed-psp-onramp",
+      "planDigest": "fnv1a64:bb8c3709165ad58b",
+      "compositionClass": "MIXED",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:0:FIAT_PSP_COLLECT",
+          "legKind": "FIAT_PSP_COLLECT",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "acct-fiat-001"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock"
+            },
+            "assetRef": "EUR",
+            "amount": {
+              "currency": "EUR",
+              "minorUnits": "10000"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:native-routing:1@1"
+            ]
+          },
+          "plannedAmountBasis": "INTENT_DECLARED"
+        },
+        {
+          "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:1:PSP_STABLECOIN_ISSUANCE",
+          "legKind": "PSP_STABLECOIN_ISSUANCE",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock"
+            },
+            "to": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "stablecoin-issuer:usc",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "stablecoin-issuer:usc",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "108000000"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:native-routing:1@1",
+              "issuer:stablecoin-issuer:usc"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:2:ONCHAIN_TRANSFER",
+          "legKind": "ONCHAIN_TRANSFER",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "stablecoin-issuer:usc",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x2222222222222222222222222222222222222222",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "108000000"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:08a378b853e5b583",
+              "issuer:stablecoin-issuer:usc"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_COMPLETED_ALL_LEGS_OBSERVED",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:0:FIAT_PSP_COLLECT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:1:PSP_STABLECOIN_ISSUANCE",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:2:ONCHAIN_TRANSFER",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "ONCHAIN_WALLET",
+          "assetRef": "0xaaaa111111111111111111111111111111111111"
+        }
+      },
+      "evidenceRefs": [
+        "capability-observation:instance:native-routing:1@1",
+        "issuer:stablecoin-issuer:usc",
+        "write:fnv1a64:08a378b853e5b583",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp",
+      "intentRef": "intent:route-2:fiat-psp-stablecoin-chain",
+      "shapeId": "mixed-psp-onramp",
+      "planDigest": "fnv1a64:bb8c3709165ad58b",
+      "compositionClass": "MIXED",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:0:FIAT_PSP_COLLECT",
+          "legKind": "FIAT_PSP_COLLECT",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "acct-fiat-001"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock"
+            },
+            "assetRef": "EUR",
+            "amount": {
+              "currency": "EUR",
+              "minorUnits": "10000"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:native-routing:1@1"
+            ]
+          },
+          "plannedAmountBasis": "INTENT_DECLARED"
+        },
+        {
+          "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:1:PSP_STABLECOIN_ISSUANCE",
+          "legKind": "PSP_STABLECOIN_ISSUANCE",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock"
+            },
+            "to": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "stablecoin-issuer:usc",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "stablecoin-issuer:usc",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "108000000"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:native-routing:1@1",
+              "issuer:stablecoin-issuer:usc"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:2:ONCHAIN_TRANSFER",
+          "legKind": "ONCHAIN_TRANSFER",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "stablecoin-issuer:usc",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x2222222222222222222222222222222222222222",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "108000000"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:08a378b853e5b583",
+              "issuer:stablecoin-issuer:usc"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_REQUIRES_RECONCILIATION",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:0:FIAT_PSP_COLLECT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:1:PSP_STABLECOIN_ISSUANCE",
+            "status": "OUTCOME_UNKNOWN"
+          },
+          {
+            "legId": "route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:2:ONCHAIN_TRANSFER",
+            "status": "NOT_EXECUTED"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "EXTERNAL_PROVIDER",
+          "assetRef": "EUR"
+        },
+        "reconciliation": {
+          "reasons": [
+            "leg 'route-plan:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp:leg:1:PSP_STABLECOIN_ISSUANCE' (PSP_STABLECOIN_ISSUANCE) resolved OUTCOME_UNKNOWN: injected evidence-journey fault: the provider API timed out mid-hop — UNKNOWN is an honest terminal state (INV-X01)",
+            "the value position between 'provider:psp-mock' and 'protocol:stablecoin-issuer:usc@ethereum:mainnet' is UNKNOWN — reconciliation resolves it; blind retry is forbidden (INV-X02)"
+          ],
+          "blindRetryForbidden": true,
+          "resolver": "SETTLEMENT_RECONCILIATION_AUTHORITY"
+        }
+      },
+      "evidenceRefs": [
+        "capability-observation:instance:native-routing:1@1",
+        "issuer:stablecoin-issuer:usc",
+        "write:fnv1a64:08a378b853e5b583",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge",
+      "intentRef": "intent:route-3:chaina-dex-bridge-chainb",
+      "shapeId": "mixed-dex-bridge",
+      "planDigest": "fnv1a64:970018f15fcb509a",
+      "compositionClass": "ONCHAIN_ONLY",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:0:ONCHAIN_DEX_SWAP",
+          "legKind": "ONCHAIN_DEX_SWAP",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "uniswap-v2",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "evidence:pool-state:pair:eth-usc",
+              "write:fnv1a64:6d1bd6b4a3a18f77",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000",
+              "asset-observation:route-obs:eth:owner:1",
+              "policy:security-policy-route-compiler@1",
+              "write:fnv1a64:6d1bd6b4a3a18f77",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000",
+              "securityState:epoch-0"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:1:ONCHAIN_BRIDGE",
+          "legKind": "ONCHAIN_BRIDGE",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "solrecipient1111111111111111111111111111111",
+              "chainKey": "solana:mainnet-beta"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "native-bridge",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "28896165684"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:32b5af6a2f1fb1f5",
+              "quote:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000"
+            ]
+          },
+          "plannedAmountBasis": "UNKNOWN"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_COMPLETED_ALL_LEGS_OBSERVED",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:0:ONCHAIN_DEX_SWAP",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:1:ONCHAIN_BRIDGE",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "ONCHAIN_WALLET",
+          "assetRef": "0xaaaa111111111111111111111111111111111111"
+        }
+      },
+      "evidenceRefs": [
+        "evidence:pool-state:pair:eth-usc",
+        "write:fnv1a64:6d1bd6b4a3a18f77",
+        "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000",
+        "asset-observation:route-obs:eth:owner:1",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0",
+        "write:fnv1a64:32b5af6a2f1fb1f5",
+        "quote:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge",
+      "intentRef": "intent:route-3:chaina-dex-bridge-chainb",
+      "shapeId": "mixed-dex-bridge",
+      "planDigest": "fnv1a64:970018f15fcb509a",
+      "compositionClass": "ONCHAIN_ONLY",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:0:ONCHAIN_DEX_SWAP",
+          "legKind": "ONCHAIN_DEX_SWAP",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "uniswap-v2",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "evidence:pool-state:pair:eth-usc",
+              "write:fnv1a64:6d1bd6b4a3a18f77",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000",
+              "asset-observation:route-obs:eth:owner:1",
+              "policy:security-policy-route-compiler@1",
+              "write:fnv1a64:6d1bd6b4a3a18f77",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000",
+              "securityState:epoch-0"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:1:ONCHAIN_BRIDGE",
+          "legKind": "ONCHAIN_BRIDGE",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "solrecipient1111111111111111111111111111111",
+              "chainKey": "solana:mainnet-beta"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "native-bridge",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "28896165684"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:32b5af6a2f1fb1f5",
+              "quote:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000"
+            ]
+          },
+          "plannedAmountBasis": "UNKNOWN"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_REQUIRES_RECONCILIATION",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:0:ONCHAIN_DEX_SWAP",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:1:ONCHAIN_BRIDGE",
+            "status": "OUTCOME_UNKNOWN"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "ONCHAIN_WALLET",
+          "assetRef": "0xbbbb222222222222222222222222222222222222"
+        },
+        "reconciliation": {
+          "reasons": [
+            "leg 'route-plan:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge:leg:1:ONCHAIN_BRIDGE' (ONCHAIN_BRIDGE) resolved OUTCOME_UNKNOWN: injected evidence-journey fault: the receipt became ambiguous after a reorg — UNKNOWN is an honest terminal state (INV-X01)",
+            "the value position between 'wallet:0x1111111111111111111111111111111111111111' and 'wallet:solrecipient1111111111111111111111111111111' is UNKNOWN — reconciliation resolves it; blind retry is forbidden (INV-X02)"
+          ],
+          "blindRetryForbidden": true,
+          "resolver": "SETTLEMENT_RECONCILIATION_AUTHORITY"
+        }
+      },
+      "evidenceRefs": [
+        "evidence:pool-state:pair:eth-usc",
+        "write:fnv1a64:6d1bd6b4a3a18f77",
+        "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000",
+        "asset-observation:route-obs:eth:owner:1",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0",
+        "write:fnv1a64:32b5af6a2f1fb1f5",
+        "quote:uniswap-v2-quote-route-swap:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge-1790985600000"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route",
+      "intentRef": "intent:route-4:eligible-crypto-stripe-settlement",
+      "shapeId": "stripe-external-payswap-route",
+      "planDigest": "fnv1a64:00bd0f6c80e401f9",
+      "compositionClass": "MIXED",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:0:ONCHAIN_DEX_SWAP",
+          "legKind": "ONCHAIN_DEX_SWAP",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "uniswap-v2",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "evidence:pool-state:pair:eth-usc",
+              "write:fnv1a64:fba2f75401b0e2e5",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+              "asset-observation:route-obs:eth:owner:1",
+              "policy:security-policy-route-compiler@1",
+              "write:fnv1a64:fba2f75401b0e2e5",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+              "securityState:epoch-0"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:1:ONCHAIN_TRANSFER",
+          "legKind": "ONCHAIN_TRANSFER",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "28896165684"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:6fed6eb1d2e86b15",
+              "quote:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:2:OFF_RAMP_PAYOUT",
+          "legKind": "OFF_RAMP_PAYOUT",
+          "authorizationKind": "PAYOUT_TRANSFER_OUT_GRANT",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "USD",
+            "amount": {
+              "currency": "USD",
+              "minorUnits": "2889616"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:psp-payouts:1@1",
+              "payout-gate:instance:psp-payouts:1"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:3:BANK_SETTLEMENT",
+          "legKind": "BANK_SETTLEMENT",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_BANK_INSTRUMENT",
+              "externalRef": "iban:DE89370400440532013000"
+            },
+            "assetRef": "USD",
+            "amount": {
+              "currency": "USD",
+              "minorUnits": "2889616"
+            },
+            "evidenceRefs": [
+              "settlement-destination:dest:merchant-bank-eur"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_COMPLETED_ALL_LEGS_OBSERVED",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:0:ONCHAIN_DEX_SWAP",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:1:ONCHAIN_TRANSFER",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:2:OFF_RAMP_PAYOUT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:3:BANK_SETTLEMENT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "EXTERNAL_BANK_INSTRUMENT",
+          "assetRef": "USD"
+        }
+      },
+      "evidenceRefs": [
+        "evidence:pool-state:pair:eth-usc",
+        "write:fnv1a64:fba2f75401b0e2e5",
+        "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+        "asset-observation:route-obs:eth:owner:1",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0",
+        "write:fnv1a64:6fed6eb1d2e86b15",
+        "quote:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+        "capability-observation:instance:psp-payouts:1@1",
+        "payout-gate:instance:psp-payouts:1",
+        "settlement-destination:dest:merchant-bank-eur"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route",
+      "intentRef": "intent:route-4:eligible-crypto-stripe-settlement",
+      "shapeId": "stripe-external-payswap-route",
+      "planDigest": "fnv1a64:00bd0f6c80e401f9",
+      "compositionClass": "MIXED",
+      "executionMode": "OPTIMIZED_MULTI_PROVIDER",
+      "isProviderNativeBaseline": false,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:0:ONCHAIN_DEX_SWAP",
+          "legKind": "ONCHAIN_DEX_SWAP",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "via": {
+              "kind": "ONCHAIN_PROTOCOL",
+              "protocolKey": "uniswap-v2",
+              "chainKey": "ethereum:mainnet"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "evidence:pool-state:pair:eth-usc",
+              "write:fnv1a64:fba2f75401b0e2e5",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+              "asset-observation:route-obs:eth:owner:1",
+              "policy:security-policy-route-compiler@1",
+              "write:fnv1a64:fba2f75401b0e2e5",
+              "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+              "securityState:epoch-0"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:1:ONCHAIN_TRANSFER",
+          "legKind": "ONCHAIN_TRANSFER",
+          "authorizationKind": "ONCHAIN_GATE_DECISION",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "0xaaaa111111111111111111111111111111111111",
+            "amount": {
+              "currency": "USC",
+              "minorUnits": "28896165684"
+            },
+            "evidenceRefs": [
+              "write:fnv1a64:6fed6eb1d2e86b15",
+              "quote:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000"
+            ]
+          },
+          "plannedAmountBasis": "QUOTE_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:2:OFF_RAMP_PAYOUT",
+          "legKind": "OFF_RAMP_PAYOUT",
+          "authorizationKind": "PAYOUT_TRANSFER_OUT_GRANT",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "assetRef": "USD",
+            "amount": {
+              "currency": "USD",
+              "minorUnits": "2889616"
+            },
+            "evidenceRefs": [
+              "capability-observation:instance:psp-payouts:1@1",
+              "payout-gate:instance:psp-payouts:1"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        },
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:3:BANK_SETTLEMENT",
+          "legKind": "BANK_SETTLEMENT",
+          "authorizationKind": "INTENT_AUTHORIZATION_ONLY",
+          "custody": {
+            "from": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "psp-mock",
+              "accountRef": "0x5555555555555555555555555555555555555555"
+            },
+            "to": {
+              "kind": "EXTERNAL_BANK_INSTRUMENT",
+              "externalRef": "iban:DE89370400440532013000"
+            },
+            "assetRef": "USD",
+            "amount": {
+              "currency": "USD",
+              "minorUnits": "2889616"
+            },
+            "evidenceRefs": [
+              "settlement-destination:dest:merchant-bank-eur"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_REQUIRES_RECONCILIATION",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:0:ONCHAIN_DEX_SWAP",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:1:ONCHAIN_TRANSFER",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          },
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:2:OFF_RAMP_PAYOUT",
+            "status": "OUTCOME_UNKNOWN"
+          },
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:3:BANK_SETTLEMENT",
+            "status": "NOT_EXECUTED"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "EXTERNAL_PROVIDER",
+          "assetRef": "0xaaaa111111111111111111111111111111111111"
+        },
+        "reconciliation": {
+          "reasons": [
+            "leg 'route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route:leg:2:OFF_RAMP_PAYOUT' (OFF_RAMP_PAYOUT) resolved OUTCOME_UNKNOWN: injected evidence-journey fault: the provider API timed out mid-hop — UNKNOWN is an honest terminal state (INV-X01)",
+            "the value position between 'provider:psp-mock' and 'provider:psp-mock' is UNKNOWN — reconciliation resolves it; blind retry is forbidden (INV-X02)"
+          ],
+          "blindRetryForbidden": true,
+          "resolver": "SETTLEMENT_RECONCILIATION_AUTHORITY"
+        }
+      },
+      "evidenceRefs": [
+        "evidence:pool-state:pair:eth-usc",
+        "write:fnv1a64:fba2f75401b0e2e5",
+        "simulation:sim:uniswap-v2:write:uniswap-v2:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+        "asset-observation:route-obs:eth:owner:1",
+        "policy:security-policy-route-compiler@1",
+        "securityState:epoch-0",
+        "write:fnv1a64:6fed6eb1d2e86b15",
+        "quote:uniswap-v2-quote-route-swap:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route-1790985600000",
+        "capability-observation:instance:psp-payouts:1@1",
+        "payout-gate:instance:psp-payouts:1",
+        "settlement-destination:dest:merchant-bank-eur"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement",
+      "intentRef": "intent:route-4:eligible-crypto-stripe-settlement",
+      "shapeId": "stripe-native-crypto-settlement",
+      "planDigest": "fnv1a64:f491638f4ca90888",
+      "compositionClass": "MIXED",
+      "executionMode": "PASS_THROUGH_NATIVE",
+      "isProviderNativeBaseline": true,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement:leg:0:STRIPE_CRYPTO_SETTLEMENT",
+          "legKind": "STRIPE_CRYPTO_SETTLEMENT",
+          "authorizationKind": "PROVIDER_VERIFIED_STRIPE_ELIGIBILITY",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "STRIPE_MERCHANT_BALANCE",
+              "stripeAccountRef": "acct-stripe-merchant-001"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "stripe"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "stripe-eligibility:stripe-eligibility:001"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_COMPLETED_ALL_LEGS_OBSERVED",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement:leg:0:STRIPE_CRYPTO_SETTLEMENT",
+            "status": "OBSERVED_FINALITY_CANDIDATE"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "STRIPE_MERCHANT_BALANCE",
+          "assetRef": "0xbbbb222222222222222222222222222222222222"
+        }
+      },
+      "evidenceRefs": [
+        "stripe-eligibility:stripe-eligibility:001"
+      ]
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement",
+      "intentRef": "intent:route-4:eligible-crypto-stripe-settlement",
+      "shapeId": "stripe-native-crypto-settlement",
+      "planDigest": "fnv1a64:f491638f4ca90888",
+      "compositionClass": "MIXED",
+      "executionMode": "PASS_THROUGH_NATIVE",
+      "isProviderNativeBaseline": true,
+      "legs": [
+        {
+          "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement:leg:0:STRIPE_CRYPTO_SETTLEMENT",
+          "legKind": "STRIPE_CRYPTO_SETTLEMENT",
+          "authorizationKind": "PROVIDER_VERIFIED_STRIPE_ELIGIBILITY",
+          "custody": {
+            "from": {
+              "kind": "ONCHAIN_WALLET",
+              "accountRef": "0x1111111111111111111111111111111111111111",
+              "chainKey": "ethereum:mainnet"
+            },
+            "to": {
+              "kind": "STRIPE_MERCHANT_BALANCE",
+              "stripeAccountRef": "acct-stripe-merchant-001"
+            },
+            "via": {
+              "kind": "EXTERNAL_PROVIDER",
+              "providerName": "stripe"
+            },
+            "assetRef": "0xbbbb222222222222222222222222222222222222",
+            "amount": {
+              "currency": "ETH",
+              "minorUnits": "10000000000000000"
+            },
+            "evidenceRefs": [
+              "stripe-eligibility:stripe-eligibility:001"
+            ]
+          },
+          "plannedAmountBasis": "CONVERSION_GROUNDED"
+        }
+      ],
+      "outcome": {
+        "status": "ROUTE_REQUIRES_RECONCILIATION",
+        "legStatuses": [
+          {
+            "legId": "route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement:leg:0:STRIPE_CRYPTO_SETTLEMENT",
+            "status": "OUTCOME_UNKNOWN"
+          }
+        ],
+        "custodyAtStop": {
+          "partyKind": "ONCHAIN_WALLET",
+          "assetRef": "0xbbbb222222222222222222222222222222222222"
+        },
+        "reconciliation": {
+          "reasons": [
+            "leg 'route-plan:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement:leg:0:STRIPE_CRYPTO_SETTLEMENT' (STRIPE_CRYPTO_SETTLEMENT) resolved OUTCOME_UNKNOWN: injected evidence-journey fault: the provider verification endpoint was unreachable — UNKNOWN is an honest terminal state (INV-X01)",
+            "the value position between 'wallet:0x1111111111111111111111111111111111111111' and 'stripe-balance:acct-stripe-merchant-001' is UNKNOWN — reconciliation resolves it; blind retry is forbidden (INV-X02)"
+          ],
+          "blindRetryForbidden": true,
+          "resolver": "SETTLEMENT_RECONCILIATION_AUTHORITY"
+        }
+      },
+      "evidenceRefs": [
+        "stripe-eligibility:stripe-eligibility:001"
+      ]
+    }
+  ],
+  "digests": [
+    {
+      "journeyId": "journey:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp",
+      "digest": "fnv1a64:4a12d8e5f61c7fc2"
+    },
+    {
+      "journeyId": "journey:intent:route-1:crypto-dex-offramp-bank:mixed-dex-offramp",
+      "digest": "fnv1a64:e82a9306be856276"
+    },
+    {
+      "journeyId": "journey:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp",
+      "digest": "fnv1a64:758f257e2cbbe875"
+    },
+    {
+      "journeyId": "journey:intent:route-2:fiat-psp-stablecoin-chain:mixed-psp-onramp",
+      "digest": "fnv1a64:8e0083d0c2082a33"
+    },
+    {
+      "journeyId": "journey:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge",
+      "digest": "fnv1a64:25b6f1320bb7b05b"
+    },
+    {
+      "journeyId": "journey:intent:route-3:chaina-dex-bridge-chainb:mixed-dex-bridge",
+      "digest": "fnv1a64:f5f0afd862bd8c0a"
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route",
+      "digest": "fnv1a64:eca9edf55c4dcc81"
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-external-payswap-route",
+      "digest": "fnv1a64:2c4fa9dc9a81bafd"
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement",
+      "digest": "fnv1a64:8dc6e7edd03cee32"
+    },
+    {
+      "journeyId": "journey:intent:route-4:eligible-crypto-stripe-settlement:stripe-native-crypto-settlement",
+      "digest": "fnv1a64:8d2dd5afc0c36507"
+    }
+  ]
+}
