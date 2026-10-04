@@ -15,7 +15,6 @@
   "status": "BLOCKED_UNTIL_COMPLETE"
  },
  "frontier": [
-  "W3-001",
   "W3-002"
  ],
  "active_work_orders": [
@@ -119,5 +118,5 @@
  },
  "historical_phase_records_immutable": true,
  "do_not_redispatch_without_state_update": true,
- "phase_4_status": "WAVE 1 DISPATCHED 2026-10-03 -- P4-W1-001 (onchain domain/capability kernel) + P4-W1-002 (wallet/signer authorization + security kernel) ACTIVE as replay sessions (platform window degraded tonight: turns die in thinking \u2014 the TL watchdog/kick protocol keeps them advancing; harvest via the hardened delivery protocol). P4-W1-003 (merchant crypto contracts + Stripe UX research) WAITS for the interactive research window: the operator personally completes Google/Stripe auth through the replay's live mirror (zero credential exposure to the worker \u2014 the operator's 22-section directive). Base 5b7811f."
+ "phase_4_status": "WAVE 3 2/3 COMPLETE (reset-6 epoch, 2026-10-04) -- merged: W1-001, W1-002, W2-001, W2-002, W3-001 (801b4bb, cross-verified at two independent stations: mixed-rail 71/71, battery 3962/3962 = 3891 base + 71, typecheck 0, verify:repo green), W3-003. Frontier: W3-002 (onchain FinancialOpportunity, packages/onchain-opportunity) -- dispatching via the console-TL. P4-W1-003 ACTIVE server-side on chat 4c0e1c11 (Stripe UX research + merchant crypto contracts; Phase-2 operator interactive window pending). W4-001 waits on W3-002; W2-003 waits on W1-003; W4-002 on W1-003+W2-003+W4-001; W4-003 terminal."
 }
