@@ -1,0 +1,30 @@
+{
+  "name": "@payswap/mixed-rail",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reality Engineering Lab mixed-rail extension (Work Order P4-W3-001): kernel-grounded onchain-lane machinery so certified onchain capabilities participate in the Lab's Organization/Strategy/Capability search and simulation — lanes are discovered through the REAL best-execution engine (venue port, prepare/simulate/gate stages), executed by a deterministic fault-injectable observation walk that maps through the canonical onchain-domain settlement vocabulary, and every result carries a STRUCTURAL non-production tier the onchain-adapters TestnetNeverProduction pattern inspires (branded, fail-closed, always rejected for financial settlement); src/** composes only the merged Wave 1/2 kernels and never imports the Lab runtime (INV-L01: the Lab model itself is driven from the test layer, like every other Lab consumer)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/best-execution": "*",
+    "@payswap/onchain-adapters": "*",
+    "@payswap/onchain-domain": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/onchain-venues": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "@payswap/agents": "*",
+    "@payswap/capabilities": "*",
+    "@payswap/connectors": "*",
+    "@payswap/lab": "*",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
