@@ -416,6 +416,21 @@
         "typescript",
         "vitest"
       ]
+    },
+    "packages/onchain-opportunities": {
+      "dependencies": [
+        "@payswap/best-execution",
+        "@payswap/onchain-domain",
+        "@payswap/onchain-security",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "@payswap/agents",
+        "@payswap/connectors",
+        "@payswap/lab",
+        "typescript",
+        "vitest"
+      ]
     }
   },
   "justifications": {
@@ -458,6 +473,13 @@
     "packages/mixed-rail|devDependencies|@payswap/agents": "P4-W3-001: TEST-ONLY — candidate composition fixtures use the canonical VersionedRef<AgentBody>/AgentPrincipalRef inputs the Lab composer consumes; src/** never imports it",
     "packages/mixed-rail|devDependencies|@payswap/capabilities": "P4-W3-001: TEST-ONLY — fixtures construct the real CapabilityState/SmartContractExtension/CertificationRecord shapes for search blocks and venue write planning; src/** never imports it",
     "packages/mixed-rail|devDependencies|@payswap/connectors": "P4-W3-001: TEST-ONLY — fiat-lane fixtures use the canonical CapabilityDefinition/ConnectedCapabilityInstance/CapabilityObservation shapes driven through the Lab search; src/** never imports it",
-    "packages/mixed-rail|devDependencies|@payswap/lab": "P4-W3-001: TEST-ONLY (INV-L01 repo law: no other package's src imports the Lab runtime) — the mixed-rail harness composes candidates, programs, domain packs, search plug-ins and simulations through the REAL Lab model from the test layer"
+    "packages/mixed-rail|devDependencies|@payswap/lab": "P4-W3-001: TEST-ONLY (INV-L01 repo law: no other package's src imports the Lab runtime) — the mixed-rail harness composes candidates, programs, domain packs, search plug-ins and simulations through the REAL Lab model from the test layer",
+    "packages/onchain-opportunities|dependencies|@payswap/best-execution": "P4-W3-002 onchain FinancialOpportunity discovery: the exact rational arithmetic (ExactRational, compareRationals) and the deterministic quote-staleness law (validateQuoteFreshness/isQuoteStale semantics) are consumed as-is for expected-return estimates, bounds, fee fractions and evidence freshness — no parallel exact-math or staleness vocabulary is defined (W2-002 owns it)",
+    "packages/onchain-opportunities|dependencies|@payswap/onchain-domain": "P4-W3-002 onchain FinancialOpportunity discovery: the canonical chain-key/asset-ref vocabulary and the observation-law discipline (mandatory freshness, provenance, observer identity — INV-C09/rule 21) are consumed as-is; opportunities are observations, never custody and never balances",
+    "packages/onchain-opportunities|dependencies|@payswap/onchain-security": "P4-W3-002 onchain FinancialOpportunity discovery: the never-authorization law is PROVEN against the REAL W1-002 kernel validators in tests (prepareWrite rejects opportunities as write requests; validateAssetObservation/recordSimulation reject them as observations; the type-level secret-free proof extends to every agent-facing contract) — the kernel owns the only route to execution, never this package",
+    "packages/onchain-opportunities|dependencies|@payswap/protocol": "P4-W3-002 onchain FinancialOpportunity discovery: canonical ValidationError-based fail-closed validation for the opportunity model, discovery inputs and the vocabulary law",
+    "packages/onchain-opportunities|devDependencies|@payswap/agents": "P4-W3-002: TEST-ONLY — the Lab composition harness composes a candidate organization through the REAL Lab composer with the canonical VersionedRef<AgentBody>/AgentPrincipalRef inputs; src/** never imports it",
+    "packages/onchain-opportunities|devDependencies|@payswap/connectors": "P4-W3-002: TEST-ONLY — the Lab composition harness compiles the family capability descriptors into REAL CapabilityDefinition shapes for the Lab search index (INV-C05: catalogue entries never yield executable blocks); src/** never imports it",
+    "packages/onchain-opportunities|devDependencies|@payswap/lab": "P4-W3-002: TEST-ONLY (INV-L01 repo law: no other package's src imports the Lab runtime) — the opportunity Lab harness drives the REAL Lab search index, search plug-in registry and candidate composer from the test layer, proving families register as searchable capabilities and the never-production-execution law extends to discovery results"
   }
 }

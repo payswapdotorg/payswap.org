@@ -1,0 +1,27 @@
+{
+  "name": "@payswap/onchain-opportunities",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-backed onchain FinancialOpportunity discovery (Work Order P4-W3-002): liquidity/lending/staking/incentives/arbitrage/other opportunity families observed through adapter-sourced evidence chains with mandatory freshness, provenance and observer identity (the onchain-domain observation law), every opportunity exposing capital required, expected-return ESTIMATE with explicit uncertainty bounds (exact rationals, never a claim — the no-guaranteed-returns vocabulary law is enforced at construction), liquidity, fees, exit path, lock-up, smart-contract risk, oracle/bridge risk, maximum-loss bound WHERE KNOWABLE (UNKNOWN is honest when not knowable) and policy eligibility; discovery is STRUCTURALLY never authorization (a branded non-execution tier — the only route to execution stays the W1-002 kernel prepare/simulate/policy/authorize/pre-broadcast-recheck path) and opportunity families register as Lab-searchable capabilities from the test layer (INV-L01) with the never-production-execution law extended to discovery results",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/best-execution": "*",
+    "@payswap/onchain-domain": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/protocol": "*"
+  },
+  "devDependencies": {
+    "@payswap/agents": "*",
+    "@payswap/connectors": "*",
+    "@payswap/lab": "*",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
