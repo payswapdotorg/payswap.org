@@ -1,142 +1,153 @@
 {
- "schema_version": "1.0",
- "phase": "4",
- "name": "universal-money-interface-and-onchain-capability-plane",
- "date": "2026-10-02",
- "architecture_version": "1.6-frozen-2026-10-02",
- "source_of_truth": "repository",
- "prerequisite": {
-  "phase": "3",
-  "required": [
-   "P3-W1-003",
-   "P3-W2-003",
-   "P3-W3-003"
+  "schema_version": "1.0",
+  "phase": "4",
+  "name": "universal-money-interface-and-onchain-capability-plane",
+  "date": "2026-10-02",
+  "architecture_version": "1.6-frozen-2026-10-02",
+  "source_of_truth": "repository",
+  "prerequisite": {
+    "phase": "3",
+    "required": [
+      "P3-W1-003",
+      "P3-W2-003",
+      "P3-W3-003"
+    ],
+    "status": "BLOCKED_UNTIL_COMPLETE"
+  },
+  "frontier": [
+    "W2-003",
+    "W1-003-PHASE-2"
   ],
-  "status": "BLOCKED_UNTIL_COMPLETE"
- },
- "frontier": [
-  "W3-002"
- ],
- "active_work_orders": [
-  {
-   "id": "P4-W1-003",
-   "owner": "worker-3",
-   "status": "ACTIVE",
-   "activated_at": "2026-10-03",
-   "branch": "work/P4-W1-003",
-   "dispatch": "chat 4c0e1c11 \u2014 generating (research+contracts)"
-  }
- ],
- "completed_work_orders": [
-  {
-   "id": "P4-W4-001",
-   "owner": "worker-1",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-04",
-   "branch": "work/P4-W4-001",
-   "completed_at": "2026-10-04",
-   "dispatch": "replay-session (operator directive: in-replay dispatch only)",
-   "verification": "TL-verified at the integration station: package route-compiler 165/165 (four representative routes through the REAL kernels: crypto\u2192DEX\u2192stable\u2192off-ramp\u2192bank; fiat\u2192PSP\u2192stablecoin\u2192chain\u2192recipient; chainA\u2192DEX\u2192bridge\u2192chainB; eligible crypto\u2192Stripe crypto settlement Mode A + honest Mode B unavailability notice; deterministic route-plan tests; failure injection at every leg with UNKNOWN/reconciliation preserved; custody-continuity adversarial suite; kernel-composition proof; fixture-proven journey evidence); root typecheck 0 errors; root battery 4280/4280 = 4115 base + 165 new, 0 failed; verify:repo green. Two-commit delivery (src then full test battery). Merged fffbdfe."
+  "active_work_orders": [
+    {
+      "id": "P4-W2-003",
+      "owner": "worker-3",
+      "status": "ACTIVE",
+      "activated_at": "2026-10-04",
+      "branch": "work/P4-W2-003",
+      "dispatch": "replay-session (operator directive: in-replay dispatch only)"
+    }
+  ],
+  "completed_work_orders": [
+    {
+      "id": "P4-W1-003",
+      "owner": "worker-3",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-03",
+      "branch": "work/P4-W1-003",
+      "completed_at": "2026-10-04",
+      "dispatch": "replay-session (operator directive: in-replay dispatch only)",
+      "verification": "TL-verified at the sandbox station: package merchant-crypto 191/191 (typed crypto acceptance policy; quotes observations-not-custody with exact cross-multiplication and expiry-at-boundary; intent/attempt protocol machines with OUTCOME_UNKNOWN non-terminal, terminal monotonicity, blind-retry forbidden; settlement route families NATIVE_STRIPE_CRYPTO vs EXTERNAL_PAYSWAP_CONVERSION discriminated by literal routeFamily with disjoint fields both directions; provider-verified effects only via constructor-set flags; empty-evidence synthetic-balance prohibition; catalogue-never-authorizes via connected-instance authority; adversarial + boundary suites); root typecheck 0 errors (27 workspaces); root battery 4471/4471 = 4280 base + 191 new, 0 failed; verify:repo green; REV-1 ten invariant checks PASS. Delivery recovered verbatim from the platform transcripts (18 agents, 105 write/edit calls) after the delivery agent died mid-push (completions edge-block casualty); tree-identical push (49f48a79) \u2014 classic PAT was revoked, landed via the Composio payswapdotorg connection. 21 sanitized Stripe UX research docs (Phase 1 public surfaces; Phase 2 authenticated dashboard survey runs in the operator window). Merged bf1c5a8."
+    },
+    {
+      "id": "P4-W4-001",
+      "owner": "worker-1",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-04",
+      "branch": "work/P4-W4-001",
+      "completed_at": "2026-10-04",
+      "dispatch": "replay-session (operator directive: in-replay dispatch only)",
+      "verification": "TL-verified at the integration station: package route-compiler 165/165 (four representative routes through the REAL kernels: crypto\u2192DEX\u2192stable\u2192off-ramp\u2192bank; fiat\u2192PSP\u2192stablecoin\u2192chain\u2192recipient; chainA\u2192DEX\u2192bridge\u2192chainB; eligible crypto\u2192Stripe crypto settlement Mode A + honest Mode B unavailability notice; deterministic route-plan tests; failure injection at every leg with UNKNOWN/reconciliation preserved; custody-continuity adversarial suite; kernel-composition proof; fixture-proven journey evidence); root typecheck 0 errors; root battery 4280/4280 = 4115 base + 165 new, 0 failed; verify:repo green. Two-commit delivery (src then full test battery). Merged fffbdfe."
+    },
+    {
+      "id": "P4-W3-002",
+      "owner": "worker-2",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-04",
+      "branch": "work/P4-W3-002",
+      "completed_at": "2026-10-04",
+      "dispatch": "replay-session (operator directive: in-replay dispatch only)",
+      "verification": "TL-verified at the integration station: package onchain-opportunities 153/153 (six-family discovery model with mandated first-class fields, structural never-authorization tier, no-guaranteed-returns vocabulary law with adversarial guarantee-language scans, deterministic eligibility policy over adversarial fixtures, observation-law staleness/invalidation, agent-cannot-execute proven against the REAL W1-002 kernel validators, Lab composition harness, type-level secret-free proof, package boundary guard); root typecheck 0 errors; root battery 4115/4115 = 3962 base + 153 new, 0 failed; verify:repo green. Two-commit delivery (src checkpoint then full test battery); empty-shell cure applied at dispatch (stale workspace release + nudge + full work-order re-send). Merged 1ea9f9f. WAVE 3 COMPLETE (W3-001 + W3-002 + W3-003)."
+    },
+    {
+      "id": "P4-W3-001",
+      "owner": "worker-1",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-03",
+      "branch": "work/P4-W3-001",
+      "completed_at": "2026-10-04",
+      "dispatch": "replay-session (operator directive: in-replay dispatch only)",
+      "verification": "TL-verified at the integration station: package mixed-rail 71/71 (kernel-grounded onchain lanes, three org classes fiat-only/onchain/mixed, structural non-production tier, fault/UNKNOWN walk, exact evidence); root typecheck 0 errors; root battery 3962/3962 = 3891 base + 71 new, 0 failed; verify:repo green. Recovery notes: the original dispatch's work-order message never entered the model context (empty-shell turn + queued-capacity); cured by releasing 3 stale completed-worker workspaces (sandbox slots were full) + nudge + full work-order re-send into the live turn; the session rolled to chat c9c15698 mid-run with context preserved. Merged 801b4bb."
+    },
+    {
+      "id": "P4-W1-001",
+      "owner": "worker-1",
+      "branch": "work/P4-W1-001",
+      "merged": "9fdc09c"
+    },
+    {
+      "id": "P4-W1-002",
+      "owner": "worker-2",
+      "branch": "work/P4-W1-002",
+      "merged": "c2ab122"
+    },
+    {
+      "id": "P4-W2-001",
+      "owner": "worker-1",
+      "branch": "work/P4-W2-001",
+      "merged": "5453ea5"
+    },
+    {
+      "id": "P4-W2-002",
+      "owner": "worker-2 (parallel lane, chat ea491c2c)",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-03",
+      "branch": "work/P4-W2-002",
+      "completed_at": "2026-10-03",
+      "verification": "TL-verified at THIS station after the worker pushed f0c09e3 to origin: typecheck exit 0; kernel+venues package suites green (onchain-domain/onchain-security/onchain-venues); full workspace battery exit 0; verify:repo passed. Merged 62454ac by the console-TL (origin coordination: the delivery branch carried packages/onchain-venues \u2014 venue-agnostic best-execution core + Uniswap/aggregator/intent extension packs, 40 files / 9413 insertions). The console-TL's own parallel venues lane (superseded/console-P4-W2-002) was stood down as redundant."
+    },
+    {
+      "id": "P4-W3-003",
+      "owner": "worker (parallel lane, base 66d0835)",
+      "status": "COMPLETE",
+      "activated_at": "2026-10-03",
+      "branch": "work/P4-W3-003",
+      "completed_at": "2026-10-03",
+      "verification": "TL-verified at this station: typecheck exit 0; onchain-threat-intel + kernel suites green; full battery exit 0; verify:repo passed. Merged from the worker's pushed branch f185190 (packages/onchain-threat-intel, 30 files / 8143 insertions)."
+    }
+  ],
+  "max_concurrent_workers": 3,
+  "policy": {
+    "pairwise_disjoint": true,
+    "blockchain_is_one_settlement_rail_family": true,
+    "no_parallel_crypto_ledger": true,
+    "no_parallel_financial_authority": true,
+    "raw_secrets_never_agent": true,
+    "simulation_before_supported_consequential_write": true,
+    "pre_broadcast_recheck": true,
+    "security_agent_cannot_override_block": true,
+    "unknown_not_failed": true,
+    "external_balances_are_observations": true,
+    "provider_catalogue_never_authorizes": true,
+    "provider_native_baseline_preserved": true,
+    "stripe_effects_must_be_provider_verified": true,
+    "stripe_ux_research_user_assisted_auth": true
   },
-  {
-   "id": "P4-W3-002",
-   "owner": "worker-2",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-04",
-   "branch": "work/P4-W3-002",
-   "completed_at": "2026-10-04",
-   "dispatch": "replay-session (operator directive: in-replay dispatch only)",
-   "verification": "TL-verified at the integration station: package onchain-opportunities 153/153 (six-family discovery model with mandated first-class fields, structural never-authorization tier, no-guaranteed-returns vocabulary law with adversarial guarantee-language scans, deterministic eligibility policy over adversarial fixtures, observation-law staleness/invalidation, agent-cannot-execute proven against the REAL W1-002 kernel validators, Lab composition harness, type-level secret-free proof, package boundary guard); root typecheck 0 errors; root battery 4115/4115 = 3962 base + 153 new, 0 failed; verify:repo green. Two-commit delivery (src checkpoint then full test battery); empty-shell cure applied at dispatch (stale workspace release + nudge + full work-order re-send). Merged 1ea9f9f. WAVE 3 COMPLETE (W3-001 + W3-002 + W3-003)."
+  "gates": [
+    "phase3_complete",
+    "onchain_domain_certified",
+    "wallet_signer_authorization_certified",
+    "multi_chain_execution_evidence",
+    "multi_venue_execution_evidence",
+    "merchant_crypto_payment_evidence",
+    "eligible_stripe_settlement_evidence",
+    "lab_mixed_rail_evidence",
+    "onchain_opportunity_evidence",
+    "adversarial_blocking_evidence",
+    "mixed_fiat_onchain_route_evidence",
+    "stripe_dashboard_ux_research_recorded",
+    "responsive_accessible_ux_certified",
+    "production_browser_verification",
+    "production_release_reproducible",
+    "rollback_verified"
+  ],
+  "waves": {
+    "wave_1": "BLOCKED_ON_PHASE_3",
+    "wave_2": "BLOCKED",
+    "wave_3": "BLOCKED",
+    "wave_4": "BLOCKED"
   },
-  {
-   "id": "P4-W3-001",
-   "owner": "worker-1",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-03",
-   "branch": "work/P4-W3-001",
-   "completed_at": "2026-10-04",
-   "dispatch": "replay-session (operator directive: in-replay dispatch only)",
-   "verification": "TL-verified at the integration station: package mixed-rail 71/71 (kernel-grounded onchain lanes, three org classes fiat-only/onchain/mixed, structural non-production tier, fault/UNKNOWN walk, exact evidence); root typecheck 0 errors; root battery 3962/3962 = 3891 base + 71 new, 0 failed; verify:repo green. Recovery notes: the original dispatch's work-order message never entered the model context (empty-shell turn + queued-capacity); cured by releasing 3 stale completed-worker workspaces (sandbox slots were full) + nudge + full work-order re-send into the live turn; the session rolled to chat c9c15698 mid-run with context preserved. Merged 801b4bb."
-  },
-  {
-   "id": "P4-W1-001",
-   "owner": "worker-1",
-   "branch": "work/P4-W1-001",
-   "merged": "9fdc09c"
-  },
-  {
-   "id": "P4-W1-002",
-   "owner": "worker-2",
-   "branch": "work/P4-W1-002",
-   "merged": "c2ab122"
-  },
-  {
-   "id": "P4-W2-001",
-   "owner": "worker-1",
-   "branch": "work/P4-W2-001",
-   "merged": "5453ea5"
-  },
-  {
-   "id": "P4-W2-002",
-   "owner": "worker-2 (parallel lane, chat ea491c2c)",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-03",
-   "branch": "work/P4-W2-002",
-   "completed_at": "2026-10-03",
-   "verification": "TL-verified at THIS station after the worker pushed f0c09e3 to origin: typecheck exit 0; kernel+venues package suites green (onchain-domain/onchain-security/onchain-venues); full workspace battery exit 0; verify:repo passed. Merged 62454ac by the console-TL (origin coordination: the delivery branch carried packages/onchain-venues \u2014 venue-agnostic best-execution core + Uniswap/aggregator/intent extension packs, 40 files / 9413 insertions). The console-TL's own parallel venues lane (superseded/console-P4-W2-002) was stood down as redundant."
-  },
-  {
-   "id": "P4-W3-003",
-   "owner": "worker (parallel lane, base 66d0835)",
-   "status": "COMPLETE",
-   "activated_at": "2026-10-03",
-   "branch": "work/P4-W3-003",
-   "completed_at": "2026-10-03",
-   "verification": "TL-verified at this station: typecheck exit 0; onchain-threat-intel + kernel suites green; full battery exit 0; verify:repo passed. Merged from the worker's pushed branch f185190 (packages/onchain-threat-intel, 30 files / 8143 insertions)."
-  }
- ],
- "max_concurrent_workers": 3,
- "policy": {
-  "pairwise_disjoint": true,
-  "blockchain_is_one_settlement_rail_family": true,
-  "no_parallel_crypto_ledger": true,
-  "no_parallel_financial_authority": true,
-  "raw_secrets_never_agent": true,
-  "simulation_before_supported_consequential_write": true,
-  "pre_broadcast_recheck": true,
-  "security_agent_cannot_override_block": true,
-  "unknown_not_failed": true,
-  "external_balances_are_observations": true,
-  "provider_catalogue_never_authorizes": true,
-  "provider_native_baseline_preserved": true,
-  "stripe_effects_must_be_provider_verified": true,
-  "stripe_ux_research_user_assisted_auth": true
- },
- "gates": [
-  "phase3_complete",
-  "onchain_domain_certified",
-  "wallet_signer_authorization_certified",
-  "multi_chain_execution_evidence",
-  "multi_venue_execution_evidence",
-  "merchant_crypto_payment_evidence",
-  "eligible_stripe_settlement_evidence",
-  "lab_mixed_rail_evidence",
-  "onchain_opportunity_evidence",
-  "adversarial_blocking_evidence",
-  "mixed_fiat_onchain_route_evidence",
-  "stripe_dashboard_ux_research_recorded",
-  "responsive_accessible_ux_certified",
-  "production_browser_verification",
-  "production_release_reproducible",
-  "rollback_verified"
- ],
- "waves": {
-  "wave_1": "BLOCKED_ON_PHASE_3",
-  "wave_2": "BLOCKED",
-  "wave_3": "BLOCKED",
-  "wave_4": "BLOCKED"
- },
- "historical_phase_records_immutable": true,
- "do_not_redispatch_without_state_update": true,
- "phase_4_status": "WAVE 3 2/3 COMPLETE (reset-6 epoch, 2026-10-04) -- merged: W1-001, W1-002, W2-001, W2-002, W3-001 (801b4bb, cross-verified at two independent stations: mixed-rail 71/71, battery 3962/3962 = 3891 base + 71, typecheck 0, verify:repo green), W3-003. Frontier: W3-002 (onchain FinancialOpportunity, packages/onchain-opportunity) -- dispatching via the console-TL. P4-W1-003 ACTIVE server-side on chat 4c0e1c11 (Stripe UX research + merchant crypto contracts; Phase-2 operator interactive window pending). W4-001 waits on W3-002; W2-003 waits on W1-003; W4-002 on W1-003+W2-003+W4-001; W4-003 terminal."
+  "historical_phase_records_immutable": true,
+  "do_not_redispatch_without_state_update": true,
+  "phase_4_status": "9/12 COMPLETE (reset-6 epoch, 2026-10-04) -- merged: W1-001, W1-002, W1-003, W2-001, W2-002, W3-001, W3-002, W3-003, W4-001 (battery 4471 green on bf1c5a8). Frontier: W2-003 (merchant checkout + Stripe settlement over merchant-crypto) -- dispatching. W4-002 waits on W2-003 (its other deps W1-003+W4-001 are done); W4-003 terminal. W1-003 Phase 2 (Stripe dashboard survey) ACTIVE in the operator window (operator authenticated dashboard.stripe.com in the isolated browser; station operates the authorized session; worker produces the addendum)."
 }
