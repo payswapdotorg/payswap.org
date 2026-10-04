@@ -1,0 +1,24 @@
+{
+  "name": "@payswap/merchant-crypto",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Merchant crypto payment contracts on canonical PaySwap payment primitives: crypto acceptance policy (assets/chains/constraints/expiry), exact crypto quotes, PaymentIntent/PaymentAttempt/CheckoutSession mappings onto the canonical payment and settlement planes, settlement destination route families (native Stripe crypto settlement kept DISTINCT from PaySwap external conversion/off-ramp settlement), and the two settlement capability definitions (Work Order P4-W1-003)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/connectors": "*",
+    "@payswap/payment": "*",
+    "@payswap/protocol": "*",
+    "@payswap/settlement": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}

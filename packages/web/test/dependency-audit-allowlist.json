@@ -187,6 +187,18 @@
         "vitest"
       ]
     },
+    "packages/merchant-crypto": {
+      "dependencies": [
+        "@payswap/connectors",
+        "@payswap/payment",
+        "@payswap/protocol",
+        "@payswap/settlement"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
     "packages/mixed-rail": {
       "dependencies": [
         "@payswap/best-execution",
