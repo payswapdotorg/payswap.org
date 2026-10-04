@@ -1,0 +1,34 @@
+{
+  "name": "@payswap/route-compiler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mixed fiat/onchain route compiler (Work Order P4-W4-001): compiles ONE canonical Money Movement Intent into multi-leg route plans spanning fiat and onchain rails — crypto→DEX→stablecoin→off-ramp→bank, fiat→PSP→stablecoin→chain→recipient, chainA→DEX→bridge→chainB and eligible-crypto→native-Stripe-crypto-settlement (Mode A contracts modeled per the provider-verified-effects law, honestly awaiting the P4-W1-003 research authority for the actual integration). Every leg carries the full chain of custody for AUTHORITY (authorization lineage: intent authorization ref + the leg's own gate/policy verdict), STATE (fresh provider/chain observations per the observation law, checked with the REAL kernel freshness probes), FINALITY (candidates only — never assumed) and EVIDENCE (non-empty evidence refs, INV-E02). Custody is EXPLICIT and CONTIGUOUS at every hop (no hidden custody, INV-C09), legs REFERENCE the intent (never re-declare it — no duplicate ledger), provider-native paths remain candidate baselines (INV-C08 — never structurally disadvantaged, never ranked away), failure at ANY leg preserves UNKNOWN/reconciliation semantics (INV-X01/X02/X03 — blind retry structurally forbidden, settlement-reconciliation is the only resolver), and compilation is a DETERMINISTIC pure function of its inputs (canonical input ordering, caller-supplied instants, no ambient clock, no randomness). The package composes the REAL merged kernels: mixed-rail lane discovery/execution-walk/evidence (which itself drives the best-execution venue port and the onchain-domain settlement mapping), the onchain-security write pipeline (prepare→gate→diff) for transfer/bridge legs, the connectors payout gate + capability-observation law for fiat legs, the payment settlement-destination vocabulary for bank legs, and the onchain-opportunities discovery-tier eligibility (never authorization) for opportunity-informed routing context. The Lab runtime is driven from the TEST layer only (INV-L01).",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/best-execution": "*",
+    "@payswap/connectors": "*",
+    "@payswap/mixed-rail": "*",
+    "@payswap/onchain-adapters": "*",
+    "@payswap/onchain-domain": "*",
+    "@payswap/onchain-opportunities": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/onchain-venues": "*",
+    "@payswap/payment": "*",
+    "@payswap/protocol": "*",
+    "@payswap/trust": "*"
+  },
+  "devDependencies": {
+    "@payswap/agents": "*",
+    "@payswap/capabilities": "*",
+    "@payswap/lab": "*",
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
