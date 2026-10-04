@@ -187,6 +187,24 @@
         "vitest"
       ]
     },
+    "packages/mixed-rail": {
+      "dependencies": [
+        "@payswap/best-execution",
+        "@payswap/onchain-adapters",
+        "@payswap/onchain-domain",
+        "@payswap/onchain-security",
+        "@payswap/onchain-venues",
+        "@payswap/protocol"
+      ],
+      "devDependencies": [
+        "@payswap/agents",
+        "@payswap/capabilities",
+        "@payswap/connectors",
+        "@payswap/lab",
+        "typescript",
+        "vitest"
+      ]
+    },
     "packages/onchain-security": {
       "dependencies": [
         "@payswap/capabilities",
@@ -430,6 +448,16 @@
     "packages/onchain-threat-intel|dependencies|@payswap/onchain-security": "P4-W3-003 adversarial onchain security: built ON the W1-002 kernel — detectors analyze PreparedWrite/SimulationObservation, the no-downgrade seam composes with GateDecision, signals project onto the kernel AgentSecurityFlag channel, and every agent-facing artifact is secret-scanned by the kernel assertNoSecretMaterial (the kernel owns authority, never this package)",
     "packages/onchain-threat-intel|dependencies|@payswap/protocol": "P4-W3-003 adversarial onchain security: canonical ValidationError-based fail-closed validation for the threat policy, evidence chains and observation bundle",
     "packages/onchain-threat-intel|dependencies|@payswap/trust": "P4-W3-003 adversarial onchain security: AmountSpec exact-money comparisons (compareAmounts) for approval-cap threat deltas (INV-F01; no floating point anywhere)",
-    "packages/onchain-threat-intel|devDependencies|@payswap/security": "P4-W3-003: TEST-ONLY dependency — the immune-system composition suite drives the REAL SecurityAdvisoryRegistry/ThreatSignatureRegistry/SecurityGate/QuarantineLedger/SecurityEpochAuthority machines (the W1-002 composition-test pattern); src/** never imports it (the security package's own boundary test forbids src-level consumers)"
+    "packages/onchain-threat-intel|devDependencies|@payswap/security": "P4-W3-003: TEST-ONLY dependency — the immune-system composition suite drives the REAL SecurityAdvisoryRegistry/ThreatSignatureRegistry/SecurityGate/QuarantineLedger/SecurityEpochAuthority machines (the W1-002 composition-test pattern); src/** never imports it (the security package's own boundary test forbids src-level consumers)",
+    "packages/mixed-rail|dependencies|@payswap/best-execution": "P4-W3-001 mixed-rail Lab extension: onchain lanes are discovered ONLY through the real venue-agnostic engine (quote→policy→prepare→simulate→gate stages) and carry its route provenance chain verbatim — the ExecutionVenue port, SwapRequest and SelectedRoute surfaces are consumed, never redefined",
+    "packages/mixed-rail|dependencies|@payswap/onchain-adapters": "P4-W3-001: the adapter lifecycle law is composed as-is (isObservationFresh freshness probe, ADAPTER_LIFECYCLE_STAGES stage vocabulary, classifyChainEnvironment frozen registry) — the Lab never authorizes or broadcasts; chain-environment classification stays kernel-owned",
+    "packages/mixed-rail|dependencies|@payswap/onchain-domain": "P4-W3-001: canonical capability contracts consumed (ConnectedProtocolInstance + validators, the AssetObservation freshness/provenance/observer law, protocolCapabilityId/onchainRailId, execution-observation validation and the settlement mapping) — never a parallel onchain vocabulary",
+    "packages/mixed-rail|dependencies|@payswap/onchain-security": "P4-W3-001: gate decisions, prepared writes, expected diffs and security policies come from the kernel (engine-driven evaluateOnchainWriteGates; contentDigest for lane evidence digests) — the kernel owns authority, never the Lab",
+    "packages/mixed-rail|dependencies|@payswap/onchain-venues": "P4-W3-001 execution plane: real VenueExtensionPacks register behind the engine through the canonical pack contract (validateVenueExtensionPack, venueConnectedProtocolInstance) — this package stays venue-neutral, no vendor SDKs",
+    "packages/mixed-rail|dependencies|@payswap/protocol": "P4-W3-001: canonical ValidationError-based fail-closed validation for the tier settlement gate, discovery grounding failures and the execution-walk input law",
+    "packages/mixed-rail|devDependencies|@payswap/agents": "P4-W3-001: TEST-ONLY — candidate composition fixtures use the canonical VersionedRef<AgentBody>/AgentPrincipalRef inputs the Lab composer consumes; src/** never imports it",
+    "packages/mixed-rail|devDependencies|@payswap/capabilities": "P4-W3-001: TEST-ONLY — fixtures construct the real CapabilityState/SmartContractExtension/CertificationRecord shapes for search blocks and venue write planning; src/** never imports it",
+    "packages/mixed-rail|devDependencies|@payswap/connectors": "P4-W3-001: TEST-ONLY — fiat-lane fixtures use the canonical CapabilityDefinition/ConnectedCapabilityInstance/CapabilityObservation shapes driven through the Lab search; src/** never imports it",
+    "packages/mixed-rail|devDependencies|@payswap/lab": "P4-W3-001: TEST-ONLY (INV-L01 repo law: no other package's src imports the Lab runtime) — the mixed-rail harness composes candidates, programs, domain packs, search plug-ins and simulations through the REAL Lab model from the test layer"
   }
 }
