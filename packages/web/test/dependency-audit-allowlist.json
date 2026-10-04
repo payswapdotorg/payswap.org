@@ -275,6 +275,28 @@
         "vitest"
       ]
     },
+    "packages/route-compiler": {
+      "dependencies": [
+        "@payswap/best-execution",
+        "@payswap/connectors",
+        "@payswap/mixed-rail",
+        "@payswap/onchain-adapters",
+        "@payswap/onchain-domain",
+        "@payswap/onchain-opportunities",
+        "@payswap/onchain-security",
+        "@payswap/onchain-venues",
+        "@payswap/payment",
+        "@payswap/protocol",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "@payswap/agents",
+        "@payswap/capabilities",
+        "@payswap/lab",
+        "typescript",
+        "vitest"
+      ]
+    },
     "packages/security": {
       "dependencies": [
         "@payswap/agents",
@@ -480,6 +502,20 @@
     "packages/onchain-opportunities|dependencies|@payswap/protocol": "P4-W3-002 onchain FinancialOpportunity discovery: canonical ValidationError-based fail-closed validation for the opportunity model, discovery inputs and the vocabulary law",
     "packages/onchain-opportunities|devDependencies|@payswap/agents": "P4-W3-002: TEST-ONLY — the Lab composition harness composes a candidate organization through the REAL Lab composer with the canonical VersionedRef<AgentBody>/AgentPrincipalRef inputs; src/** never imports it",
     "packages/onchain-opportunities|devDependencies|@payswap/connectors": "P4-W3-002: TEST-ONLY — the Lab composition harness compiles the family capability descriptors into REAL CapabilityDefinition shapes for the Lab search index (INV-C05: catalogue entries never yield executable blocks); src/** never imports it",
-    "packages/onchain-opportunities|devDependencies|@payswap/lab": "P4-W3-002: TEST-ONLY (INV-L01 repo law: no other package's src imports the Lab runtime) — the opportunity Lab harness drives the REAL Lab search index, search plug-in registry and candidate composer from the test layer, proving families register as searchable capabilities and the never-production-execution law extends to discovery results"
+    "packages/onchain-opportunities|devDependencies|@payswap/lab": "P4-W3-002: TEST-ONLY (INV-L01 repo law: no other package's src imports the Lab runtime) — the opportunity Lab harness drives the REAL Lab search index, search plug-in registry and candidate composer from the test layer, proving families register as searchable capabilities and the never-production-execution law extends to discovery results",
+    "packages/route-compiler|dependencies|@payswap/best-execution": "P4-W4-001 route compiler: the DEX hops of every mixed route are discovered ONLY through the REAL venue-agnostic engine (SwapRequest → policy → prepare → simulate → gate stages) and carry the engine's SelectedRoute provenance chain verbatim — the ExecutionVenue port and quote disclosures are consumed, never redefined",
+    "packages/route-compiler|dependencies|@payswap/connectors": "P4-W4-001 route compiler: fiat legs ground in the canonical CapabilityDefinition/ConnectedCapabilityInstance/CapabilityObservation model (INV-C05) and off-ramp payout legs are authorized ONLY by the REAL evaluatePayoutGate over a ConnectedInstanceActivation carrying a separate TransferOutAuthorization — the connectors vocabulary is consumed, never redefined",
+    "packages/route-compiler|dependencies|@payswap/mixed-rail": "P4-W4-001 route compiler: compiled routes are walked through the REAL mixed-rail execution machinery (OnchainLaneProof discovery + executeOnchainLane, which itself drives the best-execution venue port and the canonical onchain-domain settlement mapping) — no parallel lane or rail vocabulary exists in this package",
+    "packages/route-compiler|dependencies|@payswap/onchain-adapters": "P4-W4-001 route compiler: compiled plans project the adapter lifecycle stage vocabulary and rail environment classes from the frozen kernel registry (classifyChainEnvironment/ADAPTER_LIFECYCLE_STAGES) — kernel-owned classification, never redefined",
+    "packages/route-compiler|dependencies|@payswap/onchain-domain": "P4-W4-001 route compiler: the canonical chain-key/asset-ref vocabulary, the AssetObservation freshness/provenance/observer law, execution-observation validation and the settlement mapping (rail outcome, settlement-attempt event candidate, rail operation) are consumed as-is — never a parallel onchain vocabulary",
+    "packages/route-compiler|dependencies|@payswap/onchain-opportunities": "P4-W4-001 route compiler: opportunity-informed routing context is resolved + policy-evaluated through the REAL W3-002 discovery kernel (resolveOpportunity/discoveryPermitsExecution composed verbatim) — discovery is routing context only, STRUCTURALLY never authorization",
+    "packages/route-compiler|dependencies|@payswap/onchain-security": "P4-W4-001 route compiler: transfer/bridge legs run the REAL kernel write pipeline (prepareWrite → evaluateOnchainWriteGates → expected-state diff) and every plan/journey digest is the kernel's own contentDigest — the kernel owns authority, never this package",
+    "packages/route-compiler|dependencies|@payswap/onchain-venues": "P4-W4-001 route compiler: REAL VenueExtensionPacks are compiler inputs behind the canonical pack contract (the fixture Uniswap v2 reference pack drives the DEX hops) — this package stays venue-neutral, no vendor SDKs",
+    "packages/route-compiler|dependencies|@payswap/payment": "P4-W4-001 route compiler: bank arrival legs are derived ONLY through the canonical settlement-destination vocabulary (defineSettlementDestination/settlementResultFrom) — the external bank destination is referenced, never re-declared",
+    "packages/route-compiler|dependencies|@payswap/protocol": "P4-W4-001 route compiler: canonical ValidationError-based fail-closed validation for the Money Movement Intent, the route-leg contracts, the plan construction laws, the walk input law and the evidence records",
+    "packages/route-compiler|dependencies|@payswap/trust": "P4-W4-001 route compiler: AmountSpec exact-money wire shapes for intent amounts, custody transfers and planned leg amounts (INV-F01; validateAmountSpec composed as-is, no floating point)",
+    "packages/route-compiler|devDependencies|@payswap/agents": "P4-W4-001: TEST-ONLY — Lab composition fixtures use the canonical VersionedRef<AgentBody>/AgentPrincipalRef candidate inputs the Lab composer consumes; src/** never imports it",
+    "packages/route-compiler|devDependencies|@payswap/capabilities": "P4-W4-001: TEST-ONLY — fixtures construct real SmartContractExtension/CapabilityDefinition shapes for the venue pack and the Lab search blocks; src/** never imports it",
+    "packages/route-compiler|devDependencies|@payswap/lab": "P4-W4-001: TEST-ONLY (INV-L01 repo law: no src/ ever imports the Lab runtime) — the route-compiler Lab harness composes candidates, domain packs and simulations through the REAL Lab model from the test layer, proving compiled route artifacts drive the Lab's own search/simulation"
   }
 }
