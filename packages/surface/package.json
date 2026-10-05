@@ -1,0 +1,24 @@
+{
+  "name": "@payswap/surface",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The stable, versioned, React-free surface API for every journey the PaySwap universal interface exposes (Work Order P4-W4-002): the five outcome actions (Pay/Receive/Move/Convert/Checkout) with their honest dispatchability facts, the eleven operational areas of the navigation IA derived from the Stripe UX research, exact integer minor-unit money display, the BLOCK/ALLOW/UNKNOWN security gate vocabulary folded into people-language, and the conversion disclosure fold over the REAL route-compiler output contracts — typed contracts a future browser extension or mobile app consumes WITHOUT React, WITHOUT Next.js and WITHOUT any UI framework.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/onchain-security": "*",
+    "@payswap/route-compiler": "*",
+    "@payswap/protocol": "*",
+    "@payswap/ux": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
