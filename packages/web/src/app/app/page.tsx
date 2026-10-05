@@ -6,19 +6,25 @@ import { CcSection } from "@/components/cc/cc-section";
 import { CcApiRuntimeCard } from "@/components/cc/cc-api-runtime-card";
 import { CcConnectionSummary } from "@/components/cc/cc-connection-summary";
 import { CcQuickActions } from "@/components/cc/cc-quick-actions";
+import { OutcomeLauncher } from "@/components/universal/outcome-launcher";
 import { getServerCcState } from "@/lib/cc/server-state";
 import { fetchApiCapabilities, fetchApiHealth } from "@/lib/cc/api-server";
 import { SESSION_SEAM_CONTRACT } from "@/lib/cc/session-seam";
+import { apiRuntimeState } from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Overview",
 };
 
 /**
- * The Command Center Overview (P3-W2-002): the honest dashboard. The
- * API-runtime and capability summaries fetch the DEPLOYED API's real
- * endpoints server-side (with revalidation); the connection summary renders
- * the recorded coverage evidence with dates; recent activity renders the
+ * The Command Center Overview (P3-W2-002; universal outcome actions
+ * P4-W4-002 §3.1): the honest dashboard. The five outcome-level actions
+ * — Pay / Receive / Move / Convert / Checkout — lead the page (the
+ * universal interface's primary surface), each with its honest capability
+ * state folded from the deployment's actual facts. The API-runtime and
+ * capability summaries fetch the DEPLOYED API's real endpoints
+ * server-side (with revalidation); the connection summary renders the
+ * recorded coverage evidence with dates; recent activity renders the
  * honest empty state until the session plane provides authority records.
  * No number on this page is invented.
  */
@@ -42,6 +48,14 @@ export default async function OverviewPage() {
             session plane is honestly reported.
           </p>
         </div>
+
+        <OutcomeLauncher
+          deployment={{
+            apiRuntimeConfigured: apiRuntimeState().configured,
+            merchantCheckoutContextBound: false,
+            routeCompilationInputsAvailable: false,
+          }}
+        />
 
         <CcApiRuntimeCard
           title="Authoritative API runtime"
