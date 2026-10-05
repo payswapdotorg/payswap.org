@@ -1,0 +1,197 @@
+{
+  "lawMarker": "FIXTURE_PROVEN_TRUSTED_SURFACE_SIGNING_ONLY",
+  "packageName": "@payswap/merchant-checkout",
+  "journeyId": "journey:merchant-checkout:fixture-1",
+  "stages": [
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "MERCHANT_ONBOARDING",
+      "refs": [
+        "merchant:merchant-1",
+        "state:ACTIVE"
+      ],
+      "evidenceRefs": [
+        "onboarding:merchant-1",
+        "verify-record-1",
+        "destination:dest-bank-1"
+      ],
+      "digest": "fnv1a64:86a50bc92786fa2f"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "ACCEPTANCE_ACTIVATION",
+      "refs": [
+        "activation:activation-1",
+        "policy:mcap-1"
+      ],
+      "evidenceRefs": [
+        "activation:activation-1",
+        "composed-policy:mcap-1",
+        "base-policy:pap-1"
+      ],
+      "digest": "fnv1a64:8715963cf2519e93"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "CHECKOUT_SESSION",
+      "refs": [
+        "flow:flow-1",
+        "intent:intent:flow-1",
+        "session:session:flow-1",
+        "options:2"
+      ],
+      "evidenceRefs": [
+        "session:session:flow-1",
+        "intent:intent:flow-1",
+        "option:crypto:asset.usc.ethereum@ethereum:mainnet",
+        "option:fiat:pm-card"
+      ],
+      "digest": "fnv1a64:5896fa5b4278aed2"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "WALLET_AUTHORIZATION",
+      "refs": [
+        "authorization:fnv1a64:5ecef9e592616997",
+        "write:fnv1a64:8f02f0187a2b110a",
+        "signing-request:signreq-1",
+        "submission:tx:fixture-external-1"
+      ],
+      "evidenceRefs": [
+        "authorization:fnv1a64:5ecef9e592616997",
+        "signingRequest:signreq-1",
+        "submission:tx:fixture-external-1",
+        "evidence:submission-1"
+      ],
+      "pipelineEvidence": [
+        {
+          "at": 1800000001000,
+          "state": "PREPARED",
+          "event": "PREPARE",
+          "refs": [
+            "write:fnv1a64:8f02f0187a2b110a",
+            "policy:checkout-policy-1@1"
+          ]
+        },
+        {
+          "at": 1800000001000,
+          "state": "SIMULATED",
+          "event": "SIMULATE",
+          "refs": [
+            "simulation:sim-1",
+            "status:SUCCEEDED"
+          ]
+        },
+        {
+          "at": 1800000001000,
+          "state": "GATED_ALLOW",
+          "event": "GATES_ALLOW",
+          "refs": [
+            "policy:checkout-policy-1@1",
+            "write:fnv1a64:8f02f0187a2b110a",
+            "simulation:sim-1",
+            "securityState:epoch-0"
+          ]
+        },
+        {
+          "at": 1800000001000,
+          "state": "DIFF_READY",
+          "event": "BUILD_DIFF",
+          "refs": [
+            "diff:fnv1a64:e3d11f564a7050d5"
+          ]
+        },
+        {
+          "at": 1800000001000,
+          "state": "AUTHORIZED",
+          "event": "AUTHORIZE",
+          "refs": [
+            "artifact:fnv1a64:5ecef9e592616997",
+            "surface:surface:merchant-checkout-test",
+            "write:fnv1a64:8f02f0187a2b110a"
+          ]
+        },
+        {
+          "at": 1800000001000,
+          "state": "RECHECKED",
+          "event": "RECHECK_OK",
+          "refs": [
+            "artifact:fnv1a64:5ecef9e592616997",
+            "recheck-observation:1800000001000",
+            "securityState:epoch-0"
+          ]
+        },
+        {
+          "at": 1800000001000,
+          "state": "BROADCAST_HANDOFF",
+          "event": "HANDOFF",
+          "refs": [
+            "signingRequest:signreq-1",
+            "authorization:fnv1a64:5ecef9e592616997",
+            "recheck:artifact:fnv1a64:5ecef9e592616997"
+          ]
+        }
+      ],
+      "digest": "fnv1a64:3e4d5ee6b8d52cf1"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "PAYMENT_LIFECYCLE",
+      "refs": [
+        "attempt:attempt-1",
+        "intent:intent:flow-1",
+        "state:CONFIRMED",
+        "authorization:fnv1a64:5ecef9e592616997"
+      ],
+      "evidenceRefs": [
+        "evidence:confirmation-1",
+        "evidence:receipt-1"
+      ],
+      "digest": "fnv1a64:cf29c7207e0c2530"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "WEBHOOK_UPDATES",
+      "refs": [
+        "applied:2",
+        "rejected:0",
+        "duplicates:1"
+      ],
+      "evidenceRefs": [
+        "webhook:evt-1",
+        "webhook:evt-2"
+      ],
+      "digest": "fnv1a64:94c132e7e12d7ea4"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "REFUND",
+      "refs": [
+        "refund:refund-1",
+        "original-attempt:attempt-1",
+        "state:CONFIRMED"
+      ],
+      "evidenceRefs": [
+        "rail-observation:rail-obs-1",
+        "evidence:rail-observation-1",
+        "submission:refund-sub-1",
+        "evidence:refund-confirmation-1"
+      ],
+      "digest": "fnv1a64:39de015df3c02257"
+    },
+    {
+      "journeyId": "journey:merchant-checkout:fixture-1",
+      "stage": "SETTLEMENT",
+      "refs": [
+        "settlement:settlement-1",
+        "attempt:attempt-1",
+        "route-family:NATIVE_STRIPE_CRYPTO",
+        "settlement-mode:NATIVE_STRIPE_CRYPTO"
+      ],
+      "evidenceRefs": [
+        "evidence:stripe-confirmation-1"
+      ],
+      "digest": "fnv1a64:aebf39d012babe09"
+    }
+  ]
+}
