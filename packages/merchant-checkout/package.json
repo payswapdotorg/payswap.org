@@ -1,0 +1,28 @@
+{
+  "name": "@payswap/merchant-checkout",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Merchant crypto checkout flow on canonical PaySwap primitives: merchant onboarding (fiat-denominated by default) → crypto acceptance activation (typed view over @payswap/merchant-crypto) → checkout session with exact-quote payment options → customer wallet payment through the REAL @payswap/onchain-security kernel (prepare→simulate→gates→diff→authorize→recheck→broadcast handoff) → payment lifecycle with UNKNOWN preservation and reconciliation → idempotent typed webhooks → refunds with typed rail-capability observations and honest NOT_SUPPORTED → settlement configuration plus the two explicit Stripe paths (NATIVE_STRIPE_CRYPTO provider-verified only; PAYSWAP_EXTERNAL_SETTLEMENT mapping onto the EXTERNAL_PAYSWAP_CONVERSION route family with the mandated honest-unavailability notice) (Work Order P4-W2-003)",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@payswap/connectors": "*",
+    "@payswap/merchant-crypto": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/payment": "*",
+    "@payswap/protocol": "*",
+    "@payswap/route-compiler": "*",
+    "@payswap/settlement": "*",
+    "@payswap/trust": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^3.2.4"
+  }
+}
