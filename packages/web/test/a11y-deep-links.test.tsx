@@ -55,7 +55,11 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/reauth",
   "/onboarding",
   "/app",
+  "/app/accounts",
   "/app/activity",
+  "/app/checkout",
+  "/app/connections",
+  "/app/convert",
   "/app/agents",
   "/app/billing",
   "/app/capabilities",
@@ -69,6 +73,8 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/app/payments",
   "/app/payouts",
   "/app/programs",
+  "/app/reports",
+  "/app/security",
   "/app/settings",
 ];
 

@@ -26,7 +26,8 @@ import {
 } from "@payswap/design";
 
 import { appRouteForNavItemId, resolveAppSection } from "@/lib/cc/routes";
-import { deriveCcPalette } from "@/lib/cc/palette";
+import { deriveUniversalPalette, UNIVERSAL_AREA_MODEL } from "@/lib/universal/palette";
+import { resolveUniversalAreaRoute } from "@/lib/universal/areas";
 import { CcNavContent } from "./cc-nav-content";
 
 export interface CommandCenterShellProps {
@@ -66,15 +67,18 @@ export function CommandCenterShell({
   }, [pathname]);
 
   const resolved = resolveAppSection(pathname);
+  const universalRoute = resolveUniversalAreaRoute(pathname);
   const activeRoute =
-    resolved.kind === "SECTION" ? resolved.route : appRouteForNavItemId("overview");
+    universalRoute ??
+    (resolved.kind === "SECTION" ? resolved.route : appRouteForNavItemId("overview"));
   const activeLabel =
     resolved.kind === "SECTION"
       ? (nav.items.find((view) => appRouteForNavItemId(view.item.id) === resolved.route)?.item
           .label ?? "Command Center")
-      : "Command Center";
+      : (UNIVERSAL_AREA_MODEL.find((area) => area.route === pathname)?.label ??
+        "Command Center");
 
-  const palette = deriveCcPalette(role);
+  const palette = deriveUniversalPalette(role);
   const sections = [
     {
       id: "cc-actions",

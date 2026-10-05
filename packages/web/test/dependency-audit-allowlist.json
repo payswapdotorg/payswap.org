@@ -378,6 +378,7 @@
         "@payswap/design",
         "@payswap/interfaces",
         "@payswap/protocol",
+        "@payswap/surface",
         "@payswap/trust",
         "@payswap/ux",
         "next",
@@ -568,6 +569,7 @@
     "packages/surface|dependencies|@payswap/protocol": "P4-W4-002 surface API: exact integer minor-unit money display consumes the landed Money/currency-registry primitives (registerCurrency/getCurrencyInfo) — never re-implemented, and INV-F01 float rejection stays upstream where it is enforced",
     "packages/surface|dependencies|@payswap/ux": "P4-W4-002 surface API: the outcome actions reference the certified product journey contracts (pay/collect/payout journey ids and their apiCommand commandTypes) — consumed as data, never redefined",
     "packages/surface|dependencies|@payswap/onchain-security": "P4-W4-002 surface API: the security vocabulary fold consumes the REAL GateDecision typed vocabulary (BLOCK/ALLOW/UNKNOWN with GuardDimension unions) — the fold preserves verdicts verbatim and never invents a parallel gate model",
-    "packages/surface|dependencies|@payswap/route-compiler": "P4-W4-002 surface API: the Convert disclosure fold reads the REAL RouteCompilationResult/RoutePlan output contracts (type-level structural constraint) — no recompilation, no duplicated route model"
+    "packages/surface|dependencies|@payswap/route-compiler": "P4-W4-002 surface API: the Convert disclosure fold reads the REAL RouteCompilationResult/RoutePlan output contracts (type-level structural constraint) — no recompilation, no duplicated route model",
+    "packages/web|dependencies|@payswap/surface": "P4-W4-002 universal UX: the web app renders the versioned React-free surface contracts (outcome actions, eleven-area IA, money display, gate fold, convert fold) from @payswap/surface instead of redefining them — the same package a future extension/mobile app consumes"
   }
 }
