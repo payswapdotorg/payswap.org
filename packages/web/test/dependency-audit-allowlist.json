@@ -187,6 +187,22 @@
         "vitest"
       ]
     },
+    "packages/merchant-checkout": {
+      "dependencies": [
+        "@payswap/connectors",
+        "@payswap/merchant-crypto",
+        "@payswap/onchain-security",
+        "@payswap/payment",
+        "@payswap/protocol",
+        "@payswap/route-compiler",
+        "@payswap/settlement",
+        "@payswap/trust"
+      ],
+      "devDependencies": [
+        "typescript",
+        "vitest"
+      ]
+    },
     "packages/merchant-crypto": {
       "dependencies": [
         "@payswap/connectors",
@@ -528,6 +544,14 @@
     "packages/route-compiler|dependencies|@payswap/trust": "P4-W4-001 route compiler: AmountSpec exact-money wire shapes for intent amounts, custody transfers and planned leg amounts (INV-F01; validateAmountSpec composed as-is, no floating point)",
     "packages/route-compiler|devDependencies|@payswap/agents": "P4-W4-001: TEST-ONLY — Lab composition fixtures use the canonical VersionedRef<AgentBody>/AgentPrincipalRef candidate inputs the Lab composer consumes; src/** never imports it",
     "packages/route-compiler|devDependencies|@payswap/capabilities": "P4-W4-001: TEST-ONLY — fixtures construct real SmartContractExtension/CapabilityDefinition shapes for the venue pack and the Lab search blocks; src/** never imports it",
-    "packages/route-compiler|devDependencies|@payswap/lab": "P4-W4-001: TEST-ONLY (INV-L01 repo law: no src/ ever imports the Lab runtime) — the route-compiler Lab harness composes candidates, domain packs and simulations through the REAL Lab model from the test layer, proving compiled route artifacts drive the Lab's own search/simulation"
+    "packages/route-compiler|devDependencies|@payswap/lab": "P4-W4-001: TEST-ONLY (INV-L01 repo law: no src/ ever imports the Lab runtime) — the route-compiler Lab harness composes candidates, domain packs and simulations through the REAL Lab model from the test layer, proving compiled route artifacts drive the Lab's own search/simulation",
+    "packages/merchant-checkout|dependencies|@payswap/connectors": "P4-W2-003 merchant checkout: the Stripe connection lifecycle is recorded through the canonical ProviderStateEnvelope (createProviderStateEnvelope, family connected_account — INV-C06 raw state verbatim) and every execution seam asserts the ACTUAL ConnectedCapabilityInstance (assertConnectedInstance rejects catalogue entries, INV-C05) — the connectors vocabulary is consumed, never redefined",
+    "packages/merchant-checkout|dependencies|@payswap/merchant-crypto": "P4-W2-003 merchant checkout: the W1-003 landed contracts this package map-and-extends — acceptance policy composition (defineMerchantCryptoAcceptancePolicy/matchesCryptoAcceptance/evaluateCryptoAcceptance), quotes as observations, the intent/attempt/checkout machines and their helpers, the two settlement route families (NATIVE_STRIPE_CRYPTO vs EXTERNAL_PAYSWAP_CONVERSION reused verbatim as the routing-level discriminator), nativeStripeCryptoEligibility and recordStripeSettlementConfirmation (provider-verified effects only) — zero local parallel vocabulary",
+    "packages/merchant-checkout|dependencies|@payswap/onchain-security": "P4-W2-003 merchant checkout: the customer wallet payment composes the REAL W1-002 kernel (OnchainWritePipeline prepare→simulate→gates→diff→authorize→recheck→broadcast handoff; TrustedApprovalSurface and SignerAdapter injected as ports) and every artifact digest/secret-scan is the kernel's own contentDigest/assertNoSecretMaterial — the kernel owns authority, never this package",
+    "packages/merchant-checkout|dependencies|@payswap/payment": "P4-W2-003 merchant checkout: merchant settlement destinations, the base acceptance policy, PaymentMethodTranslation and MaterialTerms are consumed from the canonical payment-plane vocabulary (defineSettlementDestination/matchesAcceptance) — referenced, never re-declared",
+    "packages/merchant-checkout|dependencies|@payswap/protocol": "P4-W2-003 merchant checkout: canonical ValidationError/PaySwapError-based fail-closed validation, exact Money (fromMinorUnits/currencyCode — INV-F01), TimestampMs, defineStateMachine for the onboarding/refund machines and branded ids",
+    "packages/merchant-checkout|dependencies|@payswap/route-compiler": "P4-W2-003 merchant checkout: the mandated Mode B honest-unavailability notice is consumed VERBATIM from W4-001's STRIPE_NATIVE_SETTLEMENT_UNAVAILABLE_NOTICE ('Stripe balance settlement unavailable for this route') — single source, no local duplicate string",
+    "packages/merchant-checkout|dependencies|@payswap/settlement": "P4-W2-003 merchant checkout: UnknownOutcomeResolution (the reconciliation-resolution authority required to leave OUTCOME_UNKNOWN, INV-X03) is consumed verbatim for both payment-attempt and refund resolutions — the settlement plane owns reconciliation",
+    "packages/merchant-checkout|dependencies|@payswap/trust": "P4-W2-003 merchant checkout: the Principal contract for the kernel authorization request (the requesting service principal) — the trust plane owns principal identity, this package never redefines it"
   }
 }
