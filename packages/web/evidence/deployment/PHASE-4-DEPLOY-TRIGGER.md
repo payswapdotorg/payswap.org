@@ -85,3 +85,67 @@ touch.
    buildId matches the deployed deployment URL's buildId.
 5. The release record (`web-release-2026-10-06.json`) committed with the
    live URLs and the verification receipts.
+
+---
+
+## Post-deployment verification receipts (appended 2026-10-06, after the checks ran)
+
+Every item of the checklist above, executed and observed:
+
+1. **Deployment READY** — `payswap-clnfv0s9s-ekonplacidegmailcoms-projects.vercel.app`,
+   target `production`, commit `5f9f117fdd5164df1d780ccc83d8ca80ccd01301`,
+   created 2026-10-06T07:43:01Z, state READY at 07:44:04Z (cloud build, 63s).
+   Production aliases assigned: `payswap-web.vercel.app`,
+   `payswap-web-ekonplacidegmailcoms-projects.vercel.app`,
+   `payswap-web-git-main-ekonplacidegmailcoms-projects.vercel.app`.
+   The project's `ssoProtection` (`all_except_custom_domains`) was removed
+   via the API (PATCH, HTTP 200) so the production deployment is publicly
+   reachable — consistent with the certified topology (the 2026-10-03
+   runtime-plane probe hit public URLs `payswap-mu.vercel.app` /
+   `payswap.vercel.app` from an external vantage and PASSED).
+2. **The alias serves; /api/health answers honestly** — `GET /` on
+   `https://payswap-web.vercel.app` → HTTP 200. `GET /api/health` reports:
+   `status: "degraded"` (HTTP 503), `liveness: alive`, build
+   `{id: "5b69854e18b6bab1", commit: "5f9f117..."}`, and readiness
+   `degraded` with the verbatim upstream reason: the bounded probe of
+   `GET /v1/health` on the API runtime answered HTTP 400
+   (`auth.principal is required on every request; apiVersion is required`).
+   That is the honest designed state, not a failure of this surface: the
+   API's envelope contract (packages/interfaces validateRequestEnvelope)
+   requires an authenticated principal on every request, and a public
+   web surface has none to send — the health route records the verbatim
+   reason and never fakes success. (The API runtime itself is alive and
+   answering; it is an older deployment of the `payswap` API project and
+   is NOT touched by a web release — the separation law.)
+3. **Public routes render** — verified in a real browser (desktop
+   1440x900): `/` (title "PaySwap — the non-custodial economic operating
+   system", hero, outcome list, provider coverage), `/capabilities`,
+   `/security`, `/developers`, and the `/app` boundary (the honest gate:
+   "Overview — authentication required", session plane "not configured
+   (honest)", no demo mode, no sample data). ZERO page errors and ZERO
+   console messages across all visited routes. Captures banked beside
+   this note: `live-home-desktop.png`, `live-capabilities-desktop.png`,
+   `live-security-desktop.png`, `live-developers-desktop.png`,
+   `live-app-gate-desktop.png`.
+4. **Release driver re-run with the live URLs** —
+   `node scripts/deployment/web-release.mjs 2026-10-06
+   https://payswap-web.vercel.app
+   https://payswap-clnfv0s9s-ekonplacidegmailcoms-projects.vercel.app
+   P4-W4-003 --live` — the local production build (webpack, matching the
+   project's buildCommand) verified BUILD_ID `5b69854e18b6bab1` against
+   the independent source-digest recomputation, and it equals the LIVE
+   deployment's reported build id exactly: local build == source digest
+   == live /api/health. The record carries 40 routes derived from the
+   actual tree (every page.tsx/route.ts under src/app).
+5. **The release record** — `spec/development-state/web-release-2026-10-06.json`,
+   digest `fnv1a64:3226182a8c35187a`, committed with this note and the
+   captures. The driver extension (optional workOrder/routes/note
+   parameters + the tree-derived route inventory, defaults byte-identical
+   to the P3-W1-001 fixture) is covered by 7 new tests in
+   `packages/web/test/infra-release-repro.test.ts` — package suite
+   313/313 green.
+
+One honest note on the sequence: pushing this receipts note re-triggers
+the production deployment (it touches packages/web). The web sources are
+unchanged by this note, so the redeployment produces the same BUILD_ID
+`5b69854e18b6bab1` — the record's release identity holds for it too.

@@ -22,6 +22,12 @@ export interface ReleaseRecordInputs {
   buildIdVerifiedAgainstSources: boolean;
   productionUrl?: string | null;
   previewUrl?: string | null;
+  /** The work order under whose authority this release runs (deploy:record extension, 2026-10-06). */
+  workOrder?: string;
+  /** The route inventory the record reports (defaults to the P3-W1-001 list; a --live record passes the tree-derived inventory). */
+  routes?: string[];
+  /** The deployment-URLs note (defaults to the placeholder note; a --live record passes the live-verified note). */
+  deploymentUrlsNote?: string;
 }
 
 /** A serialized web-release record (digest included). */
@@ -60,6 +66,13 @@ export interface WebReleaseRecord {
 
 /** Assemble the deterministic web-release record (digest included). Pure. */
 export function assembleReleaseRecord(inputs: ReleaseRecordInputs): WebReleaseRecord;
+
+/**
+ * Derive the route inventory from the actual tree: every page.tsx/route.ts
+ * under packages/web/src/app, route groups flattened, [param] segments kept
+ * literal, sorted with "/" first. Pure function of the filesystem.
+ */
+export function deriveRouteInventory(webRoot: string): string[];
 
 /** Explicit inputs of a web-rollback record (all deterministic). */
 export interface RollbackRecordInputs {

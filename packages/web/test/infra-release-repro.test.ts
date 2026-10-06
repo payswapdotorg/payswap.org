@@ -6,6 +6,7 @@ import {
   assembleReleaseRecord,
   assembleRollbackRecord,
   contentDigest,
+  deriveRouteInventory,
   formatRecord,
   recordFileName,
 } from "../../../scripts/deployment/web-release.mjs";
@@ -222,5 +223,113 @@ describe("rollback-record mode — deterministic by the same construction", () =
     // suite slow/networked; it ran in milliseconds.
     expect(typeof assembleReleaseRecord).toBe("function");
     expect(typeof assembleRollbackRecord).toBe("function");
+  });
+});
+
+describe("release-record parameterization — live Phase-4 records (deploy:record extension)", () => {
+  /**
+   * The deploy:record extension (2026-10-06, closing the Phase-4
+   * certification gap "live Phase-4 deployment URL"): assembleReleaseRecord
+   * gained optional workOrder / routes / deploymentUrlsNote parameters so a
+   * LIVE release can record the work order it ships under, the route
+   * inventory DERIVED from the actual tree, and a live-verified URLs note —
+   * while the defaults remain byte-identical to the P3-W1-001 fixture
+   * (proven by the regression test above, which passes no overrides).
+   */
+
+  it("the defaults still reproduce the shipped record bytes (no overrides needed)", () => {
+    // Same call as the fixture test, made explicit: zero new parameters
+    // passed => byte-identical to web-release-2026-10-02.json.
+    const formatted = formatRecord(assembleReleaseRecord({ ...SHIPPED_INPUTS }));
+    const onDisk = readFileSync(SHIPPED_RECORD_PATH, "utf8");
+    expect(formatted).toBe(onDisk);
+  });
+
+  it("workOrder/routes/deploymentUrlsNote overrides change the bytes and the digest", () => {
+    const base = assembleReleaseRecord({ ...SHIPPED_INPUTS });
+    const overrides = [
+      { workOrder: "P4-W4-003" },
+      { routes: ["/", "/api/health"] },
+      { deploymentUrlsNote: "live — verified" },
+    ];
+    for (const override of overrides) {
+      const other = assembleReleaseRecord({ ...SHIPPED_INPUTS, ...override });
+      expect(formatRecord(other)).not.toBe(formatRecord(base));
+      expect(other.digest).not.toBe(base.digest);
+    }
+  });
+
+  it("two live assemblies with identical inputs are byte-identical (purity holds)", () => {
+    const liveInputs = {
+      ...SHIPPED_INPUTS,
+      workOrder: "P4-W4-003",
+      routes: ["/", "/app", "/api/health"],
+      deploymentUrlsNote: "live — verified serving at record time",
+    };
+    expect(formatRecord(assembleReleaseRecord({ ...liveInputs }))).toBe(
+      formatRecord(assembleReleaseRecord({ ...liveInputs })),
+    );
+  });
+
+  it("a live record's digest is self-consistent (record minus digest re-derives it)", () => {
+    const record = assembleReleaseRecord({
+      ...SHIPPED_INPUTS,
+      workOrder: "P4-W4-003",
+      routes: ["/", "/app", "/api/health"],
+    });
+    const withoutDigest: Record<string, unknown> = { ...record };
+    delete withoutDigest["digest"];
+    expect(record.digest).toBe(contentDigest(withoutDigest));
+  });
+});
+
+describe("deriveRouteInventory — the tree-derived route inventory", () => {
+  const WEB_ROOT = path.join(REPO_ROOT, "packages", "web");
+
+  it("derives the actual surface: every page.tsx/route.ts under src/app, route groups flattened", () => {
+    const routes = deriveRouteInventory(WEB_ROOT);
+    // The public surface:
+    expect(routes).toContain("/");
+    expect(routes).toContain("/capabilities");
+    expect(routes).toContain("/security");
+    expect(routes).toContain("/developers");
+    // The auth flows (the (auth) route group is flattened away):
+    expect(routes).toContain("/signin");
+    expect(routes).toContain("/signout");
+    expect(routes).toContain("/connect");
+    expect(routes).toContain("/connect/[providerId]");
+    expect(routes).toContain("/onboarding");
+    expect(routes).toContain("/reauth");
+    // The authenticated app boundary + the Phase-4 universal-interface areas:
+    expect(routes).toContain("/app");
+    expect(routes).toContain("/app/payments");
+    expect(routes).toContain("/app/accounts");
+    expect(routes).toContain("/app/connections");
+    expect(routes).toContain("/app/security");
+    expect(routes).toContain("/app/reports");
+    expect(routes).toContain("/app/convert");
+    expect(routes).toContain("/app/checkout");
+    // The health route (route.ts):
+    expect(routes).toContain("/api/health");
+  });
+
+  it("is sorted with / first and contains no route-group segments", () => {
+    const routes = deriveRouteInventory(WEB_ROOT);
+    expect(routes[0]).toBe("/");
+    expect(routes.join("\n")).not.toContain("(");
+    const sorted = [...routes].sort((a, b) =>
+      a === "/" ? -1 : b === "/" ? 1 : a.localeCompare(b),
+    );
+    expect(routes).toEqual(sorted);
+  });
+
+  it("covers every route the P3 inventory named (the inventory only ever grows)", () => {
+    const routes = deriveRouteInventory(WEB_ROOT);
+    for (const route of ["/", "/capabilities", "/security", "/developers", "/api/health"]) {
+      expect(routes).toContain(route);
+    }
+    // The P3 inventory's annotated /app entry corresponds to the derived
+    // plain "/app" — the authentication boundary itself is unchanged.
+    expect(routes).toContain("/app");
   });
 });
