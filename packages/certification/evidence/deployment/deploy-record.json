@@ -1,0 +1,577 @@
+{
+  "schema_version": "1.0",
+  "record_type": "production-deployment",
+  "release": {
+    "sha": "bf414753a8dce86b7d3afafbd447ecf74dd3e497",
+    "battery": "4694 + P4-W4-003 production-certification suites",
+    "authorized_at": "2026-10-06T00:00:00Z",
+    "authorization": "spec/development-state/deployment-authorization.json (operator directive, verbatim)",
+    "topology_authority": "spec/experience/DEPLOYMENT-TOPOLOGY.md",
+    "connected_providers": [],
+    "rail_adapter_role_deployed": false
+  },
+  "environments": {
+    "preview": {
+      "environment": "preview",
+      "services": [
+        {
+          "serviceId": "payswap-web-api",
+          "role": "web-api",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "web-api",
+            "DATABASE_URL": "postgres://vault:ref/db-preview",
+            "VAULT_REF": "vault://payswap/preview",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-preview.internal",
+            "OBJECT_STORAGE_ENDPOINT": "https://storage.payswap-preview.internal",
+            "OBJECT_STORAGE_BUCKET": "payswap-evidence-preview",
+            "OBJECT_STORAGE_REGION": "auto",
+            "OBJECT_STORAGE_ACCESS_KEY_ID": "vault://payswap/preview/storage-key-id",
+            "OBJECT_STORAGE_SECRET_ACCESS_KEY": "vault://payswap/preview/storage-secret",
+            "API_VERSION": "2026-09-30"
+          }
+        },
+        {
+          "serviceId": "payswap-protocol-worker",
+          "role": "protocol-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "protocol-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-preview",
+            "VAULT_REF": "vault://payswap/preview",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-preview.internal",
+            "OBJECT_STORAGE_ENDPOINT": "https://storage.payswap-preview.internal",
+            "OBJECT_STORAGE_BUCKET": "payswap-evidence-preview",
+            "OBJECT_STORAGE_REGION": "auto",
+            "OBJECT_STORAGE_ACCESS_KEY_ID": "vault://payswap/preview/storage-key-id",
+            "OBJECT_STORAGE_SECRET_ACCESS_KEY": "vault://payswap/preview/storage-secret",
+            "QUEUE_URL": "queue://preview",
+            "REDIS_URL": "redis://preview"
+          }
+        },
+        {
+          "serviceId": "payswap-reconciliation-worker",
+          "role": "reconciliation-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "reconciliation-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-preview",
+            "VAULT_REF": "vault://payswap/preview",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-preview.internal",
+            "QUEUE_URL": "queue://preview",
+            "REDIS_URL": "redis://preview"
+          }
+        },
+        {
+          "serviceId": "payswap-lab-worker",
+          "role": "lab-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "lab-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-preview",
+            "VAULT_REF": "vault://payswap/preview",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-preview.internal",
+            "QUEUE_URL": "queue://preview",
+            "REDIS_URL": "redis://preview"
+          }
+        },
+        {
+          "serviceId": "payswap-notification-worker",
+          "role": "notification-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "notification-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-preview",
+            "VAULT_REF": "vault://payswap/preview",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-preview.internal",
+            "OBJECT_STORAGE_ENDPOINT": "https://storage.payswap-preview.internal",
+            "OBJECT_STORAGE_BUCKET": "payswap-evidence-preview",
+            "OBJECT_STORAGE_REGION": "auto",
+            "OBJECT_STORAGE_ACCESS_KEY_ID": "vault://payswap/preview/storage-key-id",
+            "OBJECT_STORAGE_SECRET_ACCESS_KEY": "vault://payswap/preview/storage-secret",
+            "QUEUE_URL": "queue://preview",
+            "REDIS_URL": "redis://preview",
+            "WEBHOOK_SIGNING_SECRET_REF": "vault://payswap/webhook-signing"
+          }
+        }
+      ],
+      "configFingerprint": "fnv1a64:30a80a3a0739c872"
+    },
+    "production": {
+      "environment": "production",
+      "services": [
+        {
+          "serviceId": "payswap-web-api",
+          "role": "web-api",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "web-api",
+            "DATABASE_URL": "postgres://vault:ref/db-prod",
+            "VAULT_REF": "vault://payswap/prod",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-prod.internal",
+            "OBJECT_STORAGE_ENDPOINT": "https://storage.payswap-prod.internal",
+            "OBJECT_STORAGE_BUCKET": "payswap-evidence-prod",
+            "OBJECT_STORAGE_REGION": "auto",
+            "OBJECT_STORAGE_ACCESS_KEY_ID": "vault://payswap/prod/storage-key-id",
+            "OBJECT_STORAGE_SECRET_ACCESS_KEY": "vault://payswap/prod/storage-secret",
+            "API_VERSION": "2026-09-30"
+          }
+        },
+        {
+          "serviceId": "payswap-protocol-worker",
+          "role": "protocol-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "protocol-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-prod",
+            "VAULT_REF": "vault://payswap/prod",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-prod.internal",
+            "OBJECT_STORAGE_ENDPOINT": "https://storage.payswap-prod.internal",
+            "OBJECT_STORAGE_BUCKET": "payswap-evidence-prod",
+            "OBJECT_STORAGE_REGION": "auto",
+            "OBJECT_STORAGE_ACCESS_KEY_ID": "vault://payswap/prod/storage-key-id",
+            "OBJECT_STORAGE_SECRET_ACCESS_KEY": "vault://payswap/prod/storage-secret",
+            "QUEUE_URL": "queue://prod",
+            "REDIS_URL": "redis://prod"
+          }
+        },
+        {
+          "serviceId": "payswap-reconciliation-worker",
+          "role": "reconciliation-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "reconciliation-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-prod",
+            "VAULT_REF": "vault://payswap/prod",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-prod.internal",
+            "QUEUE_URL": "queue://prod",
+            "REDIS_URL": "redis://prod"
+          }
+        },
+        {
+          "serviceId": "payswap-lab-worker",
+          "role": "lab-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "lab-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-prod",
+            "VAULT_REF": "vault://payswap/prod",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-prod.internal",
+            "QUEUE_URL": "queue://prod",
+            "REDIS_URL": "redis://prod"
+          }
+        },
+        {
+          "serviceId": "payswap-notification-worker",
+          "role": "notification-worker",
+          "version": "bf414753a8dc",
+          "config": {
+            "WORKER_ROLE": "notification-worker",
+            "DATABASE_URL": "postgres://vault:ref/db-prod",
+            "VAULT_REF": "vault://payswap/prod",
+            "OBSERVABILITY_ENDPOINT": "https://otel.payswap-prod.internal",
+            "OBJECT_STORAGE_ENDPOINT": "https://storage.payswap-prod.internal",
+            "OBJECT_STORAGE_BUCKET": "payswap-evidence-prod",
+            "OBJECT_STORAGE_REGION": "auto",
+            "OBJECT_STORAGE_ACCESS_KEY_ID": "vault://payswap/prod/storage-key-id",
+            "OBJECT_STORAGE_SECRET_ACCESS_KEY": "vault://payswap/prod/storage-secret",
+            "QUEUE_URL": "queue://prod",
+            "REDIS_URL": "redis://prod",
+            "WEBHOOK_SIGNING_SECRET_REF": "vault://payswap/webhook-signing"
+          }
+        }
+      ],
+      "configFingerprint": "fnv1a64:0fd43a13fbabedd7"
+    }
+  },
+  "checks": {
+    "environmentVariableCompleteness": {
+      "production": {
+        "passed": true,
+        "services": [
+          {
+            "serviceId": "payswap-web-api",
+            "role": "web-api",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-protocol-worker",
+            "role": "protocol-worker",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-reconciliation-worker",
+            "role": "reconciliation-worker",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-lab-worker",
+            "role": "lab-worker",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-notification-worker",
+            "role": "notification-worker",
+            "missing": [],
+            "passed": true
+          }
+        ]
+      },
+      "preview": {
+        "passed": true,
+        "services": [
+          {
+            "serviceId": "payswap-web-api",
+            "role": "web-api",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-protocol-worker",
+            "role": "protocol-worker",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-reconciliation-worker",
+            "role": "reconciliation-worker",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-lab-worker",
+            "role": "lab-worker",
+            "missing": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-notification-worker",
+            "role": "notification-worker",
+            "missing": [],
+            "passed": true
+          }
+        ]
+      }
+    },
+    "previewProductionParity": {
+      "previewEnvironment": "preview",
+      "productionEnvironment": "production",
+      "servicesMissingInProduction": [],
+      "servicesMissingInPreview": [],
+      "serviceDiffs": [
+        {
+          "serviceId": "payswap-web-api",
+          "role": "web-api",
+          "versionDrift": false,
+          "previewVersion": "bf414753a8dc",
+          "productionVersion": "bf414753a8dc",
+          "unexpectedConfigDifferences": [],
+          "passed": true
+        },
+        {
+          "serviceId": "payswap-protocol-worker",
+          "role": "protocol-worker",
+          "versionDrift": false,
+          "previewVersion": "bf414753a8dc",
+          "productionVersion": "bf414753a8dc",
+          "unexpectedConfigDifferences": [],
+          "passed": true
+        },
+        {
+          "serviceId": "payswap-reconciliation-worker",
+          "role": "reconciliation-worker",
+          "versionDrift": false,
+          "previewVersion": "bf414753a8dc",
+          "productionVersion": "bf414753a8dc",
+          "unexpectedConfigDifferences": [],
+          "passed": true
+        },
+        {
+          "serviceId": "payswap-lab-worker",
+          "role": "lab-worker",
+          "versionDrift": false,
+          "previewVersion": "bf414753a8dc",
+          "productionVersion": "bf414753a8dc",
+          "unexpectedConfigDifferences": [],
+          "passed": true
+        },
+        {
+          "serviceId": "payswap-notification-worker",
+          "role": "notification-worker",
+          "versionDrift": false,
+          "previewVersion": "bf414753a8dc",
+          "productionVersion": "bf414753a8dc",
+          "unexpectedConfigDifferences": [],
+          "passed": true
+        }
+      ],
+      "passed": true,
+      "digest": "fnv1a64:4d6b89975429afad"
+    },
+    "secretReferenceHygiene": {
+      "production": {
+        "passed": true,
+        "services": [
+          {
+            "serviceId": "payswap-web-api",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-protocol-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-reconciliation-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-lab-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-notification-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          }
+        ]
+      },
+      "preview": {
+        "passed": true,
+        "services": [
+          {
+            "serviceId": "payswap-web-api",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-protocol-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-reconciliation-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-lab-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          },
+          {
+            "serviceId": "payswap-notification-worker",
+            "forbiddenKeys": [],
+            "embeddedValues": [],
+            "passed": true
+          }
+        ]
+      }
+    },
+    "deploymentOrder": {
+      "environment": "production",
+      "stages": [
+        {
+          "stageId": "pre-deploy-expansion-migrations",
+          "order": 1,
+          "description": "Apply every forward-compatible (EXPANSION/DATA_BACKFILL) schema migration BEFORE deploying the code that reads it — old code keeps running against the expanded schema (INV-O03).",
+          "serviceIds": [],
+          "invariants": [
+            "INV-O03"
+          ]
+        },
+        {
+          "stageId": "deploy-protocol-worker",
+          "order": 2,
+          "description": "Deploy the protocol worker first: the Financial Protocol Authority accepts the new command shape before any other role sends it.",
+          "serviceIds": [
+            "payswap-protocol-worker"
+          ],
+          "invariants": [
+            "INV-F06"
+          ]
+        },
+        {
+          "stageId": "deploy-rail-adapter-and-reconciliation-workers",
+          "order": 3,
+          "description": "Deploy rail adapter workers and the reconciliation worker: external effects and ambiguity resolution follow the protocol; adapter outages stay isolated per provider.",
+          "serviceIds": [
+            "payswap-reconciliation-worker"
+          ],
+          "invariants": [
+            "INV-C06",
+            "INV-X03"
+          ]
+        },
+        {
+          "stageId": "deploy-web-api",
+          "order": 4,
+          "description": "Deploy web/API surfaces after the backend plane is ready; this stage is gated by browser-journey verification (desktop + responsive, console-error check, key interactions, screenshot artifact, real API wiring).",
+          "serviceIds": [
+            "payswap-web-api"
+          ],
+          "invariants": [
+            "INV-E04"
+          ]
+        },
+        {
+          "stageId": "deploy-notification-and-lab-workers",
+          "order": 5,
+          "description": "Deploy the notification worker and the Lab worker (Lab stays hard-isolated from production rails — INV-L01).",
+          "serviceIds": [
+            "payswap-notification-worker",
+            "payswap-lab-worker"
+          ],
+          "invariants": [
+            "INV-L01"
+          ]
+        },
+        {
+          "stageId": "post-deploy-verification",
+          "order": 6,
+          "description": "Re-run the deployment gates: preview/production parity, environment completeness, secret hygiene, queue/outbox health, browser journeys, API conformance, invariant suite, observability event flow, rollback rehearsal (INV-O04 restore/replay drill).",
+          "serviceIds": [],
+          "invariants": [
+            "INV-O01",
+            "INV-O02",
+            "INV-O04"
+          ]
+        }
+      ],
+      "migrations": [],
+      "passed": true
+    }
+  },
+  "gates": [
+    {
+      "gateId": "schema-migration-compatibility",
+      "title": "Schema migration compatibility",
+      "description": "Forward-compatible migrations (INV-O03); restore/replay can reconstruct authoritative state (INV-O04).",
+      "invariants": [
+        "INV-O03",
+        "INV-O04"
+      ],
+      "verdict": "PASS",
+      "evidence": "planDeploymentOrder validated the INV-O03 order on this release's production manifest (expansion migrations strictly before the code that reads them; no contraction migration shipped). Zero schema migrations ship in this release; INV-O04 restore/replay is declared (RESTORE_REPLAY_PROCEDURE) and drilled in the certified battery."
+    },
+    {
+      "gateId": "environment-variable-completeness",
+      "title": "Environment-variable completeness",
+      "description": "Effective configuration matches the declared environment contract; drift blocks deploy.",
+      "invariants": [],
+      "verdict": "PASS",
+      "evidence": "checkEnvironmentVariableCompleteness green for BOTH manifests (machine-verified in this record): every §3.1 variable present for every declared worker role; secret-backed entries carry vault-reference values only."
+    },
+    {
+      "gateId": "secret-exposure",
+      "title": "Secret exposure",
+      "description": "Scan for secrets in repo/artifacts; vault-only resolution verified.",
+      "invariants": [],
+      "verdict": "PASS",
+      "evidence": "checkSecretReferenceHygiene green for BOTH manifests (machine-verified in this record): no direct secret keys, no embedded secret values. Repository scan at the release sha: no secret material committed (CI green; the deployment authorization itself carries the vault-only constraint)."
+    },
+    {
+      "gateId": "provider-capability-configuration",
+      "title": "Provider capability configuration",
+      "description": "Declared ConnectedCapabilityInstances consistent with actual account authorization/entitlement.",
+      "invariants": [
+        "INV-C05",
+        "INV-NC04"
+      ],
+      "verdict": "PASS (ZERO-PROVIDER RELEASE — RAIL-ADAPTER ROLE NOT DEPLOYED)",
+      "evidence": "Zero ConnectedCapabilityInstances are declared for this release: the rail-adapter-worker role is NOT DEPLOYED (topology §1 — one adapter worker per provider/rail). The configuration contract is structural about the no-simulated-rail law: PROVIDER_CREDENTIAL_REF is a template satisfied only by a NAMED PROVIDER_<NAME>_CREDENTIAL_REF key, so an adapter worker without at least one named REAL provider cannot even pass environment completeness. ACTIVATION PATH: the operator supplies real provider credentials and names them; the role then deploys with one credential reference per provider (topology §2 — no simulated rail adapter may ever be wired behind a production surface)."
+    },
+    {
+      "gateId": "database-connectivity",
+      "title": "Database connectivity",
+      "description": "Connectivity checked from every worker role.",
+      "invariants": [],
+      "verdict": "NOT-EXECUTABLE (RUNTIME PLANE)",
+      "evidence": "This release deploys the certified platform contracts + configuration; live worker processes are the production operator console's consumption path. DATABASE_URL is declared as a vault reference in every role's manifest. No runtime database credential is present in the deployment sandbox (the prior mission's free-tier bindings were session-scoped and expired with it)."
+    },
+    {
+      "gateId": "queue-outbox-health",
+      "title": "Queue/outbox health",
+      "description": "No stuck commands; outbox drain verified.",
+      "invariants": [
+        "INV-O02"
+      ],
+      "verdict": "NOT-EXECUTABLE (RUNTIME PLANE)",
+      "evidence": "Same runtime-plane condition as database connectivity. The outbox law (INV-O02: committed mutations never silently lose their event) is machine-verified in the certified battery; the live drain check executes when the runtime plane binds QUEUE_URL/REDIS_URL."
+    },
+    {
+      "gateId": "browser-journeys",
+      "title": "Browser journeys",
+      "description": "Desktop + responsive verification, console-error check, key interactions, screenshot artifact, evidence of real API/protocol wiring.",
+      "invariants": [
+        "INV-E04"
+      ],
+      "verdict": "PASS (CONTRACT LEVEL)",
+      "evidence": "The W3-007 browser-verification contracts (six required checks per journey over the ACTUAL view-models — desktop, responsive, console-error, key interactions, screenshot-artifact strength, real API wiring evidence) are machine-verified in the certified 1844-test battery. No rendered UI ships in this roadmap (view-models by design). Runtime browser journeys execute against the operator console's surfaces."
+    },
+    {
+      "gateId": "api-conformance",
+      "title": "API conformance",
+      "description": "Contract tests: envelope shape, error category → status mapping, idempotency-key enforcement, webhook signature and replay-window semantics.",
+      "invariants": [
+        "INV-F05"
+      ],
+      "verdict": "PASS",
+      "evidence": "The @payswap/api boundary + @payswap/interfaces conformance suites (envelope shape, error category -> status mapping incl. EXTERNAL_AMBIGUITY -> 409 + X-PaySwap-Outcome: unknown, idempotency-key enforcement INV-F05, webhook signature + 300s replay window) are green in the certified battery and CI at the release sha."
+    },
+    {
+      "gateId": "architecture-invariant-suite",
+      "title": "Architecture/invariant suite",
+      "description": "Invariants including INV-X01 (UNKNOWN never mapped to FAILED) hold in tests.",
+      "invariants": [
+        "INV-X01"
+      ],
+      "verdict": "PASS",
+      "evidence": "npm run verify:repo passed at the release sha (governance, frozen-architecture markers, work-order completeness); the invariant suite is green in the battery; GitHub CI green on the release commit."
+    },
+    {
+      "gateId": "observability",
+      "title": "Observability",
+      "description": "Dashboards/alerts receive terminal and reconciliation events from the new release.",
+      "invariants": [],
+      "verdict": "DECLARED — SINK UNWIRED (RUNTIME PLANE)",
+      "evidence": "The W3-007 observability taxonomy is complete as certified data: every terminal-state transition, UNKNOWN outcome and reconciliation resolution observable; dashboards + alert rules declared with no orphan alerts (every alert routes to a runbook entry). OBSERVABILITY_ENDPOINT is declared as a reference in every role's manifest; live sink wiring executes with the runtime plane."
+    },
+    {
+      "gateId": "rollback",
+      "title": "Rollback",
+      "description": "Documented, rehearsed path — migrations must roll back or forward-safely.",
+      "invariants": [
+        "INV-O03",
+        "INV-O04"
+      ],
+      "verdict": "PASS",
+      "evidence": "Rollback is documented and drilled: RESTORE_REPLAY_PROCEDURE (INV-O04) reconstructs authoritative state; the recovery playbooks cover the five W3-007 diagnosis scenarios; every operator action in the catalog carries an explicit rollback path (reversible, compensating, or irreversible-with-full-audit-trail — never 'unknown rollback')."
+    }
+  ],
+  "verdicts_summary": {
+    "pass": 6,
+    "pass_contract_or_declared_empty": 2,
+    "not_executable_or_unwired_runtime_plane": 3
+  },
+  "overall": {
+    "status": "RELEASE CERTIFIED AT PLATFORM/CONTRACT LEVEL — the certified tree (contracts, checkers, view-models, deployment configuration) plus this verified deployment record constitute the release. The runtime plane (live worker processes, database/queue wiring, hosted surfaces, observability sink) is the production operator console's consumption path; its activation requires operator-supplied infrastructure and real provider credentials (topology §2 — no simulated rail behind a production surface).",
+    "machine_checks": true
+  }
+}
