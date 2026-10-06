@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Public product surface of PaySwap (Work Order P3-W1-001): the public website — product homepage, honest capabilities/coverage explorer over the recorded provider-probe evidence, security & non-custody page, developer entry, the honest authenticated entry boundary (/app) and the health endpoint. A consumer of the authoritative PaySwap API; holds no financial state of its own.",
+  "description": "Public product surface of PaySwap (Work Order P3-W1-001): the public website \u2014 product homepage, honest capabilities/coverage explorer over the recorded provider-probe evidence, security & non-custody page, developer entry, the honest authenticated entry boundary (/app) and the health endpoint. A consumer of the authoritative PaySwap API; holds no financial state of its own.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
