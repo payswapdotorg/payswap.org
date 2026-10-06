@@ -2,9 +2,9 @@
   "schema_version": "1.0",
   "record_type": "runtime-plane-probe",
   "release": {
-    "sha": "094797effab3d6ea45ff702f8bfd8d2210e2a475"
+    "sha": "6410b8aa10aee070939b9117356c6b1f9a8855a3"
   },
-  "probed_at": "2026-10-03T02:55:13.766Z",
+  "probed_at": "2026-10-06T07:43:59.991Z",
   "production_url": "https://payswap-mu.vercel.app",
   "secondary_surface": "https://payswap.vercel.app",
   "vantages": {
@@ -41,11 +41,13 @@
         {
           "role": "notification-worker",
           "declared": 10,
-          "missing": [],
-          "passed": true
+          "missing": [
+            "WEBHOOK_SIGNING_SECRET_REF"
+          ],
+          "passed": false
         }
       ],
-      "passed": true
+      "passed": false
     },
     "deployed": {
       "role": "web-api",
@@ -64,7 +66,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 2850
+        "latencyMs": 2146
       },
       {
         "role": "protocol-worker",
@@ -72,7 +74,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1557
+        "latencyMs": 1565
       },
       {
         "role": "reconciliation-worker",
@@ -80,7 +82,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1566
+        "latencyMs": 1606
       },
       {
         "role": "lab-worker",
@@ -88,7 +90,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1611
+        "latencyMs": 1567
       },
       {
         "role": "notification-worker",
@@ -96,7 +98,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1550
+        "latencyMs": 1576
       }
     ],
     "deployedContext": {
@@ -104,7 +106,7 @@
       "database": "neondb",
       "user": "neondb_owner",
       "serverVersion": "PostgreSQL 17.11",
-      "latencyMs": 123
+      "latencyMs": 114
     },
     "binding": {
       "user": "neondb_owner",
@@ -124,20 +126,20 @@
       "ping": "PONG",
       "drill": {
         "stream": "payswap:production:outbox-probe",
-        "group": "probe-group-1790996123473",
-        "messageId": "1790996123496-0",
-        "read": 8,
-        "acked": 8,
+        "group": "probe-group-1791272649027",
+        "messageId": "1791272649038-0",
+        "read": 9,
+        "acked": 9,
         "pendingAfterAck": 0
       },
       "drainVerified": true,
-      "latencyMs": 112
+      "latencyMs": 111
     },
     "drainDerived": true
   },
   "observability": {
     "binding": {
-      "endpoint": "https://payswap-mu.vercel.app/api/internal/observability",
+      "endpoint": "https://payswap.vercel.app/api/internal/observability",
       "sink": "upstash stream payswap:observability:production (taxonomy-validated ingestion)"
     },
     "ok": true,
@@ -145,22 +147,22 @@
       {
         "eventName": "settlement.terminal-transition.fulfilled",
         "stream": "payswap:observability:production",
-        "eventId": "1790996125061-0"
+        "eventId": "1791272650935-0"
       },
       {
         "eventName": "settlement.terminal-transition.unknown",
         "stream": "payswap:observability:production",
-        "eventId": "1790996125393-0"
+        "eventId": "1791272651184-0"
       },
       {
         "eventName": "reconciliation.case-opened",
         "stream": "payswap:observability:production",
-        "eventId": "1790996125637-0"
+        "eventId": "1791272651429-0"
       },
       {
         "eventName": "deployment.gate-result",
         "stream": "payswap:observability:production",
-        "eventId": "1790996126142-0"
+        "eventId": "1791272651683-0"
       }
     ],
     "invalidRejected": true
@@ -169,7 +171,7 @@
     "consoleVantage": {
       "ok": true,
       "bucket": "payswap-evidence-prod",
-      "artifact": "probe/activation/d02508627f4f85a336118747d75658ec76e5aa353315c25b5ca34e8bb01bd3ce.txt",
+      "artifact": "probe/activation/b6897ede5ac686a80850ea1a8d66e1efc17f917f91a8bf79731136e186194b48.txt",
       "digestMatch": true
     },
     "deployedContext": {
@@ -177,29 +179,41 @@
       "putStatus": 200,
       "getStatus": 200,
       "digestMatch": true,
-      "artifact": "probe/production/744c5a58429210ec1688a84c7a92372a60ec483b77a452f635472b0675d6e806.txt",
-      "latencyMs": 1260
+      "artifact": "probe/production/ce20c25456904957c553ec06c122a6ed3530ed0c8f8afd3fe7840941a974f91f.txt",
+      "latencyMs": 1184
     }
   },
   "hosting": {
     "provider": "vercel",
     "deployments": [
       {
-        "uid": "dpl_Gs53N7Dxdttca5zpav9BmnH1fbMx",
+        "uid": "dpl_Ek1zb59vPt9avFJBuXZ1xBXVPewS",
         "readyState": "BLOCKED",
-        "url": "payswap-1dw5qg567-tepa.vercel.app",
+        "url": "payswap-713knbwbn-ekonplacidegmailcoms-projects.vercel.app",
         "gitSha": null
       },
       {
-        "uid": "dpl_9BaJ3HdNGnFfV5oRJQX98LonPTZb",
-        "readyState": "BLOCKED",
-        "url": "payswap-r61ijtcw8-tepa.vercel.app",
-        "gitSha": null
-      },
-      {
-        "uid": "dpl_FNEB1o9tANj9KjkCF3iHnhvvGur1",
+        "uid": "dpl_7jfArJ17oDYyEa4ey6MZCPmDW45v",
         "readyState": "READY",
-        "url": "payswap-jg7d1b0kh-tepa.vercel.app",
+        "url": "payswap-kw2yr6ils-ekonplacidegmailcoms-projects.vercel.app",
+        "gitSha": null
+      },
+      {
+        "uid": "dpl_3QbTrbpFXHr13c725Ph8tib7MDA5",
+        "readyState": "READY",
+        "url": "payswap-hwtwi8abb-ekonplacidegmailcoms-projects.vercel.app",
+        "gitSha": null
+      },
+      {
+        "uid": "dpl_c6kXmkqXNFS79rjhh5sALSemqv4u",
+        "readyState": "ERROR",
+        "url": "payswap-487mew993-ekonplacidegmailcoms-projects.vercel.app",
+        "gitSha": null
+      },
+      {
+        "uid": "dpl_96xZRX81eqRHjNTW6mwSAK4Vzfkw",
+        "readyState": "READY",
+        "url": "payswap-dmappvpt8-ekonplacidegmailcoms-projects.vercel.app",
         "gitSha": null
       }
     ],
@@ -238,7 +252,7 @@
         "name": "authenticated /v1/health -> 200 certified envelope",
         "ok": true,
         "status": 200,
-        "detail": "requestId=req_1790996128073_1790996128073000004 serverTime present=true"
+        "detail": "requestId=req_1791272653664_1791272653664000007 serverTime present=true"
       },
       {
         "name": "authenticated /v1/capabilities -> honest zero-provider states",
