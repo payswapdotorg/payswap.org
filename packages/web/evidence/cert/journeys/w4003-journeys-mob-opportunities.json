@@ -1,0 +1,48 @@
+{
+  "chunk": "mob-opportunities",
+  "viewport": "mobile",
+  "mode": "mini",
+  "pages": [
+    {
+      "viewport": "mobile",
+      "area": "opportunities",
+      "route": "/app/opportunities",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [
+          {
+            "label": "",
+            "result": "disclosed/mutated"
+          }
+        ],
+        "buttons": [
+          {
+            "label": "Open navigation",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {},
+      "screenshot": "packages/web/evidence/cert/mobile-opportunities.png",
+      "httpStatus": 200
+    }
+  ],
+  "totals": {
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "screenshots": 1,
+    "clicks": 4,
+    "deadCandidates": []
+  },
+  "finishedAt": "2026-10-06T05:48:57.576Z"
+}

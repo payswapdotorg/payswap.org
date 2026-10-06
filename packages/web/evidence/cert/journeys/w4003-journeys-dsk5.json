@@ -1,0 +1,43 @@
+{
+  "chunk": "dsk5",
+  "viewport": "desktop",
+  "mode": "mini",
+  "pages": [
+    {
+      "viewport": "desktop",
+      "area": "pay",
+      "route": "/app/payments?start=1",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {},
+      "screenshot": "packages/web/evidence/cert/desktop-pay.png",
+      "httpStatus": 200
+    }
+  ],
+  "totals": {
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "screenshots": 1,
+    "clicks": 3,
+    "deadCandidates": []
+  },
+  "finishedAt": "2026-10-06T05:47:58.492Z"
+}

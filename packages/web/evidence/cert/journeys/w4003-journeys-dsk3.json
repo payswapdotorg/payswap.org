@@ -1,0 +1,102 @@
+{
+  "chunk": "dsk3",
+  "viewport": "desktop",
+  "mode": "mini",
+  "pages": [
+    {
+      "viewport": "desktop",
+      "area": "connections",
+      "route": "/app/connections",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {
+        "catalogueVocabulary": true
+      },
+      "screenshot": "packages/web/evidence/cert/desktop-connections.png",
+      "httpStatus": 200
+    },
+    {
+      "viewport": "desktop",
+      "area": "accounts",
+      "route": "/app/accounts",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {
+        "observationVocabulary": true
+      },
+      "screenshot": "packages/web/evidence/cert/desktop-accounts.png",
+      "httpStatus": 200
+    },
+    {
+      "viewport": "desktop",
+      "area": "opportunities",
+      "route": "/app/opportunities",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {},
+      "screenshot": "packages/web/evidence/cert/desktop-opportunities.png",
+      "httpStatus": 200
+    }
+  ],
+  "totals": {
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "screenshots": 3,
+    "clicks": 9,
+    "deadCandidates": []
+  }
+}

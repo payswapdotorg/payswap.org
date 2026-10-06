@@ -1,0 +1,173 @@
+{
+  "chunk": "dsk2",
+  "viewport": "desktop",
+  "mode": "mini",
+  "pages": [
+    {
+      "viewport": "desktop",
+      "area": "overview",
+      "route": "/app",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [
+          {
+            "label": "Why this is not dispatchable yet",
+            "result": "disclosed/mutated"
+          },
+          {
+            "label": "What the advanced view discloses",
+            "result": "disclosed/mutated"
+          },
+          {
+            "label": "Why this is not dispatchable yet",
+            "result": "disclosed/mutated"
+          },
+          {
+            "label": "What the advanced view discloses",
+            "result": "disclosed/mutated"
+          }
+        ],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Refresh from the API",
+            "result": "mutated"
+          },
+          {
+            "label": "Refresh from the API",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {
+        "outcomeCards": 5,
+        "dispatchableStates": {
+          "false": 5
+        },
+        "hasPrerequisites": false
+      },
+      "screenshot": "packages/web/evidence/cert/desktop-overview.png",
+      "httpStatus": 200
+    },
+    {
+      "viewport": "desktop",
+      "area": "convert",
+      "route": "/app/convert",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [
+          {
+            "label": "What this journey walks when inputs exist",
+            "result": "disclosed/mutated"
+          }
+        ],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {
+        "testnetIndicatorCount": 1,
+        "testWordCount": 1
+      },
+      "screenshot": "packages/web/evidence/cert/desktop-convert.png",
+      "httpStatus": 200
+    },
+    {
+      "viewport": "desktop",
+      "area": "checkout",
+      "route": "/app/checkout",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {
+        "honestNoContext": false
+      },
+      "screenshot": "packages/web/evidence/cert/desktop-checkout.png",
+      "httpStatus": 200
+    },
+    {
+      "viewport": "desktop",
+      "area": "security",
+      "route": "/app/security",
+      "consoleErrors": [],
+      "pageErrors": [],
+      "clicks": {
+        "summaries": [
+          {
+            "label": "The typed security detail",
+            "result": "disclosed/mutated"
+          }
+        ],
+        "buttons": [
+          {
+            "label": "Apply",
+            "result": "mutated"
+          },
+          {
+            "label": "Search…\n⌘K",
+            "result": "mutated"
+          },
+          {
+            "label": "Open Next.js Dev Tools",
+            "result": "mutated"
+          }
+        ],
+        "links": []
+      },
+      "assertions": {
+        "vocab_BLOCK": true,
+        "vocab_ALLOW": true,
+        "vocab_UNKNOWN": true
+      },
+      "screenshot": "packages/web/evidence/cert/desktop-security.png",
+      "httpStatus": 200
+    }
+  ],
+  "totals": {
+    "consoleErrors": 0,
+    "pageErrors": 0,
+    "screenshots": 4,
+    "clicks": 19,
+    "deadCandidates": []
+  },
+  "finishedAt": "2026-10-06T05:32:45.294Z"
+}
