@@ -11,6 +11,20 @@
 
 import { surfaceProvenance, type SurfaceContractProvenance } from "./version.js";
 
+// UX-002 — the command-verb and sidebar-anchor vocabularies of the aliases
+// below. These literal unions MIRROR @payswap/ux's single registries
+// (COMMAND_VERBS, SIDEBAR_GROUP_SLUGS, SIDEBAR_PERSISTENT_ROW_IDS) — they are
+// duplicated at the TYPE level only (a deliberate decoupling: a type-only
+// import of @payswap/ux here would drag the whole ux→api→interfaces source
+// graph into every downstream TypeScript program that already includes this
+// package, breaking programs with vendored minimal node:crypto declarations).
+// Equivalence with the single source is ENFORCED BY TEST
+// (test/outcome-aliases.test.ts imports the REAL @payswap/ux registries and
+// asserts every alias verb/anchor is a member) — drift fails the gate.
+type CommandVerb = "pay" | "request" | "invoice" | "link" | "convert" | "withdraw";
+type SidebarGroupSlug = "accept" | "bill" | "insights" | "capabilities" | "more";
+type SidebarPersistentRowId = "home" | "balances" | "transactions" | "customers" | "catalog";
+
 /** The five outcome actions — the fixed, versioned vocabulary. */
 export type OutcomeActionId = "pay" | "receive" | "move" | "convert" | "checkout";
 
@@ -211,4 +225,82 @@ export function outcomeCapabilityBoard(
     action,
     state: action.capability(context),
   }));
+}
+
+// ---------------------------------------------------------------------------
+// Outcome-action reconciliation aliases (UX-002 — contract 01 §3 + 06 §3/§4)
+// ---------------------------------------------------------------------------
+//
+// ADDITIVE side-table: the five CERTIFIED outcome actions keep their ids,
+// shapes and dispatch authorities exactly as P4-W4-002 certified them; this
+// table reconciles them onto the command-grammar verbs and the object-model
+// sidebar anchors so ONE interaction grammar covers both vocabularies. The
+// verbs and anchors are TYPED against @payswap/ux (the single source) — no
+// second verb or navigation vocabulary is created here.
+
+/** A sidebar anchor for an outcome-action lane: a workload group or a persistent money-object row. */
+export type OutcomeAliasNavAnchor = SidebarGroupSlug | SidebarPersistentRowId;
+
+/** The reconciliation of one certified outcome action onto the command grammar + sidebar. */
+export interface OutcomeActionAlias {
+  readonly actionId: OutcomeActionId;
+  /**
+   * The command grammar verbs this action reconciles onto (contract 06 §3/§4).
+   * `receive` ≈ the request lane; `move` ≈ the withdraw/convert lanes.
+   */
+  readonly commandVerbs: readonly CommandVerb[];
+  /** Where the lane lives in the object-model sidebar (contract 01 §3). */
+  readonly navAnchors: readonly OutcomeAliasNavAnchor[];
+  /** Why this mapping holds (auditable, one line). */
+  readonly note: string;
+}
+
+const OUTCOME_ACTION_ALIASES_TABLE: Readonly<Record<OutcomeActionId, OutcomeActionAlias>> = {
+  pay: {
+    actionId: "pay",
+    commandVerbs: ["pay"],
+    navAnchors: ["accept"],
+    note: "Paying is the payments family lane: the pay verb opens the payment workflow from the Accept group.",
+  },
+  receive: {
+    actionId: "receive",
+    commandVerbs: ["request"],
+    navAnchors: ["accept"],
+    note: "receive ≈ the request lane (UX-002): requesting money is the `request` verb of the same payments family.",
+  },
+  move: {
+    actionId: "move",
+    commandVerbs: ["withdraw", "convert"],
+    navAnchors: ["balances"],
+    note: "move ≈ the withdraw/convert lanes (UX-002): withdraw routes to the Balances withdraw flow (contract 06 §3); convert moves value between balances.",
+  },
+  convert: {
+    actionId: "convert",
+    commandVerbs: ["convert"],
+    navAnchors: ["balances"],
+    note: "Converting is moving value between the balances you hold — anchored on the Balances object row.",
+  },
+  checkout: {
+    actionId: "checkout",
+    commandVerbs: ["link"],
+    navAnchors: ["accept"],
+    note: "checkout ≈ the payment-link lane: a payment link is a hosted, customer-facing checkout page (the Accept group's Checkout/links items).",
+  },
+};
+
+/**
+ * The outcome-action reconciliation table (UX-002): five certified actions ×
+ * command verbs × sidebar anchors. ADDITIVE — the certified
+ * `OUTCOME_REGISTRY`/`OutcomeActionId` shapes are untouched.
+ */
+export const OUTCOME_ACTION_ALIASES: Readonly<Record<OutcomeActionId, OutcomeActionAlias>> =
+  OUTCOME_ACTION_ALIASES_TABLE;
+
+/** Look up one action's reconciliation (fail-closed on unknown ids). */
+export function outcomeActionAlias(id: OutcomeActionId): OutcomeActionAlias {
+  const alias = OUTCOME_ACTION_ALIASES[id];
+  if (alias === undefined) {
+    throw new Error(`outcomeActionAlias: unknown outcome action id ${JSON.stringify(id)}`);
+  }
+  return alias;
 }

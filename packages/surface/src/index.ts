@@ -24,11 +24,15 @@ export {
 } from "./money-view.js";
 
 export {
+  OUTCOME_ACTION_ALIASES,
   OUTCOME_REGISTRY,
+  outcomeActionAlias,
   outcomeActionById,
   outcomeCapabilityBoard,
   type OutcomeAction,
+  type OutcomeActionAlias,
   type OutcomeActionId,
+  type OutcomeAliasNavAnchor,
   type OutcomeCapabilityState,
   type OutcomeDeploymentContext,
   type OutcomeDispatchAuthority,

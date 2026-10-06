@@ -32,7 +32,7 @@
  * binds the seven journey contracts to the navigation ids defined here.
  */
 
-import type { CommandCenterDomain } from './command-center.js';
+import type { CommandCenterDomain, CommandVerb } from './command-center.js';
 import { ViewContractError } from './command-center.js';
 
 // ---------------------------------------------------------------------------
@@ -880,4 +880,401 @@ export function validateDeepLink(
       throw new ViewContractError(`unhandled route access decision: ${String(exhaustive)}`);
     }
   }
+}
+
+// ---------------------------------------------------------------------------
+// Object-model sidebar registry (contract 01 v1.1 §3 — UX-002)
+// ---------------------------------------------------------------------------
+//
+// Navigation is an OBJECT MODEL, not a feature list (contract 01 §1): the
+// merchant's money objects are ALWAYS visible as persistent rows; capabilities
+// and workloads collapse behind labeled workload groups; the long tail lives
+// behind "More". No capability ever adds a persistent row — it lands inside a
+// group. This registry is PURE DATA (package law): the projections below
+// derive every role's view of the SAME sidebar — a role NEVER re-axes the
+// navigation (TL-review "Recorded" item: role becomes a projection, not a
+// navigation axis).
+
+// (UX-002 additions below consume `CommandVerb` from command-center.js — the
+// import at the top of this file — one dependency direction, no cycle.)
+
+/** The FIVE persistent money-object rows (contract 01 §3 table, exact order). */
+export const SIDEBAR_PERSISTENT_ROW_IDS = [
+  'home',
+  'balances',
+  'transactions',
+  'customers',
+  'catalog',
+] as const;
+
+export type SidebarPersistentRowId = (typeof SIDEBAR_PERSISTENT_ROW_IDS)[number];
+
+/** One persistent sidebar row: a money object, always visible, never hidden. */
+export interface SidebarRow {
+  readonly id: SidebarPersistentRowId;
+  readonly label: string;
+  readonly route: string;
+  /** The money object this row shows (contract 01 §3 "Object" column). */
+  readonly object: string;
+  readonly testId: string;
+}
+
+const SIDEBAR_ROWS_DATA: readonly SidebarRow[] = Object.freeze([
+  Object.freeze({
+    id: 'home',
+    label: 'Home',
+    route: '/',
+    object: 'overview',
+    testId: 'nav.item.home',
+  }),
+  Object.freeze({
+    id: 'balances',
+    label: 'Balances',
+    route: '/balances',
+    object: 'balances per rail',
+    testId: 'nav.item.balances',
+  }),
+  Object.freeze({
+    id: 'transactions',
+    label: 'Transactions',
+    route: '/transactions',
+    object: 'all money movements',
+    testId: 'nav.item.transactions',
+  }),
+  Object.freeze({
+    id: 'customers',
+    label: 'Customers',
+    route: '/customers',
+    object: 'customer directory',
+    testId: 'nav.item.customers',
+  }),
+  Object.freeze({
+    id: 'catalog',
+    label: 'Catalog',
+    route: '/catalog',
+    object: 'products, prices and links',
+    testId: 'nav.item.catalog',
+  }),
+]);
+
+/** The five workload group slugs (contract 01 §3, exact order). */
+export const SIDEBAR_GROUP_SLUGS = ['accept', 'bill', 'insights', 'capabilities', 'more'] as const;
+
+export type SidebarGroupSlug = (typeof SIDEBAR_GROUP_SLUGS)[number];
+
+/** One item inside a workload group (a capability/workload, never a persistent row). */
+export interface SidebarGroupItem {
+  readonly slug: string;
+  readonly label: string;
+  readonly route: string;
+  readonly testId: string;
+}
+
+/** One workload group (accordion; one open, collapse default). */
+export interface SidebarGroup {
+  readonly slug: SidebarGroupSlug;
+  readonly label: string;
+  readonly testId: string;
+  readonly items: readonly SidebarGroupItem[];
+}
+
+function sidebarGroupItem(slug: string, label: string, route: string): SidebarGroupItem {
+  return Object.freeze({ slug, label, route, testId: `nav.item.${slug}` });
+}
+
+const SIDEBAR_GROUPS_DATA: readonly SidebarGroup[] = Object.freeze([
+  Object.freeze({
+    slug: 'accept',
+    label: 'Accept',
+    testId: 'nav.group.accept',
+    items: Object.freeze([
+      sidebarGroupItem('payments-analytics', 'Analytics', '/payments'),
+      sidebarGroupItem('checkout', 'Checkout', '/checkout'),
+      sidebarGroupItem('disputes', 'Disputes', '/disputes'),
+      sidebarGroupItem('risk', 'Risk', '/risk'),
+      sidebarGroupItem('in-person', 'In-person/QR', '/in-person'),
+      sidebarGroupItem('agentic-links', 'Agentic/links', '/payment-links'),
+    ]),
+  }),
+  Object.freeze({
+    slug: 'bill',
+    label: 'Bill',
+    testId: 'nav.group.bill',
+    items: Object.freeze([
+      sidebarGroupItem('billing-overview', 'Overview', '/billing'),
+      sidebarGroupItem('subscriptions', 'Subscriptions', '/billing/subscriptions'),
+      sidebarGroupItem('invoices', 'Invoices', '/invoices'),
+      sidebarGroupItem('usage-based', 'Usage-based', '/billing/usage'),
+      sidebarGroupItem('dunning-recovery', 'Dunning/Recovery', '/billing/dunning'),
+    ]),
+  }),
+  Object.freeze({
+    slug: 'insights',
+    label: 'Insights',
+    testId: 'nav.group.insights',
+    items: Object.freeze([
+      sidebarGroupItem('reports', 'Reports', '/reports'),
+      sidebarGroupItem('custom-metrics', 'Custom metrics', '/insights/metrics'),
+      sidebarGroupItem('exports', 'Exports', '/insights/exports'),
+      sidebarGroupItem('data-pipeline', 'Data pipeline', '/insights/data-pipeline'),
+    ]),
+  }),
+  Object.freeze({
+    slug: 'capabilities',
+    label: 'Capabilities',
+    testId: 'nav.group.capabilities',
+    items: Object.freeze([
+      sidebarGroupItem('installed', 'Installed', '/capabilities/installed'),
+      sidebarGroupItem('browse', 'Browse', '/capabilities/browse'),
+    ]),
+  }),
+  Object.freeze({
+    slug: 'more',
+    label: 'More',
+    testId: 'nav.group.more',
+    // The pressure valve: the ONLY group allowed to exceed 7 items (contract 01 §3 rule).
+    items: Object.freeze([
+      sidebarGroupItem('tax-compliance', 'Tax/Compliance', '/tax'),
+      sidebarGroupItem('connect', 'Connect/marketplace-payouts', '/connect'),
+      sidebarGroupItem('identity', 'Identity', '/identity'),
+      sidebarGroupItem('issuing', 'Issuing', '/issuing'),
+      sidebarGroupItem('workflows', 'Workflows', '/workflows'),
+      sidebarGroupItem('projects', 'Projects', '/projects'),
+    ]),
+  }),
+]);
+
+/** The full object-model sidebar registry: 5 persistent rows + 5 workload groups. */
+export interface Sidebar {
+  readonly rows: readonly SidebarRow[];
+  readonly groups: readonly SidebarGroup[];
+}
+
+export const SIDEBAR: Sidebar = Object.freeze({
+  rows: SIDEBAR_ROWS_DATA,
+  groups: SIDEBAR_GROUPS_DATA,
+});
+
+/** The stable group testid convention (contract 01 §2.5/§3): `nav.group.<slug>`. */
+export function navGroupTestId(slug: SidebarGroupSlug): string {
+  return `nav.group.${slug}`;
+}
+
+/** The stable item testid convention (contract 01 §2.5): `nav.item.<slug>`. */
+export function navItemTestId(slug: string): string {
+  return `nav.item.${slug}`;
+}
+
+// ---------------------------------------------------------------------------
+// Create split-button menu (contract 01 §6)
+// ---------------------------------------------------------------------------
+
+/** One Create-menu entry (topbar split-button). */
+export interface CreateMenuItem {
+  readonly id: 'pay' | 'request' | 'invoice' | 'payment-link' | 'convert';
+  readonly label: string;
+  /** The visible, globally-active keyboard chord (contract 01 §6). */
+  readonly chord: string;
+  /** The command grammar verb this menu entry feeds (contract 06 §2). */
+  readonly verb: CommandVerb;
+}
+
+const CREATE_MENU_ITEMS_DATA: readonly CreateMenuItem[] = Object.freeze([
+  Object.freeze({ id: 'pay', label: 'Pay', chord: 'c p', verb: 'pay' }),
+  Object.freeze({ id: 'request', label: 'Request', chord: 'c r', verb: 'request' }),
+  Object.freeze({ id: 'invoice', label: 'Invoice', chord: 'c i', verb: 'invoice' }),
+  Object.freeze({ id: 'payment-link', label: 'Payment link', chord: 'c l', verb: 'link' }),
+  Object.freeze({ id: 'convert', label: 'Convert', chord: 'c v', verb: 'convert' }),
+]);
+
+/**
+ * The Create split-button menu (contract 01 §6): Pay · Request · Invoice ·
+ * Payment link · Convert, each with its keyboard chord. Withdraw is
+ * deliberately NOT a create-menu item — it routes to the Balances withdraw
+ * flow (contract 06 §3) and carries no chord.
+ */
+export const CREATE_MENU_ITEMS: readonly CreateMenuItem[] = CREATE_MENU_ITEMS_DATA;
+
+// ---------------------------------------------------------------------------
+// Roles become PROJECTIONS of the sidebar (never a navigation axis)
+// ---------------------------------------------------------------------------
+
+/**
+ * The two projections of the ONE product (directive §6 / contract 10 §1):
+ * merchant and consumer share the same component catalog and the same
+ * navigation; the projection re-labels the money objects around the viewer's
+ * mental model (contract 10 §2) and chooses which workload groups are
+ * emphasized. A merchant CAN switch projections on the same account
+ * (contract 10 §6) — hence the explicit override in the derivation below.
+ */
+export type SidebarProjectionKind = 'merchant' | 'consumer';
+
+/**
+ * A role's default projection of the sidebar: which workload groups are
+ * emphasized (expanded/pinned in the accordion) and which are hidden from the
+ * role's default view. Constraints (tested): persistent rows are NEVER
+ * hidden; "More" (the pressure valve) is NEVER hidden; hidden and emphasized
+ * are disjoint; the row set, group set and their ORDER are identical for every
+ * role — a role NEVER re-axes the navigation.
+ */
+export interface RoleSidebarProjection {
+  readonly role: ProductRole;
+  readonly projection: SidebarProjectionKind;
+  readonly emphasizedGroups: readonly SidebarGroupSlug[];
+  readonly hiddenGroups: readonly SidebarGroupSlug[];
+}
+
+const ROLE_SIDEBAR_PROJECTIONS_TABLE: Readonly<Record<ProductRole, RoleSidebarProjection>> = {
+  merchant: {
+    role: 'merchant',
+    projection: 'merchant',
+    emphasizedGroups: ['accept', 'bill'],
+    hiddenGroups: [],
+  },
+  supplier: {
+    role: 'supplier',
+    projection: 'merchant',
+    emphasizedGroups: ['bill'],
+    hiddenGroups: [],
+  },
+  lp: {
+    role: 'lp',
+    projection: 'merchant',
+    emphasizedGroups: ['insights'],
+    hiddenGroups: [],
+  },
+  lender: {
+    role: 'lender',
+    projection: 'merchant',
+    emphasizedGroups: ['bill', 'accept'],
+    hiddenGroups: [],
+  },
+  borrower: {
+    role: 'borrower',
+    projection: 'consumer',
+    // Consumer mental model (contract 10): my money, my payments, my contacts —
+    // the persistent rows lead; merchant reporting and the app marketplace are
+    // not the borrower's workloads.
+    emphasizedGroups: [],
+    hiddenGroups: ['insights', 'capabilities'],
+  },
+  developer: {
+    role: 'developer',
+    projection: 'merchant',
+    emphasizedGroups: ['capabilities'],
+    hiddenGroups: [],
+  },
+  expert: {
+    role: 'expert',
+    projection: 'merchant',
+    emphasizedGroups: ['insights'],
+    hiddenGroups: [],
+  },
+  'network-operator': {
+    role: 'network-operator',
+    projection: 'merchant',
+    emphasizedGroups: ['capabilities', 'more'],
+    hiddenGroups: [],
+  },
+};
+
+/**
+ * The compatibility fold (UX-002): each existing `ProductRole` maps onto the
+ * object-model sidebar as a PROJECTION — emphasized groups plus the
+ * merchant/consumer projection — never as a re-axing of the navigation.
+ * `PRODUCT_ROLES`/`ROLE_NAV_CAPABILITIES` consumers keep their existing API;
+ * this fold is the additive bridge onto the contract-01 registry.
+ */
+export const ROLE_SIDEBAR_PROJECTIONS: Readonly<Record<ProductRole, RoleSidebarProjection>> =
+  ROLE_SIDEBAR_PROJECTIONS_TABLE;
+
+/** A role's default projection (fail-closed on unknown roles). */
+export function sidebarProjectionForRole(role: ProductRole): RoleSidebarProjection {
+  const projection = ROLE_SIDEBAR_PROJECTIONS[role];
+  if (projection === undefined) {
+    throw new ViewContractError(`unknown product role: ${String(role)}`);
+  }
+  return projection;
+}
+
+/**
+ * The emphasized-groups fold alone (the minimal additive bridge for callers
+ * that already hold a `ProductRole`): which workload groups the role's default
+ * view pins open.
+ */
+export function emphasizedGroupsForRole(role: ProductRole): readonly SidebarGroupSlug[] {
+  return sidebarProjectionForRole(role).emphasizedGroups;
+}
+
+// ——— Projection-aware labels (contract 10 §2) ———
+
+/**
+ * The consumer projection of the money objects (contract 10 §2 table): the
+ * SAME objects re-labeled around "my money, my payments, my contacts, my
+ * requests". Merchant projection keeps the canonical labels.
+ */
+export const CONSUMER_ROW_LABELS: Readonly<Record<SidebarPersistentRowId, string>> = Object.freeze({
+  home: 'Home',
+  balances: 'My balances',
+  transactions: 'My payments',
+  customers: 'My contacts',
+  catalog: 'My requests',
+});
+
+function rowLabelFor(row: SidebarRow, projection: SidebarProjectionKind): string {
+  return projection === 'consumer' ? CONSUMER_ROW_LABELS[row.id] : row.label;
+}
+
+/** A persistent row as seen in one projection (same id/route/object; projection-aware label). */
+export interface SidebarRowView {
+  readonly row: SidebarRow;
+  readonly label: string;
+}
+
+/** A workload group as seen in one projection (same items/order; emphasis + visibility derived). */
+export interface SidebarGroupView {
+  readonly group: SidebarGroup;
+  readonly emphasized: boolean;
+  readonly visible: boolean;
+}
+
+/** A role's (or explicit) projection of the sidebar: same axis, projected. */
+export interface ProjectedSidebar {
+  readonly projection: SidebarProjectionKind;
+  readonly rows: readonly SidebarRowView[];
+  readonly groups: readonly SidebarGroupView[];
+}
+
+/**
+ * Derive the sidebar view for a role — or for an EXPLICIT projection on the
+ * same account (contract 10 §6: "merchant CAN switch projections"). The
+ * derivation NEVER re-axes the navigation: the five persistent rows (ids,
+ * routes, order) and the five workload groups (slugs, items, order) are
+ * identical for every role and every projection; only the projection-aware
+ * row labels, group emphasis and the role-default group visibility change.
+ */
+export function projectSidebar(
+  role: ProductRole,
+  options?: { readonly projection?: SidebarProjectionKind },
+  sidebar: Sidebar = SIDEBAR,
+): ProjectedSidebar {
+  const defaults = sidebarProjectionForRole(role);
+  const projection = options?.projection ?? defaults.projection;
+  const emphasized = new Set<SidebarGroupSlug>(defaults.emphasizedGroups);
+  const hidden = new Set<SidebarGroupSlug>(defaults.hiddenGroups);
+  return Object.freeze({
+    projection,
+    rows: Object.freeze(
+      sidebar.rows.map((row) => Object.freeze({ row, label: rowLabelFor(row, projection) })),
+    ),
+    groups: Object.freeze(
+      sidebar.groups.map((group) =>
+        Object.freeze({
+          group,
+          emphasized: emphasized.has(group.slug),
+          visible: !hidden.has(group.slug),
+        }),
+      ),
+    ),
+  });
 }
