@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Certification, promotion and safety gates: certification suites parameterized by component kind (strategy/organization/agent package/connector), security review gates that halt promotion on failure, replay/fault test contracts, versioned production promotion/rollback artifacts and THE uniform gate wall shared by all three execution modes (Work Order W2-006)",
+  "description": "Certification, promotion and safety gates: certification suites parameterized by component kind (strategy/organization/agent package/connector), security review gates that halt promotion on failure, replay/fault test contracts, versioned production promotion/rollback artifacts and THE uniform gate wall shared by all three execution modes (Work Order W2-006) \u2014 extended by P4-W4-003 (production certification + release) with the nine \u00a735 acceptance journeys A-I driven through the REAL composed kernels (injected ports at the external seams only), the seventeen \u00a736 security certification gates machine-checked against those kernels, the fourteen-area release certification matrix over the assembled system, the deployment/rollback exercise receipts, the no-simulated-success audit and the deterministic certification report carrying the \u00a737 safety objective verbatim",
   "exports": {
     ".": "./src/index.ts"
   },
@@ -17,10 +17,26 @@
     "@payswap/lab": "*",
     "@payswap/capabilities": "*",
     "@payswap/connectors": "*",
-    "@payswap/agents": "*"
+    "@payswap/agents": "*",
+    "@payswap/trust": "*",
+    "@payswap/payment": "*",
+    "@payswap/settlement": "*",
+    "@payswap/interfaces": "*",
+    "@payswap/onchain-domain": "*",
+    "@payswap/onchain-security": "*",
+    "@payswap/onchain-venues": "*",
+    "@payswap/onchain-opportunities": "*",
+    "@payswap/onchain-threat-intel": "*",
+    "@payswap/best-execution": "*",
+    "@payswap/mixed-rail": "*",
+    "@payswap/route-compiler": "*",
+    "@payswap/merchant-crypto": "*",
+    "@payswap/merchant-checkout": "*",
+    "@payswap/surface": "*"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@payswap/operations": "*"
   }
 }
