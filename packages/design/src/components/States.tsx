@@ -45,13 +45,30 @@ export interface EmptyStateProps extends HTMLAttributes<HTMLDivElement> {
   description?: ReactNode;
   /** Call-to-action for the legitimate next step (never a fake "create data"). */
   action?: ReactNode;
+  /** Secondary docs link (contract 03 §2.3 anatomy). */
+  docs?: { href: string; label?: string };
+  /**
+   * Optional "simulate this" teaching line — the test-mode learning hint
+   * that pairs with a test-mode-capable CTA (contract 03 §2.3).
+   */
+  teachingLine?: ReactNode;
 }
 
-/** Nothing here — and that is the truth. No placeholder numbers, no theater. */
+/**
+ * Nothing here — and that is the truth. No placeholder numbers, no theater.
+ *
+ * Contract 03 §2.3 anatomy: a headline value proposition (never a bare
+ * "No data") + a primary test-mode-capable CTA (`action`) + optional
+ * secondary docs link (`docs`) + optional "simulate this" teaching line
+ * (`teachingLine`). Every collection MUST define its EmptyState — the
+ * default here is only a fallback, not a substitute for real copy.
+ */
 export function EmptyState({
   title = "Nothing here yet",
   description,
   action,
+  docs,
+  teachingLine,
   className,
   role: _consumerRole,
   ...rest
@@ -61,6 +78,14 @@ export function EmptyState({
       <StateTitle>{title}</StateTitle>
       {description ? <p className="ps-state__description">{description}</p> : null}
       {action ? <div className="ps-state__actions">{action}</div> : null}
+      {docs ? (
+        <a className="ps-state__docs" href={docs.href}>
+          {docs.label ?? "Read the docs"}
+        </a>
+      ) : null}
+      {teachingLine ? (
+        <p className="ps-state__teaching">{teachingLine}</p>
+      ) : null}
     </StateShell>
   );
 }
