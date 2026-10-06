@@ -33,7 +33,7 @@ Every workflow is specified as: **intent → steps → states → errors → rec
 ### W4 — Refund / reversal
 1. Entry: primary action in payment detail header (next to amount+status).
 2. Modal: amount prefilled (full) with partial-editable field · reason select (human labels) · explicit consequence line ("Returns to customer's wallet on <rail>; fees not returned").
-3. Confirm → payment state → `refunded`/`partially_refunded`; event logged in human sentence; net balance updated with the reversal visible in Balances.
+3. Confirm → payment state → `refunded`/`partially_refunded` (StatusChip renders "Partially refunded" with a remaining-amount line when partial); event logged in human sentence; net balance updated with the reversal visible in Balances.
 
 ### W5 — Payout / settlement
 1. Balances page leads with **Incoming vs Available** split; header carries [Withdraw/Pay out] + [Manage schedule] + [Add rail].

@@ -1,6 +1,6 @@
 # PaySwap UX contracts (§17 deliverables)
 
-Status: NORMATIVE v1 — 2026-10-06 — derived from the Stripe UX research set (Phase 1 `docs/ux-research/stripe/` + Phase 2 `docs/ux-research/stripe/phase2/`) per `docs/STRIPE-UX-DIRECTIVE-2026-10-06.md` §17. These contracts are the single source of truth for implementation surfaces; they supersede the W3-001 first-pass `spec/experience/*.md` documents wherever they conflict (those remain as historical drafts).
+Status: NORMATIVE v1.1 — 2026-10-06 — derived from the Stripe UX research set (Phase 1 `docs/ux-research/stripe/` + Phase 2 `docs/ux-research/stripe/phase2/`) per `docs/STRIPE-UX-DIRECTIVE-2026-10-06.md` §17; **TL-reviewed the same day (§19 gate) — verdict PASS WITH REVISIONS, revisions R1–R3 applied, see `TL-REVIEW-v1.md`**. These contracts are the single source of truth for implementation surfaces; they supersede the W3-001 first-pass `spec/experience/*.md` documents wherever they conflict (those remain as historical drafts).
 
 ## The ten contracts
 
@@ -24,16 +24,16 @@ Stripe reconnaissance (DONE — Phase 1 + Phase 2)
         ↓
 UX findings (DONE — research set)
         ↓
-PaySwap UX contracts (THIS)
+PaySwap UX contracts (DONE — v1.1)
         ↓
-TL review  ← current gate
+TL review (DONE — PASS WITH REVISIONS, TL-REVIEW-v1.md)
         ↓
-Shared component system
+Shared component system  ← current stage
         ↓
 Dashboard implementation
 ```
 
-Implementation workers must NOT build competing dashboards before TL review of this set (directive §19). Non-conflicting foundation work may proceed.
+Implementation workers must build against this amended set (v1.1); deviations require a contract revision first (amend the contract, then build).
 
 ## Compliance
 

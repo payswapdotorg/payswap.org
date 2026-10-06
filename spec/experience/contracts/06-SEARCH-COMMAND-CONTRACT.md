@@ -15,7 +15,7 @@ ONE surface does BOTH: finding resources (search) and executing intentions (comm
 ## 3. Result model (normative)
 
 Opening the bar shows grouped, ranked results:
-1. **Commands** (intent-first): Pay · Request · Invoice · Link · Convert — each opens its form, optionally pre-filled by parsed parameters.
+1. **Commands** (intent-first): Pay · Request · Invoice · Link · Convert · Withdraw — each opens its form, optionally pre-filled by parsed parameters (Withdraw routes to the Balances withdraw flow).
 2. **Resources** (object search): Payments, Customers, Settlements, Refunds, Products/Links — grouped by type, each row = object's list-cell renderer (masked IDs, status chip).
 3. **Navigation** (go-to): pages and settings sections, matched on title + synonyms.
 
@@ -24,7 +24,7 @@ Typing live-filters all groups; Enter takes the top hit; Tab/arrows move between
 ## 4. Command grammar (v1 scope)
 
 `<verb> [counterparty] [amount] [asset] [modifiers]`
-- Verbs: pay, request, invoice, convert, withdraw.
+- Verbs: pay, request, invoice, link, convert, withdraw (the same six as the commands group — TL-review R2).
 - Natural parsing: "pay alice 100 usdc" → command=pay, counterparty=Alice (fuzzy contact match, else inline "Add contact 'alice'"), amount=100, asset=USDC.
 - Missing parameters open the workflow form PRE-FILLED (never a parse error).
 - Ambiguity resolution: inline disambiguation chips (which Alice? which rail?) — never dead-ends.
@@ -41,6 +41,6 @@ Typing live-filters all groups; Enter takes the top hit; Tab/arrows move between
 ## 6. Acceptance
 
 - "/" focuses search on every authenticated page.
-- The five verbs parse and pre-fill their workflows (test battery: 15 representative phrasings).
+- The six verbs parse and pre-fill their workflows (test battery: 15 representative phrasings).
 - Resource search returns each spec'd object type with list-cell rendering.
 - Search/command works with keyboard only end-to-end.

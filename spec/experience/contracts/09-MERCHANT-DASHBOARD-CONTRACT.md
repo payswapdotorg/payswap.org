@@ -22,7 +22,7 @@ The merchant dashboard consumes the shell contracts (navigation `01`, tokens `02
 - Tabs: Settlements · Top-ups · All activity · Statements & reconciliation.
 
 ### Transactions
-- ListPage per component contract; seven-state chips; Failure-reason column; sub-tabs (Payments · Settlements · Top-ups · All activity).
+- ListPage per component contract; eight-state chips; Failure-reason column; sub-tabs (Payments · Settlements · Top-ups · All activity).
 - Empty = integration ladder: "Accept via PaySwap Link (no code) / Embed a payment component / Integrate the API / Accept in person (QR)".
 
 ### Customers
@@ -43,6 +43,7 @@ The merchant dashboard consumes the shell contracts (navigation `01`, tokens `02
 
 ### Capabilities marketplace
 - Installed/Browse; curated shelves with one-line pitches + one-click Install; empty state: "Explore the marketplace".
+- **Account connections (TL-review R3)**: external rails and PSPs — Stripe included — are capabilities. The Installed list renders a per-connection status chip (`connected` · `attention` · `disconnected`) with a re-connect/re-auth affordance inline; connecting is an install + credential-handshake flow that NEVER puts the secret in page DOM (security contract §3); Settings mirrors the connection list with scope sentences ("Stripe can charge your customers and pays out to your bank"). The §20 "Stripe connection" certification scenario exercises this flow end-to-end.
 
 ### Settings
 - Personal vs Account groups, each card with scope sentence; Team and security grouped; test/live management under account.

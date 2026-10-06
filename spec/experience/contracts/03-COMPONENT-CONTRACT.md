@@ -24,7 +24,7 @@ Column specs (normative):
 Rules: masked identifiers in cells ("••• 4242", "0x12…ab90"); amount cells always "X CUR"; the failure/decline column exists even when all rows are healthy ("—").
 
 ### 2.2 StatusChip
-`state` ∈ {succeeded, processing, failed, refunded, disputed, blocked, dropped} + optional tooltip with technical detail. Used identically in lists, detail headers, events, toasts. (Token contract §7.)
+`state` ∈ {succeeded, processing, failed, refunded, partially_refunded, disputed, blocked, dropped} + optional tooltip with technical detail. Used identically in lists, detail headers, events, toasts. (Token contract §7; TL-review R1.)
 
 ### 2.3 EmptyState
 Anatomy: headline value proposition (one sentence) + primary **test-mode-capable CTA** + optional secondary docs link + optional "simulate this" teaching line. Never a bare "No data". Every collection MUST define its EmptyState. (Evidence: disputes empty state teaches test cards; invoices pairs value prop + settings action.)

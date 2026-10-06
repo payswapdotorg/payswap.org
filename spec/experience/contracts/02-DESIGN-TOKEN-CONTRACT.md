@@ -14,7 +14,8 @@ State colors (used for chips, icons, chart series, banners — never as decorati
 | `state.succeeded` | final success (settled/confirmed) | status chips, event log, success screens |
 | `state.processing` | in-flight (pending inclusion, routing) | NEVER red; always paired with progress affordance |
 | `state.failed` | terminal failure (reverted, insufficient) | paired with human reason + retry affordance |
-| `state.refunded` | reversed after success | distinct from failed — money moved then returned |
+| `state.refunded` | reversed after success (full) | distinct from failed — money moved then returned |
+| `state.partially_refunded` | partially reversed after success | refunded-style rendering + remaining-amount context (W4) |
 | `state.disputed` | contested | pairs with evidence CTA |
 | `state.blocked` | stopped by policy/risk before execution | pairs with explanation + appeal path |
 | `state.dropped` | unknown/timeout after broadcast | pairs with investigation CTA |
@@ -64,6 +65,6 @@ Every metric/chart component carries: (a) a freshness label ("Updated N seconds/
 ## 10. Acceptance
 
 - A grep for raw hex colors in components returns zero (tokens only).
-- The seven state tokens cover 100% of payment-state renderings (no bespoke colors).
+- The eight state tokens cover 100% of payment-state renderings (no bespoke colors).
 - Storybook/specimen page renders every token + StatusChip in every state.
 - Design-token file is the single import for all surfaces (merchant + consumer + hosted payment pages share it).
