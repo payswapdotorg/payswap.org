@@ -51,3 +51,4 @@ export * from "./security-gates.js";
 export * from "./replay-fault.js";
 export * from "./promotion.js";
 export * from "./uniform-gates.js";
+export * from "./production/index.js";

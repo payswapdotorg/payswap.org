@@ -1,0 +1,645 @@
+{
+  "reportId": "payswap.production-certification-report",
+  "workOrder": "P4-W4-003",
+  "spec": "docs/UNIVERSAL-MONEY-HANDOFF-FULL-2026-10-02.md §34 P4-W4-003, §35, §36, §37",
+  "release": {
+    "sha": "bf414753a8dce86b7d3afafbd447ecf74dd3e497",
+    "battery": "4694 + the P4-W4-003 production-certification suites",
+    "authorizedAt": "2026-10-06T00:00:00Z"
+  },
+  "journeys": [
+    {
+      "journeyId": "journey:a-simple-wallet-payment",
+      "letter": "A",
+      "title": "Simple wallet payment — “Pay $20”",
+      "passed": true,
+      "journeyDigest": "fnv1a64:66e7321805e3f58e",
+      "stageCount": 6,
+      "assertionCount": 6
+    },
+    {
+      "journeyId": "journey:b-dex-optimization",
+      "letter": "B",
+      "title": "DEX optimization — “Swap $1,000 USDC into ETH”",
+      "passed": true,
+      "journeyDigest": "fnv1a64:fcbebf857e3462ec",
+      "stageCount": 7,
+      "assertionCount": 6
+    },
+    {
+      "journeyId": "journey:c-crypto-to-fiat",
+      "letter": "C",
+      "title": "Crypto-to-fiat — “Cash out 1,000 USDC”",
+      "passed": true,
+      "journeyDigest": "fnv1a64:b751696e063be05c",
+      "stageCount": 5,
+      "assertionCount": 4
+    },
+    {
+      "journeyId": "journey:d-merchant-crypto-payment",
+      "letter": "D",
+      "title": "Merchant crypto payment — charge €100, customer pays crypto (both Stripe settlement modes)",
+      "passed": true,
+      "journeyDigest": "fnv1a64:b05f54bb3957606b",
+      "stageCount": 8,
+      "assertionCount": 6
+    },
+    {
+      "journeyId": "journey:e-mixed-execution",
+      "letter": "E",
+      "title": "Mixed execution — merchant asks €100, customer holds USDC on chain A",
+      "passed": true,
+      "journeyDigest": "fnv1a64:3f17d95ab80446ab",
+      "stageCount": 5,
+      "assertionCount": 4
+    },
+    {
+      "journeyId": "journey:f-security-attack",
+      "letter": "F",
+      "title": "Security attack — adversarial fixtures detected, explained and BLOCKED",
+      "passed": true,
+      "journeyDigest": "fnv1a64:d7e1f7078f5d8f90",
+      "stageCount": 6,
+      "assertionCount": 6
+    },
+    {
+      "journeyId": "journey:g-agent-opportunity",
+      "letter": "G",
+      "title": "Agent opportunity — discovery → evidence → estimate → risk → policy → recommendation; policy cannot be bypassed",
+      "passed": true,
+      "journeyDigest": "fnv1a64:ccf5bc4b64b2f644",
+      "stageCount": 4,
+      "assertionCount": 4
+    },
+    {
+      "journeyId": "journey:h-state-change-before-broadcast",
+      "letter": "H",
+      "title": "State changes before broadcast — quote → approval → state change → recheck VOID → new simulation + new authorization",
+      "passed": true,
+      "journeyDigest": "fnv1a64:dfcef815251a468a",
+      "stageCount": 5,
+      "assertionCount": 3
+    },
+    {
+      "journeyId": "journey:i-reorg-unknown",
+      "letter": "I",
+      "title": "Reorg / UNKNOWN — a forced ambiguous state renders UNKNOWN (never fake success) with reconciliation as the only exit",
+      "passed": true,
+      "journeyDigest": "fnv1a64:88dd4ba3da10d49e",
+      "stageCount": 5,
+      "assertionCount": 5
+    }
+  ],
+  "journeysSummary": {
+    "passed": 9,
+    "total": 9
+  },
+  "securityGates": [
+    {
+      "gateId": "secrets-model-context",
+      "statement": "no raw wallet secrets enter model context",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "secretScanner:true:SecretShapeError",
+        "agentBundleScan:true",
+        "signerHandleScan:true"
+      ]
+    },
+    {
+      "gateId": "secrets-ordinary-logs",
+      "statement": "no raw wallet secrets enter ordinary logs",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "journeyEvidenceScanned:4",
+        "offenders:0"
+      ]
+    },
+    {
+      "gateId": "no-signer-bypass",
+      "statement": "no signer bypass exists",
+      "kind": "MACHINE+PROOF",
+      "passed": true,
+      "evidence": [
+        "verifiedArtifact:true",
+        "forgedSurfaceRejected:true",
+        "proof:packages/onchain-security/src/authorization.ts:219-244"
+      ],
+      "proof": {
+        "file": "packages/onchain-security/src/authorization.ts",
+        "lines": "219-244",
+        "law": "TrustedApprovalSurface.approve is the ONLY minting path for OnchainAuthorizationArtifact; verifyOnchainAuthorization rejects artifacts whose surface is not registered"
+      }
+    },
+    {
+      "gateId": "no-rpc-write-bypass",
+      "statement": "no direct RPC write bypass exists",
+      "kind": "MACHINE+PROOF",
+      "passed": true,
+      "evidence": [
+        "handoffIsSigningRequest:true",
+        "pipelineTerminal:true",
+        "authorizationRef:fnv1a64:8ab82bc4fd4ba63a",
+        "proof:packages/onchain-adapters/src/contract.ts:228-233"
+      ],
+      "proof": {
+        "file": "packages/onchain-adapters/src/contract.ts",
+        "lines": "228-233",
+        "law": "BroadcastStageInput structurally requires the kernel-minted SigningRequest handoff (and the trusted-surface-SIGNED payload); the kernel itself has no broadcast function"
+      }
+    },
+    {
+      "gateId": "writes-authorization-request",
+      "statement": "every supported write is represented by an AuthorizationRequest",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "authorizeWithoutRequestRejected:true",
+        "journeyDAuthorization:kernel authorization stage recorded"
+      ]
+    },
+    {
+      "gateId": "simulation-mandatory-when-supported",
+      "statement": "simulation is mandatory when capability supports it",
+      "kind": "MACHINE+PROOF",
+      "passed": true,
+      "evidence": [
+        "declaredWithoutImplRejected:true",
+        "journeyBSimulationStage:true",
+        "proof:packages/onchain-adapters/src/utxo/index.ts:20-21"
+      ],
+      "proof": {
+        "file": "packages/onchain-adapters/src/utxo/index.ts",
+        "lines": "20-21",
+        "law": "the UTXO adapter DECLARES the simulate stage structurally unsupported (fail closed) — honest unavailability where the capability does not support simulation"
+      }
+    },
+    {
+      "gateId": "pre-broadcast-recheck",
+      "statement": "pre-broadcast security recheck exists",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "okRecheck:RECHECK_OK",
+        "driftRecheck:AUTHORIZATION_VOIDED",
+        "journeyHVoided:true"
+      ]
+    },
+    {
+      "gateId": "balance-state-deltas-captured",
+      "statement": "balance/state deltas are captured",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "journeyADiffStage:true",
+        "journeyBDiffStage:true",
+        "gateDecision:ALLOW"
+      ]
+    },
+    {
+      "gateId": "allowance-changes-visible",
+      "statement": "allowance changes are visible",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "journeyBAllowanceStage:true",
+        "gateDecision:ALLOW",
+        "rendering:1 lines"
+      ]
+    },
+    {
+      "gateId": "destination-changes-visible",
+      "statement": "destination changes are visible",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "recheck:AUTHORIZATION_VOIDED",
+        "drift:destination_drift"
+      ]
+    },
+    {
+      "gateId": "proxy-admin-changes-checked",
+      "statement": "proxy/admin changes are checked",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "certifiedGate:ALLOW",
+        "recheck:AUTHORIZATION_VOIDED",
+        "uncertifiedGate:BLOCK"
+      ]
+    },
+    {
+      "gateId": "unknown-contracts-not-trusted",
+      "statement": "unknown contracts are not silently trusted",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "blockPolicy:BLOCK",
+        "escalatePolicy:UNKNOWN"
+      ]
+    },
+    {
+      "gateId": "agent-cannot-downgrade-block",
+      "statement": "agent cannot downgrade BLOCK",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "blockDecision:BLOCK",
+        "overrideThrew:true",
+        "flagImmutable:true",
+        "resolvedTerminal:BLOCK",
+        "peopleViewTone:danger"
+      ]
+    },
+    {
+      "gateId": "reorg-finality-represented",
+      "statement": "reorg/finality is represented",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "probabilistic:true",
+        "deterministic:true",
+        "inconsistencyDetected:true",
+        "journeyI:true"
+      ]
+    },
+    {
+      "gateId": "unknown-supported",
+      "statement": "UNKNOWN is supported",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "illegalUnknownWithFailureRejected:true",
+        "journeyI:true",
+        "surfaceUnknownTone:warning"
+      ]
+    },
+    {
+      "gateId": "post-execution-reconciliation",
+      "statement": "post-execution reconciliation exists",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "journeyCReconciliationStage:true",
+        "journeyIReconciliation:true"
+      ]
+    },
+    {
+      "gateId": "threat-signals-advisory-system",
+      "statement": "incident/threat signals enter SecurityAdvisory/ThreatSignature system",
+      "kind": "MACHINE",
+      "passed": true,
+      "evidence": [
+        "signals:4",
+        "policyVerdict:BLOCK",
+        "advisoryProposals:2",
+        "signature:sig:malicious_approval_permit:extension:0x4444444444444444444444444444444444444444"
+      ]
+    }
+  ],
+  "securityGatesSummary": {
+    "passed": 17,
+    "total": 17
+  },
+  "matrix": {
+    "areas": [
+      {
+        "areaId": "web-ui",
+        "title": "Web UI — the universal interface over the versioned surface API (the W4-002 eleven-area IA, five outcome actions, honest empty states, exact money display)",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:e-mixed-execution",
+          "journey:f-security-attack"
+        ],
+        "gates": [],
+        "receipts": [
+          "packages/web battery (the W4-002 TL-verified landing: 306/306 vitest, 22 files — consumed as-is, not extended here; re-verified green by the P4-W4-003 full root battery run recorded in the report's release.battery)",
+          "packages/surface battery (the W4-002 TL-verified landing: 33 vitest — the surface contracts the web binds; consumed as-is; re-verified green by the P4-W4-003 full root battery run)"
+        ]
+      },
+      {
+        "areaId": "merchant-checkout",
+        "title": "Merchant checkout — onboarding, acceptance, checkout sessions, wallet payment through the kernel, lifecycle, webhooks, refunds, both settlement modes",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:d-merchant-crypto-payment",
+          "journey:i-reorg-unknown"
+        ],
+        "gates": [],
+        "receipts": [
+          "packages/merchant-checkout battery (the W2-003 TL-verified landing: 170/170 — consumed as-is, not extended here; re-verified green by the P4-W4-003 full root battery run recorded in the report's release.battery)"
+        ]
+      },
+      {
+        "areaId": "external-wallets",
+        "title": "External wallets — explicit signing at the trusted surface, the signer adapter seam, observation-never-custody",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:a-simple-wallet-payment",
+          "journey:b-dex-optimization",
+          "journey:d-merchant-crypto-payment"
+        ],
+        "gates": [
+          "secrets-model-context",
+          "secrets-ordinary-logs",
+          "no-signer-bypass"
+        ],
+        "receipts": []
+      },
+      {
+        "areaId": "chain-execution",
+        "title": "Chain execution — the kernel pipeline, the broadcast handoff, execution observations, finality candidates",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:a-simple-wallet-payment",
+          "journey:b-dex-optimization",
+          "journey:h-state-change-before-broadcast"
+        ],
+        "gates": [
+          "no-rpc-write-bypass",
+          "writes-authorization-request",
+          "pre-broadcast-recheck",
+          "reorg-finality-represented"
+        ],
+        "receipts": []
+      },
+      {
+        "areaId": "dex-routing",
+        "title": "DEX routing — multi-venue collection, exact total-economic-outcome math, security screens, provider-native baselines never ranked away",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:b-dex-optimization",
+          "journey:e-mixed-execution"
+        ],
+        "gates": [
+          "simulation-mandatory-when-supported"
+        ],
+        "receipts": []
+      },
+      {
+        "areaId": "security-gates",
+        "title": "Security gates — the seventeen §36 statements machine-checked against the real kernels",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:f-security-attack"
+        ],
+        "gates": [
+          "secrets-model-context",
+          "secrets-ordinary-logs",
+          "no-signer-bypass",
+          "no-rpc-write-bypass",
+          "writes-authorization-request",
+          "simulation-mandatory-when-supported",
+          "pre-broadcast-recheck",
+          "balance-state-deltas-captured",
+          "allowance-changes-visible",
+          "destination-changes-visible",
+          "proxy-admin-changes-checked",
+          "unknown-contracts-not-trusted",
+          "agent-cannot-downgrade-block",
+          "reorg-finality-represented",
+          "unknown-supported",
+          "post-execution-reconciliation",
+          "threat-signals-advisory-system"
+        ],
+        "receipts": []
+      },
+      {
+        "areaId": "lab-integration",
+        "title": "Lab integration — the structural Lab simulation tier (never a production rail), the mixed-rail Lab walk, the promotion evidence contracts",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:b-dex-optimization",
+          "journey:i-reorg-unknown"
+        ],
+        "gates": [],
+        "receipts": [
+          "the Lab execution tier law (labTierPermitsFinancialSettlement false — packages/mixed-rail simulation-tier, INV-L01)",
+          "the W2-006 replay/fault + promotion contracts in this package (structurally consumed, battery-green)"
+        ]
+      },
+      {
+        "areaId": "opportunity-discovery",
+        "title": "Opportunity discovery — evidence, estimates, risk, policy, DISCOVERY_NEVER_AUTHORIZATION",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:g-agent-opportunity"
+        ],
+        "gates": [
+          "agent-cannot-downgrade-block"
+        ],
+        "receipts": []
+      },
+      {
+        "areaId": "fiat-crypto-flows",
+        "title": "Fiat ↔ crypto flows — mixed routes, exact conversion grounding, off-ramp payout gates, bank settlement",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:c-crypto-to-fiat",
+          "journey:e-mixed-execution"
+        ],
+        "gates": [],
+        "receipts": []
+      },
+      {
+        "areaId": "stripe-integration",
+        "title": "Stripe integration — both settlement modes, provider-verified effects only, the §3.9 reconciliation, the honest-unavailability notice",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:d-merchant-crypto-payment"
+        ],
+        "gates": [],
+        "receipts": []
+      },
+      {
+        "areaId": "observability",
+        "title": "Observability — the W3-007 taxonomy (terminal transitions, UNKNOWN outcomes, reconciliation resolutions observable), the deployment record's observability gate",
+        "verdict": "CERTIFIED",
+        "journeys": [],
+        "gates": [
+          "unknown-supported",
+          "post-execution-reconciliation"
+        ],
+        "receipts": [
+          "deploy:record-machine-checks",
+          "deploy:record-eleven-gates"
+        ]
+      },
+      {
+        "areaId": "reconciliation",
+        "title": "Reconciliation — UNKNOWN exits, blind-retry forbidden, the settlement reconciliation authority as the only resolver",
+        "verdict": "CERTIFIED",
+        "journeys": [
+          "journey:c-crypto-to-fiat",
+          "journey:i-reorg-unknown"
+        ],
+        "gates": [
+          "unknown-supported",
+          "post-execution-reconciliation"
+        ],
+        "receipts": []
+      },
+      {
+        "areaId": "deployment",
+        "title": "Deployment — the exercised deployment surfaces (deploy:record against the local target, the eleven release gates, the provider rollout record)",
+        "verdict": "CERTIFIED",
+        "journeys": [],
+        "gates": [],
+        "receipts": [
+          "deploy:record-machine-checks",
+          "deploy:record-eleven-gates",
+          "rollout:record",
+          "rollback:provider-rehearsal",
+          "rollback:promotion-ledger",
+          "rollback:restore-replay-procedure"
+        ]
+      },
+      {
+        "areaId": "rollback",
+        "title": "Rollback — the exercised rollback surfaces (the promotion-ledger rollback, the provider rollback rehearsal, the restore/replay procedure)",
+        "verdict": "CERTIFIED",
+        "journeys": [],
+        "gates": [],
+        "receipts": [
+          "rollout:record",
+          "rollback:provider-rehearsal",
+          "rollback:promotion-ledger",
+          "rollback:restore-replay-procedure"
+        ]
+      }
+    ],
+    "allCertified": true,
+    "matrixDigest": "fnv1a64:56923125b952f993"
+  },
+  "deployment": {
+    "receipts": [
+      {
+        "receiptId": "deploy:record-machine-checks",
+        "surface": "scripts/deployment/production-deployment machinery (@payswap/operations, driven from the certification test layer)",
+        "passed": true,
+        "summary": "environment completeness (both envs) true; parity true; secret-reference hygiene true; deployment order true (6 stages incl. the restore/replay procedure)"
+      },
+      {
+        "receiptId": "deploy:record-eleven-gates",
+        "surface": "@payswap/operations DEPLOYMENT_GATES",
+        "passed": true,
+        "summary": "the eleven §6 release gates are declared as certified data: schema-migration-compatibility, environment-variable-completeness, secret-exposure, provider-capability-configuration, database-connectivity, queue-outbox-health, browser-journeys, api-conformance, architecture-invariant-suite, observability, rollback"
+      },
+      {
+        "receiptId": "rollout:record",
+        "surface": "scripts/deployment/provider-rollout machinery (@payswap/operations, driven from the certification test layer)",
+        "passed": true,
+        "summary": "the provider rollout release record executed and checked: release provider-rollout-20261002@2026-10-02T14:30:00Z; connected stripe, paystack, flutterwave; 1 honest non-connections; parity true"
+      },
+      {
+        "receiptId": "rollback:provider-rehearsal",
+        "surface": "@payswap/operations rehearseProviderRollback",
+        "passed": true,
+        "summary": "the provider rollback rehearsal executed the canonical steps (deactivate → evidence-gated re-activation): OPERATOR_DISABLE_OVERRIDE:SATISFIED, REVOCATION_RECORD_APPEND:SATISFIED, CONNECTED_INSTANCE_RETIREMENT:SATISFIED, RE_ENABLEMENT_VERIFICATION:SATISFIED, RE_VERIFICATION_PROBE:SATISFIED, RE_ACTIVATION_WITH_FRESH_EVIDENCE:SATISFIED, RE_ENABLEMENT_VERIFICATION:SATISFIED"
+      },
+      {
+        "receiptId": "rollback:promotion-ledger",
+        "surface": "@payswap/certification ProductionPromotionLedger (W2-006)",
+        "passed": true,
+        "summary": "the production promotion was recorded (po:cert:1), then the rollback was recorded (po:cert:rollback:1 reversing po:cert:1) — the candidate's production stage is now ROLLED_BACK"
+      },
+      {
+        "receiptId": "rollback:restore-replay-procedure",
+        "surface": "@payswap/operations RESTORE_REPLAY_PROCEDURE (INV-O04)",
+        "passed": true,
+        "summary": "the restore/replay procedure is declared as certified data with 6 ordered steps (freeze-writes → restore-journal → replay-events → drain-outbox → reconcile-external-effects → verify-projections) — the deployment surface's own state-reconstruction rollback path"
+      }
+    ],
+    "cliReceipts": [
+      {
+        "file": "deploy-record.json",
+        "surface": "npm run deploy:record (run as: node scripts/deployment/run.mjs <sha> <battery> <authorized-at>, cwd = the local record target)",
+        "expectations": [
+          "machine_checks true",
+          "eleven gates with verdicts",
+          "runtime-plane gates honest NOT-EXECUTABLE (no probe artifact — the probe failed closed at the vault gate)"
+        ]
+      },
+      {
+        "file": "runtime-plane-probe.txt",
+        "surface": "npm run deploy:probe (run as: bun scripts/deployment/runtime-plane-probe.ts <sha>, cwd = the local record target)",
+        "expectations": [
+          "the fail-closed refusal: no vault bindings in the certification sandbox (exit 1, recorded verbatim — never a fabricated PASS)"
+        ]
+      },
+      {
+        "file": "runtime-plane-probe-reprobe.txt",
+        "surface": "the re-probe (same command, second receipt)",
+        "expectations": [
+          "the identical fail-closed refusal (the re-probe receipt)"
+        ]
+      },
+      {
+        "file": "provider-rollout.json",
+        "surface": "npm run rollout:record (run as: node scripts/deployment/run-rollout.mjs, cwd = the local record target)",
+        "expectations": [
+          "the deterministic provider rollout release record (releaseId, connected providers, honest non-connections, parity)"
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "audit": {
+    "method": {
+      "markerPatterns": [
+        "mock",
+        "stub",
+        "TODO",
+        "FIXME",
+        "placeholder",
+        "simulated",
+        "fake",
+        "dummy",
+        "hardcode"
+      ],
+      "scope": [
+        "@payswap/protocol",
+        "@payswap/trust",
+        "@payswap/payment",
+        "@payswap/settlement",
+        "@payswap/connectors",
+        "@payswap/capabilities",
+        "@payswap/onchain-domain",
+        "@payswap/onchain-security",
+        "@payswap/onchain-venues",
+        "@payswap/onchain-opportunities",
+        "@payswap/onchain-threat-intel",
+        "@payswap/best-execution",
+        "@payswap/mixed-rail",
+        "@payswap/route-compiler",
+        "@payswap/merchant-crypto",
+        "@payswap/merchant-checkout",
+        "@payswap/surface",
+        "@payswap/operations",
+        "@payswap/interfaces"
+      ]
+    },
+    "markerHitCount": 39,
+    "findingCount": 0,
+    "evidenceBackedSuccess": {
+      "checkedJourneyStages": 51,
+      "definitiveStatesWithoutEvidence": 0
+    },
+    "honestUnavailabilityNoticeVerbatim": true,
+    "passed": true
+  },
+  "findings": [
+    "NOTE (packet discrepancy, recorded as-is): the work-order prose says \"sixteen\" security certification gates while the §36 list itself carries SEVENTEEN statements; this certification checks ALL seventeen, verbatim.",
+    "NOTE (packet discrepancy, recorded as-is): the work-order prose says \"fifteen-area\" certification matrix while the §34 P4-W4-003 list and the work order's own area enumeration carry FOURTEEN areas; this certification certifies all fourteen.",
+    "NOTE (environmental fact, recorded as-is): the runtime-plane probe (deploy:probe) fails CLOSED in the certification sandbox — no vault bindings exist here (PAYSWAP_PRODUCTION_URL/PAYSWAP_RUNTIME_PROBE_SECRET/PAYSWAP_DATABASE_URL_PROD absent). The refusal output is the honest receipt (committed under evidence/deployment/); the deployment record's runtime-plane gates keep their honest NOT-EXECUTABLE verdicts. A live probe executes only in the operator console's environment with vault-resolved bindings.",
+    "NOTE (repository state, recorded as-is): spec/development-state/phase-4-state.json lags git history at the pinned base — the W2-003 and W4-002 merges are not yet recorded in the state file (TL-pending state commits). This certification certifies the ASSEMBLED SYSTEM at the pinned base commit, which includes both merges.",
+    "NOTE (certification scope, recorded as-is): the runtime-plane (live worker processes, database/queue wiring, hosted surfaces) is NOT deployed by this release — the zero-provider law (topology §2) keeps the rail-adapter role undeployed, and the deployment record certifies at platform/contract level with the honest NOT-EXECUTABLE runtime verdicts."
+  ],
+  "safetyObjective": "PaySwap provides a systematically stronger safety workflow than a raw transaction UI by inserting deterministic simulation, policy, route validation, security analysis, human-readable authorization, postcondition verification and continuous monitoring before and after execution.",
+  "overall": {
+    "verdict": "CERTIFIED",
+    "statement": "P4-W4-003 production certification: 9/9 acceptance journeys passed (A–I), 17/17 security certification gates passed (§36), 14/14 matrix areas certified, deployment/rollback receipts green, no-simulated-success audit clean. The safety claim is exactly the §37 engineering acceptance objective quoted verbatim below — nothing stronger."
+  },
+  "reportDigest": "fnv1a64:c6509bf5d31717cf"
+}
