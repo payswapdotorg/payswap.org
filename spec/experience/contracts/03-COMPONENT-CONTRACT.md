@@ -80,4 +80,4 @@ Buttons that move money RESTATE the amount+asset in their label ("Pay 25 USDC") 
 - Every collection route renders ListPage with its spec'd columns + EmptyState.
 - StatusChip is the only state renderer (grep for bespoke badge classes = 0).
 - Every money-moving button passes the ConfirmationButton rule.
-- Component library (shadcn/ui base) wraps each catalog entry with the anatomy above; Storybook specimens for all 15 components × primary states.
+- The repository's canonical component library `@payswap/design` implements each catalog entry with the anatomy above (sandbox-side prototypes may use shadcn/ui as the base — both must satisfy the same anatomy); vitest specimen coverage renders all 15 components × primary states, and the token/specimen acceptance in the design-token contract (every token + StatusChip in every state) is satisfied by the package's own test suite. (TL-review R4: implementation base recorded.)
