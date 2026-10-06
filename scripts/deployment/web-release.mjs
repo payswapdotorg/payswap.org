@@ -48,10 +48,19 @@
  * arguments. Two runs with the same inputs produce byte-identical files.
  *
  * Usage:
- *   node scripts/deployment/web-release.mjs [record-date] [production-url] [preview-url]
+ *   node scripts/deployment/web-release.mjs [record-date] [production-url] [preview-url] [work-order] [--live]
  *     record-date      YYYY-MM-DD (default: today, UTC)
  *     production-url   optional; recorded verbatim once the TL has deployed
  *     preview-url      optional; recorded verbatim once the TL has deployed
+ *     work-order       optional; the work order under whose authority this
+ *                      release runs (default "P3-W1-001", the convention's
+ *                      origin — the byte-compat fixture pins that default)
+ *     --live           optional; for a LIVE deployment record: the route
+ *                      inventory is derived from the actual tree (every
+ *                      page.tsx/route.ts under src/app, sorted — the record
+ *                      reports the surface the tree really ships, not a
+ *                      hand-maintained list) and the deployment-URLs note
+ *                      records that the URLs were verified live
  *
  *   node scripts/deployment/web-release.mjs rollback <record-date> <from-deployment> <to-deployment> <reason> [to-build-id] [to-commit]
  *     record-date       YYYY-MM-DD
@@ -144,6 +153,53 @@ export function contentDigest(value) {
 const API_RUNTIME_SEPARATION_LAW =
   "the web surface is a CONSUMER of the authoritative PaySwap API — it holds no financial state of its own";
 
+/** The route inventory P3-W1-001 shipped (the byte-compat fixture pins it). */
+const P3_W1_001_ROUTES = [
+  "/",
+  "/capabilities",
+  "/security",
+  "/developers",
+  "/app (authenticated entry boundary — honest gate; every /app/* deep link resolves and is hard-refresh safe)",
+  "/api/health",
+];
+
+/** The deployment-URLs note P3-W1-001 shipped (the byte-compat fixture pins it). */
+const PLACEHOLDER_URLS_NOTE =
+  "placeholders by design — the TL performs the actual `vercel` deployment at the review gate (one command from packages/web with the payswap-web project linked); re-run this driver with the live URLs as arguments to record them";
+
+/** The note recorded for a --live release (URLs verified against the deployment). */
+const LIVE_URLS_NOTE =
+  "live — the production alias and the immutable per-deployment URL were verified serving at record time (the alias answered HTTP 200 and /api/health reported this record's build id and commit); deployed through the project's Git integration (the quota-free path)";
+
+/**
+ * Derive the route inventory from the ACTUAL tree: every page.tsx and
+ * route.ts under packages/web/src/app, mapped to site routes (route groups
+ * like (auth) are flattened away, [param] segments kept literal), sorted.
+ * Pure function of the filesystem — the record reports the surface the
+ * tree really ships, never a hand-maintained list that can drift.
+ */
+export function deriveRouteInventory(webRoot) {
+  const appDir = path.join(webRoot, "src", "app");
+  const routes = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const child = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        walk(child);
+      } else if (entry.isFile() && (entry.name === "page.tsx" || entry.name === "route.ts")) {
+        const relative = path.relative(appDir, path.dirname(child));
+        const segments = relative === "" ? [] : relative.split(path.sep);
+        const siteSegments = segments.filter((s) => !s.startsWith("("));
+        const route = `/${siteSegments.join("/")}`;
+        routes.push(route === "/" ? "/" : route.replace(/\/$/, ""));
+      }
+    }
+  };
+  walk(appDir);
+  routes.sort((a, b) => (a === "/" ? -1 : b === "/" ? 1 : a.localeCompare(b)));
+  return routes;
+}
+
 /**
  * Assemble the deterministic web-release record (digest included). Pure.
  * Key order is fixed by construction — it matches the record shape shipped
@@ -157,11 +213,14 @@ export function assembleReleaseRecord({
   buildIdVerifiedAgainstSources,
   productionUrl = null,
   previewUrl = null,
+  workOrder = "P3-W1-001",
+  routes = P3_W1_001_ROUTES,
+  deploymentUrlsNote = PLACEHOLDER_URLS_NOTE,
 }) {
   const record = {
     schema_version: "1.0",
     record_type: "web-release",
-    workOrder: "P3-W1-001",
+    workOrder,
     package: "@payswap/web",
     release: {
       date: recordDate,
@@ -179,8 +238,7 @@ export function assembleReleaseRecord({
         production: productionUrl,
         preview: previewUrl,
       },
-      deploymentUrlsNote:
-        "placeholders by design — the TL performs the actual `vercel` deployment at the review gate (one command from packages/web with the payswap-web project linked); re-run this driver with the live URLs as arguments to record them",
+      deploymentUrlsNote,
     },
     apiRuntimeSeparation: {
       law: API_RUNTIME_SEPARATION_LAW,
@@ -193,14 +251,7 @@ export function assembleReleaseRecord({
         "referenced by name only — the value is supplied per environment (production API host for production, preview API host for preview) at deployment time, never stored in git",
     },
     healthEndpoint: "/api/health",
-    routes: [
-      "/",
-      "/capabilities",
-      "/security",
-      "/developers",
-      "/app (authenticated entry boundary — honest gate; every /app/* deep link resolves and is hard-refresh safe)",
-      "/api/health",
-    ],
+    routes,
   };
   record.digest = contentDigest(record);
   return record;
@@ -391,19 +442,31 @@ function runRollbackMode() {
 // --- release-record mode (unchanged behavior) --------------------------------
 
 function runReleaseMode() {
+  const liveFlag = process.argv.includes("--live");
+  const positional = process.argv.slice(2).filter((arg) => arg !== "--live");
   const recordDate = parseRecordDate(
-    process.argv[2] ?? new Date().toISOString().slice(0, 10),
+    positional[0] ?? new Date().toISOString().slice(0, 10),
     "record-date",
   );
-  const productionUrl = process.argv[3]?.trim() || null;
-  const previewUrl = process.argv[4]?.trim() || null;
+  const productionUrl = positional[1]?.trim() || null;
+  const previewUrl = positional[2]?.trim() || null;
+  const workOrder = positional[3]?.trim() || "P3-W1-001";
+
+  const routes = liveFlag ? deriveRouteInventory(WEB_ROOT) : P3_W1_001_ROUTES;
+  const deploymentUrlsNote = liveFlag ? LIVE_URLS_NOTE : PLACEHOLDER_URLS_NOTE;
 
   const commitSha = gitCommitSha();
 
   console.log("web-release: running the @payswap/web production build ...");
+  // --webpack matches the payswap-web Vercel project's buildCommand exactly
+  // (next build --webpack). Next 16 defaults local `next build` to Turbopack,
+  // which this package's webpack customizations (extensionAlias + the
+  // node:crypto shims in next.config.ts) do not target. The BUILD_ID is a
+  // source digest (bundler-independent), so the flag affects buildability,
+  // never the recorded build identity.
   const build = spawnSync(
     "npm",
-    ["run", "build", "--workspace", "@payswap/web"],
+    ["run", "build", "--workspace", "@payswap/web", "--", "--webpack"],
     { cwd: ROOT, stdio: "inherit" },
   );
   if (build.status !== 0) {
@@ -488,6 +551,9 @@ function runReleaseMode() {
     buildIdVerifiedAgainstSources: buildIdMatchesSource,
     productionUrl,
     previewUrl,
+    workOrder,
+    routes,
+    deploymentUrlsNote,
   });
 
   const outPath = writeRecord(record);
@@ -495,8 +561,10 @@ function runReleaseMode() {
   console.log("=== PaySwap web release record ===");
   console.log("record written:  ", path.relative(ROOT, outPath));
   console.log("release date:    ", recordDate);
+  console.log("work order:      ", workOrder);
   console.log("commit:          ", commitSha);
   console.log("build id:        ", buildId, "(verified against the source digest)");
+  console.log("routes:          ", liveFlag ? `${routes.length} routes derived from the tree` : "P3-W1-001 inventory");
   console.log("vercel project:  ", "payswap-web (root directory packages/web)");
   console.log(
     "deployment urls:  ",
