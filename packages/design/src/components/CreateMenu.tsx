@@ -232,7 +232,7 @@ export function CreateMenu({
         }}
         onKeyDown={handleToggleKeyDown}
       >
-        <span aria-hidden="true">&#9662;</span>
+        <span aria-hidden="true">{"\u25BE"}</span>
       </button>
       {open ? (
         <div

@@ -55,9 +55,9 @@ function contrastRatio(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-const AMBER_HEXES = new Set(Object.values(amber));
-const RED_HEXES = new Set(Object.values(red));
-const EMERALD_HEXES = new Set(Object.values(emerald));
+const AMBER_HEXES = new Set<string>(Object.values(amber));
+const RED_HEXES = new Set<string>(Object.values(red));
+const EMERALD_HEXES = new Set<string>(Object.values(emerald));
 
 /* ---------- the eight-state vocabulary (contract 02 §2 / 03 §2.2, R1) ----- */
 
