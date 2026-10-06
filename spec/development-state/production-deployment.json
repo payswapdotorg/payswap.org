@@ -2,8 +2,8 @@
   "schema_version": "1.0",
   "record_type": "production-deployment",
   "release": {
-    "sha": "6410b8aa10aee070939b9117356c6b1f9a8855a3",
-    "battery": "4694",
+    "sha": "c8e0f1be3a11e192545c7c9014e036a4d9fee5f4",
+    "battery": "4786",
     "authorized_at": "2026-10-06",
     "authorization": "spec/development-state/deployment-authorization.json (operator directive, verbatim)",
     "topology_authority": "spec/experience/DEPLOYMENT-TOPOLOGY.md",
@@ -17,7 +17,7 @@
         {
           "serviceId": "payswap-web-api",
           "role": "web-api",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "web-api",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -34,7 +34,7 @@
         {
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "protocol-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -52,7 +52,7 @@
         {
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "reconciliation-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -65,7 +65,7 @@
         {
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "lab-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -78,7 +78,7 @@
         {
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "notification-worker",
             "DATABASE_URL": "postgres://vault:ref/db-preview",
@@ -95,7 +95,7 @@
           }
         }
       ],
-      "configFingerprint": "fnv1a64:59819df1a277b1c0"
+      "configFingerprint": "fnv1a64:a529f5a92a0a1c50"
     },
     "production": {
       "environment": "production",
@@ -103,7 +103,7 @@
         {
           "serviceId": "payswap-web-api",
           "role": "web-api",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "web-api",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -120,7 +120,7 @@
         {
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "protocol-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -138,7 +138,7 @@
         {
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "reconciliation-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -151,7 +151,7 @@
         {
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "lab-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -164,7 +164,7 @@
         {
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
-          "version": "6410b8aa10ae",
+          "version": "c8e0f1be3a11",
           "config": {
             "WORKER_ROLE": "notification-worker",
             "DATABASE_URL": "postgres://vault:ref/db-prod",
@@ -181,7 +181,7 @@
           }
         }
       ],
-      "configFingerprint": "fnv1a64:67e002a5677729b1"
+      "configFingerprint": "fnv1a64:7d0abfa8e8998001"
     }
   },
   "checks": {
@@ -267,8 +267,8 @@
           "serviceId": "payswap-web-api",
           "role": "web-api",
           "versionDrift": false,
-          "previewVersion": "6410b8aa10ae",
-          "productionVersion": "6410b8aa10ae",
+          "previewVersion": "c8e0f1be3a11",
+          "productionVersion": "c8e0f1be3a11",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -276,8 +276,8 @@
           "serviceId": "payswap-protocol-worker",
           "role": "protocol-worker",
           "versionDrift": false,
-          "previewVersion": "6410b8aa10ae",
-          "productionVersion": "6410b8aa10ae",
+          "previewVersion": "c8e0f1be3a11",
+          "productionVersion": "c8e0f1be3a11",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -285,8 +285,8 @@
           "serviceId": "payswap-reconciliation-worker",
           "role": "reconciliation-worker",
           "versionDrift": false,
-          "previewVersion": "6410b8aa10ae",
-          "productionVersion": "6410b8aa10ae",
+          "previewVersion": "c8e0f1be3a11",
+          "productionVersion": "c8e0f1be3a11",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -294,8 +294,8 @@
           "serviceId": "payswap-lab-worker",
           "role": "lab-worker",
           "versionDrift": false,
-          "previewVersion": "6410b8aa10ae",
-          "productionVersion": "6410b8aa10ae",
+          "previewVersion": "c8e0f1be3a11",
+          "productionVersion": "c8e0f1be3a11",
           "unexpectedConfigDifferences": [],
           "passed": true
         },
@@ -303,14 +303,14 @@
           "serviceId": "payswap-notification-worker",
           "role": "notification-worker",
           "versionDrift": false,
-          "previewVersion": "6410b8aa10ae",
-          "productionVersion": "6410b8aa10ae",
+          "previewVersion": "c8e0f1be3a11",
+          "productionVersion": "c8e0f1be3a11",
           "unexpectedConfigDifferences": [],
           "passed": true
         }
       ],
       "passed": true,
-      "digest": "fnv1a64:7b9a9623427c3331"
+      "digest": "fnv1a64:13e9058c9213a239"
     },
     "secretReferenceHygiene": {
       "production": {

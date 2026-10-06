@@ -159,42 +159,45 @@ What the repository's own deployment tooling produces (inspected, not assumed):
   by design**: the record states the TL performs the actual `vercel` deployment at the
   review gate and re-runs the driver with the live URLs as arguments.
 
-**Refreshed 2026-10-06 07:45Z (post-certification, TL at the review gate with the
-operator-provisioned Vercel credential):** the Phase-4 deployment records now EXIST
-for this tree at release `6410b8a` (the certification merge b688c5d + the recorded
-build-tooling pin `next build --webpack`, battery re-verified 4694/4694 on that
-exact sha):
+**CLOSED 2026-10-06 (post-certification, the two deployment lanes converging at the
+review gate with the operator-provisioned Vercel credential):** the Phase-4
+deployment records now EXIST for this tree, live URLs included:
 
+- `spec/development-state/web-release-2026-10-06.json` — the Phase-4 web production
+  release: **production alias `https://payswap-web.vercel.app` (HTTP 200 verified)**,
+  immutable deployment `payswap-clnfv0s9s` READY at `5f9f117`; `/api/health` honest —
+  alive, build id `5b69854e18b6bab1` triple-verified (the live reported id == the
+  driver's independently recomputed source digest == the record), readiness degraded
+  with the verbatim API-envelope reason (auth.principal required; the public surface
+  has none to send — never faked); 40-route inventory; 5 live desktop captures under
+  `packages/web/evidence/deployment/` (home, capabilities, security, developers, the
+  authentication gate — zero console errors, zero page errors, no demo mode).
 - `spec/development-state/runtime-plane-probe.json` — the LIVE runtime-plane probe
-  re-run for 6410b8a: per-role database connectivity from all five worker-role
-  bindings (web-api, protocol-worker, reconciliation-worker, lab-worker,
-  notification-worker) + the deployed-context result; the queue/outbox drain drill
-  (XADD → XREADGROUP → XACK → XPENDING, verdict from the raw numbers); the
-  observability sink (4 taxonomy events accepted, the invalid event rejected);
-  the object-storage round trip (content-addressed, digest verified); hosting
-  state; and the five API journeys over the live surface (honest unauthenticated
-  400 VALIDATION envelope, authenticated /v1/health 200 + /v1/capabilities 200,
-  INV-F05 idempotency 400, fail-closed mutation 403) — all four verdicts PASS.
+  re-run for the final merged head `c8e0f1b`: per-role database connectivity from all
+  five worker-role bindings + the deployed-context result; the queue/outbox drain
+  drill (verdict from the raw numbers); the observability sink (4 taxonomy events
+  accepted, the invalid event rejected); the object-storage round trip
+  (content-addressed, digest verified); hosting state; and the five API journeys over
+  the live surface (honest unauthenticated 400 VALIDATION envelope, authenticated
+  /v1/health 200 + /v1/capabilities 200, INV-F05 idempotency 400, fail-closed
+  mutation 403) — all four verdicts PASS.
 - `spec/development-state/production-deployment.json` — the fresh deploy:record for
-  6410b8a / battery 4694 / authorized 2026-10-06: all machine checks true
-  (environment completeness production+preview, parity, secret hygiene, the
-  6-stage deployment plan) and **11/11 release gates PASS** with the runtime plane
-  bound (3 gates).
-- `spec/development-state/web-release-2026-10-06.json` — the web release identity
-  for this tree: BUILD_ID `052eb3179bb88d81` verified against the independently
-  recomputed source digest, Vercel project `payswap-web` (root `packages/web`),
-  API-runtime separation law restated (the authoritative `payswap` API project
-  untouched).
+  `c8e0f1b` / battery **4786** (4694 base + the machine-checked certification lane's
+  92 new, TL-verified on the merged tree) / authorized 2026-10-06: all machine
+  checks true (environment completeness production+preview, parity, secret hygiene,
+  the 6-stage deployment plan) and **11/11 release gates PASS** with the runtime
+  plane bound (3 gates).
 
-**Remaining gap (the live web URL):** the actual `payswap-web` production deployment
-was attempted at the review gate and is blocked by the Vercel account's free-tier
-100-deployments-per-day team quota — consumed by unrelated projects on the same team
-(74 deployments in the rolling 24h window at 07:32Z: tradrl-console, replay2,
-you-platform and others). An autonomous retry is armed; the live URL fields in
-web-release-2026-10-06.json are placeholders until it lands, exactly per the
-P3-W1-001 convention. The certified chain (094797e / 409d920 · gukgxzaxx) remains
-the production baseline; the runtime plane itself is verified live per the probe
-above.
+Deployment-path record (how the URL went live): the Vercel account's free-tier
+100-deployments-per-day API/CLI quota was exhausted by unrelated team projects, so
+the release deployed through the quota-free Git path — the project's broken Git link
+(the accidental `web` project had captured the repo integration with no
+rootDirectory; all five of its deployments ERRORED) was repaired by re-linking
+`payswap-web` to `payswapdotorg/payswap.org` with the repo's own credential, and the
+production build runs `next build --webpack` (the project buildCommand; Next 16
+requires the explicit flag — recorded in the trigger note). The API-runtime
+separation law held throughout: the authoritative `payswap` API project is
+untouched by the web release.
 
 ## 6. Rollback proof
 

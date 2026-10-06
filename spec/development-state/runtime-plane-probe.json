@@ -2,9 +2,9 @@
   "schema_version": "1.0",
   "record_type": "runtime-plane-probe",
   "release": {
-    "sha": "6410b8aa10aee070939b9117356c6b1f9a8855a3"
+    "sha": "c8e0f1be3a11e192545c7c9014e036a4d9fee5f4"
   },
-  "probed_at": "2026-10-06T07:43:59.991Z",
+  "probed_at": "2026-10-06T08:04:49.805Z",
   "production_url": "https://payswap-mu.vercel.app",
   "secondary_surface": "https://payswap.vercel.app",
   "vantages": {
@@ -66,7 +66,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 2146
+        "latencyMs": 2565
       },
       {
         "role": "protocol-worker",
@@ -74,7 +74,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1565
+        "latencyMs": 1585
       },
       {
         "role": "reconciliation-worker",
@@ -82,7 +82,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1606
+        "latencyMs": 1599
       },
       {
         "role": "lab-worker",
@@ -90,7 +90,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1567
+        "latencyMs": 1596
       },
       {
         "role": "notification-worker",
@@ -98,7 +98,7 @@
         "database": "neondb",
         "user": "neondb_owner",
         "serverVersion": "PostgreSQL 17.11",
-        "latencyMs": 1576
+        "latencyMs": 1554
       }
     ],
     "deployedContext": {
@@ -106,7 +106,7 @@
       "database": "neondb",
       "user": "neondb_owner",
       "serverVersion": "PostgreSQL 17.11",
-      "latencyMs": 114
+      "latencyMs": 115
     },
     "binding": {
       "user": "neondb_owner",
@@ -126,14 +126,14 @@
       "ping": "PONG",
       "drill": {
         "stream": "payswap:production:outbox-probe",
-        "group": "probe-group-1791272649027",
-        "messageId": "1791272649038-0",
-        "read": 9,
-        "acked": 9,
+        "group": "probe-group-1791273899057",
+        "messageId": "1791273899064-0",
+        "read": 10,
+        "acked": 10,
         "pendingAfterAck": 0
       },
       "drainVerified": true,
-      "latencyMs": 111
+      "latencyMs": 65
     },
     "drainDerived": true
   },
@@ -147,22 +147,22 @@
       {
         "eventName": "settlement.terminal-transition.fulfilled",
         "stream": "payswap:observability:production",
-        "eventId": "1791272650935-0"
+        "eventId": "1791273901152-0"
       },
       {
         "eventName": "settlement.terminal-transition.unknown",
         "stream": "payswap:observability:production",
-        "eventId": "1791272651184-0"
+        "eventId": "1791273901431-0"
       },
       {
         "eventName": "reconciliation.case-opened",
         "stream": "payswap:observability:production",
-        "eventId": "1791272651429-0"
+        "eventId": "1791273901736-0"
       },
       {
         "eventName": "deployment.gate-result",
         "stream": "payswap:observability:production",
-        "eventId": "1791272651683-0"
+        "eventId": "1791273901972-0"
       }
     ],
     "invalidRejected": true
@@ -171,7 +171,7 @@
     "consoleVantage": {
       "ok": true,
       "bucket": "payswap-evidence-prod",
-      "artifact": "probe/activation/b6897ede5ac686a80850ea1a8d66e1efc17f917f91a8bf79731136e186194b48.txt",
+      "artifact": "probe/activation/44611d84b3af45030b1a8cd1562cd5bddba84820c489f6d9c69d2023e0a2e0f3.txt",
       "digestMatch": true
     },
     "deployedContext": {
@@ -179,8 +179,8 @@
       "putStatus": 200,
       "getStatus": 200,
       "digestMatch": true,
-      "artifact": "probe/production/ce20c25456904957c553ec06c122a6ed3530ed0c8f8afd3fe7840941a974f91f.txt",
-      "latencyMs": 1184
+      "artifact": "probe/production/fd72fef3a97930068f1dca5b607e25bea7cb9370b662cdfb83376864a5153eb7.txt",
+      "latencyMs": 1237
     }
   },
   "hosting": {
@@ -252,7 +252,7 @@
         "name": "authenticated /v1/health -> 200 certified envelope",
         "ok": true,
         "status": 200,
-        "detail": "requestId=req_1791272653664_1791272653664000007 serverTime present=true"
+        "detail": "requestId=req_1791273903529_1791273903529000003 serverTime present=true"
       },
       {
         "name": "authenticated /v1/capabilities -> honest zero-provider states",
