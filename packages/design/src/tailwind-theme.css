@@ -40,6 +40,30 @@
   --color-ps-focus: var(--ps-focus);
   --color-ps-scrim: var(--ps-scrim);
 
+  /* outcome states (contract 02 §2, v1.1 — eight states) */
+  --color-ps-state-succeeded: var(--ps-state-succeeded);
+  --color-ps-state-succeeded-tint: var(--ps-state-succeeded-tint);
+  --color-ps-state-processing: var(--ps-state-processing);
+  --color-ps-state-processing-tint: var(--ps-state-processing-tint);
+  --color-ps-state-failed: var(--ps-state-failed);
+  --color-ps-state-failed-tint: var(--ps-state-failed-tint);
+  --color-ps-state-refunded: var(--ps-state-refunded);
+  --color-ps-state-refunded-tint: var(--ps-state-refunded-tint);
+  --color-ps-state-partially-refunded: var(--ps-state-partially_refunded);
+  --color-ps-state-partially-refunded-tint: var(--ps-state-partially_refunded-tint);
+  --color-ps-state-disputed: var(--ps-state-disputed);
+  --color-ps-state-disputed-tint: var(--ps-state-disputed-tint);
+  --color-ps-state-blocked: var(--ps-state-blocked);
+  --color-ps-state-blocked-tint: var(--ps-state-blocked-tint);
+  --color-ps-state-dropped: var(--ps-state-dropped);
+  --color-ps-state-dropped-tint: var(--ps-state-dropped-tint);
+
+  /* environment (contract 02 §2) */
+  --color-ps-env-test: var(--ps-env-test);
+  --color-ps-env-test-on: var(--ps-env-test-on);
+  --color-ps-env-live: var(--ps-env-live);
+  --color-ps-env-live-tint: var(--ps-env-live-tint);
+
   /* type scale */
   --text-ps-2xs: var(--ps-text-2xs);
   --text-ps-xs: var(--ps-text-xs);

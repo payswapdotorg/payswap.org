@@ -88,6 +88,43 @@
   --ps-focus: var(--ps-neutral-900);
   --ps-scrim: rgba(19, 18, 17, 0.55);
 
+  /*
+   * ---- semantic: outcome states (UX contract 02 §2, v1.1 — the EIGHT-state set) ----
+   * Layered over the existing ramps only (warm stone / emerald / amber / red —
+   * no new hues, no indigo/blue). `processing` is NEVER red; `dropped` is an
+   * unknown-after-broadcast state and never wears failure styling either.
+   * Treatments encode meaning: tint fill = settled/terminal, dashed = in-flight,
+   * outline (transparent tint) = stopped/unknown, quiet stone = reversed.
+   */
+  --ps-state-succeeded: var(--ps-emerald-700);
+  --ps-state-succeeded-tint: var(--ps-emerald-50);
+  --ps-state-processing: var(--ps-amber-700);
+  --ps-state-processing-tint: var(--ps-amber-50);
+  --ps-state-failed: var(--ps-red-700);
+  --ps-state-failed-tint: var(--ps-red-50);
+  --ps-state-refunded: var(--ps-neutral-600);
+  --ps-state-refunded-tint: transparent;
+  --ps-state-partially_refunded: var(--ps-neutral-700);
+  --ps-state-partially_refunded-tint: var(--ps-neutral-100);
+  --ps-state-disputed: var(--ps-amber-700);
+  --ps-state-disputed-tint: var(--ps-amber-100);
+  --ps-state-blocked: var(--ps-red-700);
+  --ps-state-blocked-tint: transparent;
+  --ps-state-dropped: var(--ps-amber-700);
+  --ps-state-dropped-tint: transparent;
+
+  /*
+   * ---- semantic: environment (UX contract 02 §2 / 01 §2) ----
+   * `env.test` is an INVERTED stone mark (near-black fill, near-white ink):
+   * visually distinct from every state treatment above (none uses a dark
+   * fill), so "test" can never read as "error" (red) or "success" (emerald).
+   * `env.live` is the default world — no special marking.
+   */
+  --ps-env-test: var(--ps-neutral-950);
+  --ps-env-test-on: var(--ps-neutral-0);
+  --ps-env-live: var(--ps-fg-muted);
+  --ps-env-live-tint: transparent;
+
   /* ---- elevation ---- */
   --ps-shadow-1: 0 1px 2px rgba(19, 18, 17, 0.06), 0 1px 3px rgba(19, 18, 17, 0.08);
   --ps-shadow-2: 0 8px 24px rgba(19, 18, 17, 0.16), 0 2px 6px rgba(19, 18, 17, 0.1);
@@ -172,6 +209,30 @@
   --ps-danger-tint: rgba(248, 113, 113, 0.12);
   --ps-focus: var(--ps-neutral-100);
   --ps-scrim: rgba(0, 0, 0, 0.7);
+
+  /* Outcome states (dark ramps — same meaning, same treatments as light). */
+  --ps-state-succeeded: var(--ps-emerald-400);
+  --ps-state-succeeded-tint: rgba(52, 211, 153, 0.12);
+  --ps-state-processing: var(--ps-amber-400);
+  --ps-state-processing-tint: rgba(251, 191, 36, 0.08);
+  --ps-state-failed: var(--ps-red-400);
+  --ps-state-failed-tint: rgba(248, 113, 113, 0.12);
+  --ps-state-refunded: var(--ps-neutral-400);
+  --ps-state-refunded-tint: transparent;
+  --ps-state-partially_refunded: var(--ps-neutral-300);
+  --ps-state-partially_refunded-tint: rgba(255, 255, 255, 0.08);
+  --ps-state-disputed: var(--ps-amber-400);
+  --ps-state-disputed-tint: rgba(251, 191, 36, 0.14);
+  --ps-state-blocked: var(--ps-red-400);
+  --ps-state-blocked-tint: transparent;
+  --ps-state-dropped: var(--ps-amber-400);
+  --ps-state-dropped-tint: transparent;
+
+  /* Environment (inverted for dark: near-white fill, near-black ink). */
+  --ps-env-test: var(--ps-neutral-0);
+  --ps-env-test-on: var(--ps-neutral-950);
+  --ps-env-live: var(--ps-fg-muted);
+  --ps-env-live-tint: transparent;
 
   --ps-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
   --ps-shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);

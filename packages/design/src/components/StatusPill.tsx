@@ -19,6 +19,16 @@ export function Badge({
   return <span className={cx("ps-badge", className)} {...rest} />;
 }
 
+/**
+ * @deprecated For OUTCOME rendering use `StatusChip` (contract 03 §2.2 —
+ * the eight-state vocabulary `succeeded · processing · failed · refunded ·
+ * partially_refunded · disputed · blocked · dropped` has exactly one
+ * renderer). StatusPill's tone set (`ok/attention/unknown/blocked/disabled/
+ * failed`) predates the UX contract set and is retained ONLY for transition
+ * compatibility and for NON-outcome status marking (connection states,
+ * attention markers, inactive toggles). New outcome surfaces must not use
+ * it — see TL-REVIEW-v1 (StatusPill tone set → StatusChip convergence).
+ */
 export interface StatusPillProps extends HTMLAttributes<HTMLSpanElement> {
   /**
    * Semantic state. `unknown` (outcome not yet known — reconciling) is
@@ -43,6 +53,11 @@ const DEFAULT_TONE_LABELS: Record<StatusTone, string> = {
  * State pill. The text label is always visible — color and shape are
  * secondary carriers, never the only one. Default suffix labels can be
  * overridden per instance via `visuallyHiddenLabel`.
+ *
+ * @deprecated For OUTCOME rendering (the 8-state vocabulary of contract
+ * 03 §2.2) use `StatusChip` — this component stays exported only for
+ * transition compatibility and NON-outcome status marking (connection
+ * states, attention markers, disabled states).
  */
 export function StatusPill({
   tone,

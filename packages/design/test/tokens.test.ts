@@ -237,6 +237,8 @@ describe("scales", () => {
   });
 
   it("carries a token version", () => {
-    expect(TOKEN_VERSION).toBe("1.0.0");
+    // 1.1.0 — UX-001 convergence: the 8 outcome-state tokens + env tokens
+    // layered over the existing ramps (contracts 02 §2, v1.1).
+    expect(TOKEN_VERSION).toBe("1.1.0");
   });
 });

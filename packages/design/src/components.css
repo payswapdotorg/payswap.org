@@ -1132,3 +1132,930 @@
 .ps-pill--disabled .ps-pill__dot {
   background-color: var(--ps-border-strong);
 }
+
+/* ============================== StatusChip ============================== */
+/* THE outcome renderer (contract 03 §2.2): icon + visible word label +
+ * optional tooltip. Color is a secondary carrier — the word always leads.
+ * Per-state colors come ONLY from the --ps-state-* tokens (02 §2). */
+
+.ps-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ps-space-1);
+  border-radius: var(--ps-radius-full);
+  border: 1px solid;
+  font-size: var(--ps-text-xs);
+  font-weight: var(--ps-weight-medium);
+  padding: 2px var(--ps-space-2);
+  white-space: nowrap;
+}
+
+.ps-chip__icon {
+  display: inline-flex;
+  flex: none;
+  width: 0.875em;
+  height: 0.875em;
+}
+
+.ps-chip__icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ps-chip__label {
+  line-height: 1.25;
+}
+
+/* succeeded — emerald tint fill (final success) */
+.ps-chip--succeeded {
+  color: var(--ps-state-succeeded);
+  background-color: var(--ps-state-succeeded-tint);
+  border-color: var(--ps-state-succeeded);
+}
+
+/* processing — amber, DASHED (in-flight; NEVER red) + pulse affordance */
+.ps-chip--processing {
+  color: var(--ps-state-processing);
+  background-color: var(--ps-state-processing-tint);
+  border-color: var(--ps-state-processing);
+  border-style: dashed;
+}
+
+.ps-chip--processing .ps-chip__icon {
+  animation: ps-chip-pulse 1.6s var(--ps-ease-out) infinite;
+}
+
+@keyframes ps-chip-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* failed — red tint fill (terminal failure) */
+.ps-chip--failed {
+  color: var(--ps-state-failed);
+  background-color: var(--ps-state-failed-tint);
+  border-color: var(--ps-state-failed);
+}
+
+/* refunded — quiet stone outline (reversed after success) */
+.ps-chip--refunded {
+  color: var(--ps-state-refunded);
+  background-color: var(--ps-state-refunded-tint);
+  border-color: var(--ps-state-refunded);
+}
+
+/* partially_refunded — stone tint fill (refunded-style + remaining amount) */
+.ps-chip--partially_refunded {
+  color: var(--ps-state-partially_refunded);
+  background-color: var(--ps-state-partially_refunded-tint);
+  border-color: var(--ps-state-partially_refunded);
+}
+
+/* disputed — amber tint fill (contested; evidence due) */
+.ps-chip--disputed {
+  color: var(--ps-state-disputed);
+  background-color: var(--ps-state-disputed-tint);
+  border-color: var(--ps-state-disputed);
+}
+
+/* blocked — red outline (stopped by policy before execution) */
+.ps-chip--blocked {
+  color: var(--ps-state-blocked);
+  background-color: var(--ps-state-blocked-tint);
+  border-color: var(--ps-state-blocked);
+}
+
+/* dropped — amber outline (unknown/timeout after broadcast; never failure) */
+.ps-chip--dropped {
+  color: var(--ps-state-dropped);
+  background-color: var(--ps-state-dropped-tint);
+  border-color: var(--ps-state-dropped);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ps-chip--processing .ps-chip__icon {
+    animation: none;
+  }
+}
+
+/* ============================== Environment =========================== */
+/* env.test = inverted stone (near-black fill / near-white ink in light).
+ * Distinct from every state treatment: no state uses a dark fill, so
+ * "test" can never read as error or success (contract 02 §2). */
+
+.ps-env-banner {
+  display: block;
+  width: 100%;
+  background-color: var(--ps-env-test);
+  color: var(--ps-env-test-on);
+  font-size: var(--ps-text-xs);
+  font-weight: var(--ps-weight-medium);
+  text-align: left;
+  /* persistent + top-pinned: never dismissible (contract 01 §2) */
+}
+
+.ps-env-banner__message {
+  margin: 0;
+  padding: var(--ps-space-2) var(--ps-space-4);
+}
+
+.ps-env-banner__exit {
+  color: var(--ps-env-test-on);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.ps-env-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--ps-radius-sm);
+  background-color: var(--ps-env-test);
+  color: var(--ps-env-test-on);
+  font-size: var(--ps-text-2xs);
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: var(--ps-label-tracking);
+  text-transform: uppercase;
+  padding: 2px var(--ps-space-2);
+  white-space: nowrap;
+}
+
+/* ============================== ListPage =============================== */
+
+.ps-listpage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-4);
+}
+
+.ps-listpage__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ps-space-4);
+  flex-wrap: wrap;
+}
+
+.ps-listpage__title {
+  margin: 0;
+  font-size: var(--ps-text-xl);
+  font-weight: var(--ps-weight-semibold);
+  color: var(--ps-fg);
+}
+
+.ps-listpage__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ps-space-2);
+  flex-wrap: wrap;
+}
+
+.ps-listpage__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ps-space-3) var(--ps-space-4);
+}
+
+.ps-listpage__filter {
+  margin-left: auto;
+}
+
+.ps-listpage__tablewrap {
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-lg);
+  background-color: var(--ps-surface);
+}
+
+.ps-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ps-text-sm);
+}
+
+.ps-table__th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: var(--ps-surface);
+  border-bottom: 1px solid var(--ps-border-strong);
+  font-size: var(--ps-text-2xs);
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: var(--ps-label-tracking);
+  text-transform: uppercase;
+  color: var(--ps-fg-muted);
+  text-align: left;
+  padding: var(--ps-space-3);
+  white-space: nowrap;
+}
+
+.ps-table__row {
+  position: relative; /* anchor for the stretched row link */
+  height: 44px; /* minimum row height (contract 02 §4) */
+}
+
+.ps-table__row:hover {
+  background-color: var(--ps-surface-sunken);
+}
+
+.ps-table__cell {
+  padding: var(--ps-space-3);
+  border-bottom: 1px solid var(--ps-border);
+  color: var(--ps-fg);
+  vertical-align: middle;
+}
+
+.ps-table__row:last-child .ps-table__cell {
+  border-bottom: none;
+}
+
+/* Rows are links: the first cell's anchor stretches across the whole row. */
+.ps-table__row-link {
+  color: var(--ps-fg);
+  font-weight: var(--ps-weight-medium);
+  text-decoration: none;
+}
+
+.ps-table__row-link:hover {
+  text-decoration: underline;
+}
+
+.ps-table__row-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* Row-scoped actions stack ABOVE the stretched link so they stay clickable. */
+.ps-table__cell--menu,
+.ps-table__th--menu {
+  position: relative;
+  z-index: 1;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.ps-table__skeleton {
+  display: inline-block;
+  width: 60%;
+  height: 0.75em;
+  border-radius: var(--ps-radius-sm);
+  background-color: var(--ps-surface-sunken);
+}
+
+.ps-table__empty {
+  padding: var(--ps-space-6);
+}
+
+.ps-listpage__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-space-4);
+  flex-wrap: wrap;
+}
+
+.ps-listpage__count {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+}
+
+.ps-listpage__pager {
+  display: flex;
+  gap: var(--ps-space-2);
+}
+
+/* ============================== ObjectDetailHeader ==================== */
+
+.ps-detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ps-space-4);
+}
+
+.ps-detail-header__main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ps-space-2);
+  min-width: 0;
+}
+
+.ps-detail-header__amount {
+  margin: 0;
+  font-size: var(--ps-text-2xl); /* display step (contract 02 §3) */
+  font-weight: var(--ps-weight-semibold);
+  color: var(--ps-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-detail-header__strapline {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg-muted);
+}
+
+.ps-detail-header__reason {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+}
+
+.ps-detail-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ps-space-2);
+  flex-wrap: wrap;
+}
+
+/* ============================== ActivityTimeline ======================= */
+
+.ps-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ps-timeline__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 0 var(--ps-space-3);
+  padding-bottom: var(--ps-space-4);
+}
+
+/* connecting spine */
+.ps-timeline__item::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 14px;
+  bottom: -2px;
+  width: 1px;
+  background-color: var(--ps-border);
+}
+
+.ps-timeline__item:last-child::before {
+  display: none;
+}
+
+/* event marker */
+.ps-timeline__marker {
+  width: 11px;
+  height: 11px;
+  margin-top: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--ps-border-strong);
+  background-color: var(--ps-surface);
+}
+
+.ps-timeline__description {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+}
+
+.ps-timeline__meta {
+  margin: var(--ps-space-1) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ps-space-2);
+  font-size: var(--ps-text-2xs);
+  color: var(--ps-fg-muted);
+}
+
+.ps-timeline__timestamp {
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-timeline__note {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: var(--ps-space-1) 0 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ============================== MetricCard ============================= */
+
+.ps-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  padding: var(--ps-space-5);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-lg);
+  background-color: var(--ps-surface);
+}
+
+.ps-metric__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--ps-space-3);
+}
+
+.ps-metric__title {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  font-weight: var(--ps-weight-semibold);
+  color: var(--ps-fg-muted);
+}
+
+.ps-metric__freshness {
+  margin: 0;
+  font-size: var(--ps-text-2xs);
+  color: var(--ps-fg-subtle);
+}
+
+.ps-metric__value {
+  margin: 0;
+  font-size: var(--ps-text-xl);
+  font-weight: var(--ps-weight-semibold);
+  color: var(--ps-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-metric__delta {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  font-weight: var(--ps-weight-medium);
+  color: var(--ps-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.ps-metric__vs {
+  margin-left: var(--ps-space-1);
+  font-weight: var(--ps-weight-regular);
+  color: var(--ps-fg-muted);
+}
+
+.ps-metric__chart {
+  position: relative;
+  margin-top: var(--ps-space-2);
+}
+
+.ps-metric__sparkline {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ps-metric__axis {
+  stroke: var(--ps-border-strong);
+  stroke-width: 1;
+}
+
+.ps-metric__line {
+  fill: none;
+  stroke: var(--ps-accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ps-metric__previous {
+  fill: none;
+  stroke: var(--ps-fg-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.7;
+}
+
+.ps-metric__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ps-space-1);
+  text-align: center;
+}
+
+.ps-metric__empty-text {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+}
+
+.ps-metric__empty-link {
+  font-size: var(--ps-text-xs);
+  color: var(--ps-accent);
+}
+
+.ps-metric__more {
+  margin-top: var(--ps-space-1);
+  font-size: var(--ps-text-xs);
+}
+
+/* ============================== CreateMenu ============================= */
+
+.ps-split {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+}
+
+.ps-split__primary {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* the chord shown beside the primary label */
+.ps-split__chord {
+  display: inline-flex;
+  gap: var(--ps-space-1);
+  margin-left: var(--ps-space-1);
+}
+
+.ps-split__toggle {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: var(--ps-touch);
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 0 var(--ps-radius-md) var(--ps-radius-md) 0;
+  font-size: var(--ps-text-sm);
+  cursor: pointer;
+  padding: 0 var(--ps-space-2);
+}
+
+.ps-split__toggle--primary {
+  background-color: var(--ps-accent);
+  color: var(--ps-on-accent);
+  border-left: 1px solid var(--ps-accent-emphasis);
+}
+
+.ps-split__toggle--primary:hover {
+  background-color: var(--ps-accent-emphasis);
+}
+
+.ps-split__toggle--secondary {
+  background-color: var(--ps-surface);
+  color: var(--ps-fg);
+  border-color: var(--ps-border-strong);
+  border-left-color: var(--ps-border-strong);
+}
+
+.ps-split__toggle--secondary:hover {
+  background-color: var(--ps-surface-sunken);
+}
+
+.ps-split__toggle--ghost {
+  background-color: transparent;
+  color: var(--ps-fg);
+}
+
+.ps-split__toggle--ghost:hover {
+  background-color: var(--ps-surface-sunken);
+}
+
+.ps-split__toggle--danger {
+  background-color: var(--ps-danger);
+  color: var(--ps-on-accent);
+}
+
+.ps-split__toggle--danger:hover {
+  background-color: var(--ps-danger-emphasis);
+}
+
+.ps-split__toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* the dropdown menu (elevation level 2) */
+.ps-menu {
+  position: absolute;
+  top: calc(100% + var(--ps-space-1));
+  right: 0;
+  z-index: 1001;
+  min-width: 16rem;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ps-space-1);
+  background-color: var(--ps-surface-raised);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-md);
+  box-shadow: var(--ps-shadow-2);
+}
+
+.ps-menu__item {
+  appearance: none;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-space-4);
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: var(--ps-space-2) var(--ps-space-3);
+  border-radius: var(--ps-radius-sm);
+  font-family: inherit;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ps-menu__item:hover,
+.ps-menu__item:focus-visible {
+  background-color: var(--ps-surface-sunken);
+}
+
+.ps-menu__chord {
+  display: inline-flex;
+  gap: var(--ps-space-1);
+}
+
+/* visible keyboard chord (menu items + split primary) */
+.ps-kbd {
+  font-family: var(--ps-font-mono);
+  font-size: var(--ps-text-2xs);
+  color: var(--ps-fg-muted);
+  border: 1px solid var(--ps-border);
+  border-bottom-width: 2px;
+  border-radius: var(--ps-radius-sm);
+  padding: 0 var(--ps-space-1);
+  background-color: var(--ps-surface);
+}
+
+.ps-split__toggle--primary .ps-kbd,
+.ps-menu__item:hover .ps-kbd {
+  color: inherit;
+  border-color: currentColor;
+  background-color: transparent;
+}
+
+/* ============================== SetupGuideWidget ======================= */
+
+.ps-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ps-space-2);
+  padding: var(--ps-space-4);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-md);
+  background-color: var(--ps-surface);
+}
+
+.ps-setup__next {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+}
+
+.ps-setup__next-link {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: var(--ps-weight-semibold);
+  color: var(--ps-accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.ps-setup__complete {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg-muted);
+}
+
+.ps-setup__toggle {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: var(--ps-space-1) 0;
+  font-family: inherit;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ps-setup__steps {
+  list-style: none;
+  margin: var(--ps-space-1) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-1);
+  width: 100%;
+}
+
+.ps-setup__step-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ps-space-2);
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: var(--ps-space-1) var(--ps-space-2);
+  border: none;
+  border-radius: var(--ps-radius-sm);
+  background: none;
+  font-family: inherit;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ps-setup__step-btn:hover {
+  background-color: var(--ps-surface-sunken);
+}
+
+.ps-setup__marker {
+  flex: none;
+  display: inline-flex;
+  width: 1.25em;
+  justify-content: center;
+  color: var(--ps-fg-subtle);
+}
+
+.ps-setup__step--done .ps-setup__marker {
+  color: var(--ps-positive);
+}
+
+.ps-setup__step-btn[aria-current="step"] {
+  color: var(--ps-accent-emphasis);
+  font-weight: var(--ps-weight-medium);
+  background-color: var(--ps-accent-tint);
+}
+
+/* ============================== RelatedObjects ========================= */
+
+.ps-related {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-4);
+}
+
+.ps-related__group-title {
+  margin: 0 0 var(--ps-space-1);
+  font-size: var(--ps-text-2xs);
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: var(--ps-label-tracking);
+  text-transform: uppercase;
+  color: var(--ps-fg-muted);
+}
+
+.ps-related__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ps-related__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-space-3);
+  min-height: 44px;
+  padding: var(--ps-space-1) 0;
+  border-bottom: 1px solid var(--ps-border);
+  color: var(--ps-fg);
+  font-size: var(--ps-text-sm);
+  text-decoration: none;
+}
+
+.ps-related__item:last-child .ps-related__link {
+  border-bottom: none;
+}
+
+.ps-related__link:hover {
+  text-decoration: underline;
+}
+
+.ps-related__label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ps-related__meta {
+  flex: none;
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================== RecommendationsCard ==================== */
+
+.ps-reco {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ps-space-3);
+  padding: var(--ps-space-5);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-lg);
+  background-color: var(--ps-surface);
+}
+
+.ps-reco__proposition {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+  color: var(--ps-fg);
+}
+
+.ps-reco__cta {
+  font-family: inherit;
+  font-size: var(--ps-text-sm);
+  font-weight: var(--ps-weight-medium);
+  color: var(--ps-accent);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* ============================== ConfirmationButton ==================== */
+/* Built on .ps-button (Button); adds the amount/asset restatement nodes. */
+
+.ps-confirm__amount {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================== MoneyInput ============================= */
+
+.ps-money-input {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.ps-money-input__prefix {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  box-sizing: border-box;
+  min-height: var(--ps-touch);
+  padding: 0 var(--ps-space-3);
+  border: 1px solid var(--ps-border-strong);
+  border-right: none;
+  border-radius: var(--ps-radius-sm) 0 0 var(--ps-radius-sm);
+  background-color: var(--ps-surface-sunken);
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-sm);
+}
+
+.ps-money-input .ps-input {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* ============================== Field (convergence) =================== */
+/* Dependent-disable reason: human sentence below the control. */
+
+.ps-field__reason {
+  margin: 0;
+  font-size: var(--ps-text-xs);
+  font-style: italic;
+  color: var(--ps-fg-muted);
+}
+
+/* EmptyState additions: docs link + teaching line (contract 03 §2.3). */
+
+.ps-state__docs {
+  font-size: var(--ps-text-sm);
+  color: var(--ps-accent);
+}
+
+.ps-state__teaching {
+  margin: var(--ps-space-1) 0 0;
+  font-size: var(--ps-text-xs);
+  color: var(--ps-fg-subtle);
+}
