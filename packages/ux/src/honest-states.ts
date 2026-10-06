@@ -22,7 +22,7 @@ import { pendingCustomerActions } from '@payswap/execution';
 import type { ErrorCategory, TerminalState, UiState } from '@payswap/interfaces';
 import { ERROR_CATEGORIES, mapTerminalStateToUi } from '@payswap/interfaces';
 
-import type { ViewAction } from './command-center.js';
+import type { ExecutionUiState, ViewAction } from './command-center.js';
 import { ViewContractError } from './command-center.js';
 
 // ---------------------------------------------------------------------------
@@ -512,4 +512,253 @@ function lastEvidenceEnvelope(attempt: ExecutionAttempt): NonNullable<ProviderEx
     }
   }
   return undefined;
+}
+
+// ---------------------------------------------------------------------------
+// The eight-state outcome vocabulary (contract 03 §2.2 / 07 §5 — UX-002)
+// ---------------------------------------------------------------------------
+//
+// The contract set's normative state set (TL-review R1 made it EIGHT by adding
+// `partially_refunded`): the StatusChip vocabulary every money-object surface
+// renders. This bridge PROJECTS the existing HonestStateView/UiState/tones
+// onto it — additive: every existing export above keeps its shape.
+
+/** The eight normative outcome states, in contract order. */
+export const OUTCOME_STATES = [
+  'succeeded',
+  'processing',
+  'failed',
+  'refunded',
+  'partially_refunded',
+  'disputed',
+  'blocked',
+  'dropped',
+] as const;
+
+export type OutcomeStateId = (typeof OUTCOME_STATES)[number];
+
+/** Narrow an unknown value to an OutcomeStateId. */
+export function isOutcomeState(value: unknown): value is OutcomeStateId {
+  return typeof value === 'string' && (OUTCOME_STATES as readonly string[]).includes(value);
+}
+
+/**
+ * One outcome state's rendering contract: the human label, the HonestTone, and
+ * the failure-rendering FACT. Only `failed` renders as failure — per contract
+ * 07 §5, `dropped` and `processing` render as "We're still watching this"
+ * (INV-X01: UNKNOWN never renders as failure), and `blocked` is an honest
+ * attention stop, not a failure.
+ */
+export interface OutcomeStateView {
+  readonly state: OutcomeStateId;
+  readonly label: string;
+  readonly tone: HonestTone;
+  /** True ONLY for `failed` — no state masquerades as failure (contract 07 §1). */
+  readonly rendersAsFailure: boolean;
+  readonly guidance: string;
+}
+
+const OUTCOME_STATE_VIEWS_TABLE: Readonly<Record<OutcomeStateId, OutcomeStateView>> = Object.freeze({
+  succeeded: Object.freeze({
+    state: 'succeeded',
+    label: 'Succeeded',
+    tone: 'positive',
+    rendersAsFailure: false,
+    guidance: 'Completed with recorded evidence; recourse is bounded by the merchant policy.',
+  }),
+  processing: Object.freeze({
+    state: 'processing',
+    label: 'Processing',
+    tone: 'neutral',
+    rendersAsFailure: false,
+    guidance: "We're still watching this — in progress, not a failure.",
+  }),
+  failed: Object.freeze({
+    state: 'failed',
+    label: 'Failed',
+    tone: 'negative',
+    rendersAsFailure: true,
+    guidance: 'The failure reason comes from protocol evidence, not inference.',
+  }),
+  refunded: Object.freeze({
+    state: 'refunded',
+    label: 'Refunded',
+    tone: 'neutral',
+    rendersAsFailure: false,
+    guidance: 'The full amount was returned; the refund record and its evidence are preserved.',
+  }),
+  partially_refunded: Object.freeze({
+    state: 'partially_refunded',
+    label: 'Partially refunded',
+    tone: 'attention',
+    rendersAsFailure: false,
+    guidance: 'Part of the amount was returned; the remaining balance and refund record are shown.',
+  }),
+  disputed: Object.freeze({
+    state: 'disputed',
+    label: 'Disputed',
+    tone: 'attention',
+    rendersAsFailure: false,
+    guidance: 'A dispute is open; the provider lifecycle state is preserved verbatim and a response may be due.',
+  }),
+  blocked: Object.freeze({
+    state: 'blocked',
+    label: 'Blocked',
+    tone: 'attention',
+    rendersAsFailure: false,
+    guidance: 'A security or policy control stopped execution; the block is recorded, with an explanation and appeal path.',
+  }),
+  dropped: Object.freeze({
+    state: 'dropped',
+    label: 'Dropped',
+    tone: 'neutral',
+    rendersAsFailure: false,
+    guidance: "Not confirmed within its window — we're still watching this, never rendered as failure.",
+  }),
+});
+
+/** The view contract for each of the eight states (contract 03 §2.2 + 07 §5). */
+export const OUTCOME_STATE_VIEWS: Readonly<Record<OutcomeStateId, OutcomeStateView>> =
+  OUTCOME_STATE_VIEWS_TABLE;
+
+/** Look up one state's rendering contract (fail-closed on unknown states). */
+export function outcomeStateView(state: OutcomeStateId): OutcomeStateView {
+  const view = OUTCOME_STATE_VIEWS[state];
+  if (view === undefined) {
+    throw new ViewContractError(`unknown outcome state: ${String(state)}`);
+  }
+  return view;
+}
+
+// ——— The projections (total, deterministic) ————————————————————————————
+
+/**
+ * Project the canonical `UiState` (from @payswap/interfaces) onto the
+ * eight-state vocabulary. Total over UI_STATES; the mapping is one-way
+ * projection, never a re-definition of the canonical states.
+ *
+ * - fulfilled → succeeded; failed → failed; compliance-blocked → blocked;
+ * - reconciling / action-required → processing (still in flight / customer
+ *   action pending — the object is not finished, and never a failure);
+ * - no-viable-route → failed (failure reason: route-unavailable);
+ * - expired / cancelled → dropped (did not complete; not rendered as failure).
+ */
+export function projectUiStateToOutcomeState(uiState: UiState): OutcomeStateId {
+  switch (uiState) {
+    case 'fulfilled':
+      return 'succeeded';
+    case 'reconciling':
+      return 'processing';
+    case 'action-required':
+      return 'processing';
+    case 'no-viable-route':
+      return 'failed';
+    case 'compliance-blocked':
+      return 'blocked';
+    case 'expired':
+      return 'dropped';
+    case 'cancelled':
+      return 'dropped';
+    case 'failed':
+      return 'failed';
+    default: {
+      const exhaustive: never = uiState;
+      throw new ViewContractError(`unhandled ui state: ${String(exhaustive)}`);
+    }
+  }
+}
+
+/**
+ * Project an execution view state (command-center.ts EXECUTION_UI_STATES)
+ * onto the eight-state vocabulary. Total over EXECUTION_UI_STATES:
+ * compensated → refunded (the partial effect was compensated — money returned);
+ * recovered → succeeded; cancelled → dropped; every intermediate state →
+ * processing.
+ */
+export function projectExecutionUiStateToOutcomeState(view: ExecutionUiState): OutcomeStateId {
+  switch (view) {
+    case 'not-started':
+      return 'processing';
+    case 'executing':
+      return 'processing';
+    case 'action-required':
+      return 'processing';
+    case 'partially-executed':
+      return 'processing';
+    case 'reconciling':
+      return 'processing';
+    case 'fulfilled':
+      return 'succeeded';
+    case 'failed':
+      return 'failed';
+    case 'cancelled':
+      return 'dropped';
+    case 'compensated':
+      return 'refunded';
+    case 'recovered':
+      return 'succeeded';
+    default: {
+      const exhaustive: never = view;
+      throw new ViewContractError(`unhandled execution ui state: ${String(exhaustive)}`);
+    }
+  }
+}
+
+/**
+ * Context for the UNKNOWN-outcome projection (contract 07 §5). This is an
+ * AUTHORITY FACT injected by the caller — never ambient time (package law):
+ * whether the outcome is still within the confirmation watch period.
+ */
+export interface UnknownOutcomeProjectionContext {
+  /** Default true: reconciliation is still watching the outcome. */
+  readonly withinConfirmationWindow?: boolean;
+}
+
+/**
+ * Project a terminal protocol state onto the eight-state vocabulary. Total
+ * over TERMINAL_STATES. THE LAW (INV-X01 + contract 07 §5): UNKNOWN projects
+ * to `processing` while within its confirmation window and to `dropped` once
+ * the window has passed — NEVER to `failed`. Absence of knowledge is not
+ * failure; rendering it red is the recorded anti-pattern.
+ */
+export function projectTerminalStateToOutcomeState(
+  state: TerminalState,
+  context?: UnknownOutcomeProjectionContext,
+): OutcomeStateId {
+  switch (state) {
+    case 'FULFILLED':
+      return 'succeeded';
+    case 'WAITING':
+      return 'processing';
+    case 'USER_ACTION_REQUIRED':
+      return 'processing';
+    case 'NO_VIABLE_ROUTE':
+      return 'failed';
+    case 'COMPLIANCE_BLOCKED':
+      return 'blocked';
+    case 'EXPIRED':
+      return 'dropped';
+    case 'CANCELLED':
+      return 'dropped';
+    case 'FAILED':
+      return 'failed';
+    case 'UNKNOWN':
+      // INV-X01 / contract 07 §5: UNKNOWN is NEVER 'failed' — it projects to
+      // processing/dropped depending on the injected confirmation-window fact.
+      return context?.withinConfirmationWindow === false ? 'dropped' : 'processing';
+    default: {
+      const exhaustive: never = state;
+      throw new ViewContractError(`unhandled terminal state: ${String(exhaustive)}`);
+    }
+  }
+}
+
+/**
+ * Bridge an HonestStateView (this module's rendering contract) onto the
+ * eight-state vocabulary: the view's canonical uiState projects onto the
+ * outcome state. UNKNOWN-derived views (uiState 'reconciling') land on
+ * `processing` — never `failed`.
+ */
+export function projectHonestViewToOutcomeState(view: HonestStateView): OutcomeStateId {
+  return projectUiStateToOutcomeState(view.uiState);
 }
