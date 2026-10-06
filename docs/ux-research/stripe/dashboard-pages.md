@@ -1,4 +1,4 @@
-Status: PHASE 2 PENDING — authenticated dashboard survey awaits the operator-assisted authentication window (P4-W1-003 protocol: the operator personally performs Google/MFA authentication in an isolated browser; the worker never receives credentials and never touches authentication). NOTHING in this file is claimed from an authenticated session.
+Status: SUPERSEDED BY PHASE 2 — the authenticated dashboard survey was completed 2026-10-06; its artifacts live in `phase2/` (README, dashboard-shell, payments, hosted-checkout, dashboard-pages-survey). This file remains as the Phase-1 record of what public docs established and what the survey was planned to cover. NOTHING in this file is claimed from an authenticated session.
 
 # Stripe Dashboard pages — Phase-2 placeholder (gated)
 
