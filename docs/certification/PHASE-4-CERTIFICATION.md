@@ -3,15 +3,15 @@
 - **Work order:** `spec/universal-money/work-items/P4-W4-003.md` (owner: worker-3; deps P4-W4-001, P4-W4-002, P4-W3-003 — all merged)
 - **Base commit SHA:** `bf41475` (origin/main at dispatch — the P4-W4-002 merge)
 - **Branch:** `work/P4-W4-003`
-- **Dispatch:** local lane (TL-session subagent, Task 56-a)
+- **Dispatch:** local lane (TL-session subagent, Tasks 56-a/56-a-2/56-a-3 — phase 1, journeys, finish)
 - **Date:** 2026-10-06
 - **Scope:** certification only — no contract changes, no new financial authority, no stubs replacing real calls. Every number below was produced by a fresh run at the recorded base/head on the local lane and cross-checks the banked integration-station evidence for the same tree.
 
-> STATUS: Phase 1 (the 11 certification suites + integration evidence) is COMPLETE and
-> recorded below. Phase 2 (browser journeys × viewports), the deployment-record section,
-> the 16-gate table and the state-file reconciliation are being appended in follow-up
-> commits on this branch as they complete — this checkpoint is pushed early per the
-> push-early protocol; nothing below this note is provisional.
+> STATUS: Phase 1 (the 11 certification suites + integration evidence) recorded in commit
+> `dd1f712`. Phase 2 (browser journeys × viewports) recorded in commit `d94d551`.
+> The state-file reconciliation is recorded in commit `eb02678`. Sections 3–8 below
+> complete the record. Nothing below is provisional; every number is machine-derived
+> from artifacts committed on this branch or from the repository's own records.
 
 ## 1. Integration evidence (root battery, typecheck, verify:repo)
 
@@ -65,28 +65,177 @@ integration run.
 
 ## 3. Browser verification (real rendered journeys)
 
-*Appended in the follow-up commit: journeys × viewports (desktop 1440x900, mobile
-390x844) over `http://localhost:4321`, console-error/page-error counts, screenshot
-evidence under `packages/web/evidence/cert/` and the evidence README update.*
+Method: headless **Playwright 1.63** (cached Chromium) against
+`npx next dev --webpack` on `http://localhost:4321` (packages/web; the explicit
+`--webpack` flag is required — Next 16 refuses a bare `next dev` when a webpack
+config is present, exiting 1 before serving). Viewports: **desktop 1440x900**, **mobile
+390x844**. Merchant role applied through the documented preview affordance
+(`ps-cc-role=merchant` cookie — exactly what the RoleSwitcher server action sets);
+session-scoped data keeps its honest unavailable states. Per page the script asserted
+HTTP 200, captured every console error and page error, then **click-probed every
+visible disclosure (`<summary>`), internal link and enabled button**, classifying each
+as `disclosed/mutated` (DOM mutated), `navigated` (route change) or
+`NO-OBSERVABLE-EFFECT` (dead-button candidate), and took a full-page screenshot after
+the probes. Throwaway capture script kept in `/tmp` only (certification-only law:
+no new product/test code); the **per-page JSON records are banked in-repo** at
+`packages/web/evidence/cert/journeys/` (11 chunk files) so every number below is
+machine-checkable.
+
+| Area | Route | Desktop 1440x900 | Mobile 390x844 |
+|---|---|---|---|
+| overview | `/app` | 200 · cErr 0 · pErr 0 · no dead · `desktop-overview.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-overview.png` |
+| pay | `/app/payments?start=1` | 200 · cErr 0 · pErr 0 · no dead · `desktop-pay.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-pay.png` |
+| payments | `/app/payments` | 200 · cErr 0 · pErr 0 · no dead · `desktop-payments.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-payments.png` |
+| convert | `/app/convert` | 200 · cErr 0 · pErr 0 · no dead · `desktop-convert.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-convert.png` |
+| checkout | `/app/checkout` | 200 · cErr 0 · pErr 0 · no dead · `desktop-checkout.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-checkout.png` |
+| security | `/app/security` | 200 · cErr 0 · pErr 0 · no dead · `desktop-security.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-security.png` |
+| accounts | `/app/accounts` | 200 · cErr 0 · pErr 0 · no dead · `desktop-accounts.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-accounts.png` |
+| connections | `/app/connections` | 200 · cErr 0 · pErr 0 · no dead · `desktop-connections.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-connections.png` |
+| opportunities | `/app/opportunities` | 200 · cErr 0 · pErr 0 · no dead · `desktop-opportunities.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-opportunities.png` |
+| reports | `/app/reports` | 200 · cErr 0 · pErr 0 · no dead · `desktop-reports.png` | 200 · cErr 0 · pErr 0 · no dead · `mobile-reports.png` |
+
+**Totals (machine-verified over all 20 page records): 20 pages, 83 click probes,
+console errors = 0, page errors = 0, dead-button candidates = 0.** Rendered-behavior
+assertions recorded per area: overview renders 5 outcome cards all honestly
+not-dispatchable (`data-dispatchable=false` ×5); convert shows TEST + TESTNET mode
+indicators; security shows the BLOCK/ALLOW/UNKNOWN vocabulary; accounts shows the
+observation-never-custody vocabulary; connections shows the catalogue-never-connection
+vocabulary. Honest probe notes: two text-presence probes (checkout's no-merchant-context
+line, overview's prerequisite lines) read the *pre-interaction* `innerText` and
+returned false because those strings live inside collapsed disclosure widgets at
+initial render (`innerText` excludes closed-`<details>` content) — the phrases are
+verified present in the component sources and visible in the post-interaction captures;
+classified as probe mechanics, not app errors. The captures span several script
+invocations after dev-server restarts and two Chromium renderer kills under sandbox
+memory pressure (environment casualties, not page failures — every recorded page is a
+complete zero-error record); two chunk records (`dsk3`, `mob3`) lack the `finishedAt`
+marker because their processes were killed after their last recorded page completed.
 
 ## 4. Security findings (adversarial summary)
 
-*Appended in the follow-up commit (honest summary of suite 9 + the browser
-no-fake-success / no-dead-buttons scans).*
+The adversarial plane is certified by suite 9 (section 2): `onchain-threat-intel`
+**162/162** (13 threat families, evidence-chained signals, calibrated confidence,
+BLOCK-no-downgrade, immune-system bridge) plus the cross-package adversarial scans —
+onchain-domain **12/12**, onchain-venues **10/10**, best-execution (adversarial +
+no-fake-quote-to-success) **27/27**, merchant-crypto **15/15**, merchant-checkout
+**18/18**. The security-kernel suites behind them: authorization **59/59** and
+simulation/pre-broadcast recheck **94/94** (onchain-security), UNKNOWN/reorg/finality
+**40+42+23** (onchain-adapters / onchain-domain / settlement). Zero adversarial
+failures anywhere in the 4694-test battery.
+
+At the journey level (this delivery): **no dead buttons** (83 click probes, 0
+`NO-OBSERVABLE-EFFECT` results — every rendered control either mutates the DOM or
+navigates), **no fake financial success** (the five outcome cards render honestly
+not-dispatchable with typed prerequisites undispatched; the adversarial scans in
+`packages/web/test/universal-interface.test.tsx` and the surface contract suite assert
+the same law at the unit level — 306/306 + 33/33), and **no console/page errors** on
+any of the 20 rendered pages (a crashing or error-logging surface cannot fake
+success). Secrets: no secret material in any repo file (verify:repo green; the
+deployment records carry vault references only).
 
 ## 5. Deployment URL/ID + environment mapping
 
-*Appended in the follow-up commit (what the repository's own deployment tooling
-produces; the existing certified chain; the honest operator-side gap).*
+What the repository's own deployment tooling produces (inspected, not assumed):
+
+- `scripts/deployment/run.mjs` → `production-deployment.ts`:
+  `npm run deploy:record -- <release-sha> <battery> <authorized-at>` assembles the
+  deterministic production record — six-role environment manifests with §3.1
+  vault-reference values, four machine checkers (env completeness, preview/production
+  parity, INV-O03 migration order, §3.2 secret hygiene), the ordered deployment plan
+  and the eleven release gates. **Existing certified record:**
+  `spec/development-state/production-deployment.json` at release sha `094797e`
+  (the Phase-3 closeout), battery 3197, authorized 2026-10-03 via
+  `spec/development-state/deployment-authorization.json` — all eleven gates **PASS**,
+  including the runtime-plane-bound LIVE gates (system-of-record connectivity from
+  every worker, drain drill, browser-verification contracts, wired observability sink).
+- `scripts/deployment/web-release.mjs` (release mode): runs the web build, reads the
+  Next BUILD_ID and **recomputes the sha256 source digest independently** (fails
+  loudly on disagreement — reproducible release identity), records the Vercel project
+  `payswap-web` (root directory `packages/web`) with the API-runtime separation law
+  (the authoritative `payswap` API project is never touched by a web release).
+  **Existing certified records:** `web-release-2026-10-02.json` and
+  `web-release-2026-10-03.json` (commit `409d920`, buildId `gukgxzaxx`,
+  buildIdVerifiedAgainstSources true). The deployment URL fields are **placeholders
+  by design**: the record states the TL performs the actual `vercel` deployment at the
+  review gate and re-runs the driver with the live URLs as arguments.
+
+**Honest gap (unresolved limitation, not fabricated):** no deployment record or live
+URL/ID exists yet for the Phase-4 tree (`bf41475` and this branch). Producing one
+requires (a) the operator-side Vercel credential at the review gate to deploy
+`payswap-web` from packages/web and (b) a fresh
+`npm run deploy:record -- <phase-4-sha> 4694 <date>` run to write the new
+`production-deployment.json` + `web-release-<date>.json` for this tree. The certified
+chain above (094797e / 409d920 · gukgxzaxx) is the existing production baseline this
+certification builds on; nothing in this work order authorized a new production
+deployment from the certification lane.
 
 ## 6. Rollback proof
 
-*Appended in the follow-up commit.*
+The documented rollback path (from the repository's own tooling and records):
+
+- **Deployment layer (the certified path):** Vercel rollback re-points the production
+  alias to a previous **immutable** deployment (build id unchanged by definition).
+  `scripts/deployment/web-release.mjs rollback <date> <from> <to> <reason> [build-id]
+  [commit]` records it deterministically. The rollback gate in the certified
+  production record is **PASS**: "Rollback is documented and drilled:
+  RESTORE_REPLAY_PROCEDURE (INV-O04) reconstructs the full tree from git" — the
+  Phase-3 closeout drilled the cycle end-to-end.
+- **Git layer (dry-run performed for this record, NOT executed — per work-order
+  law):** `git merge-base --is-ancestor 852941a HEAD` → true (852941a, the pre-W4-002
+  main, is a valid restore point on origin/main). A mechanical
+  `git revert -m 1 --no-commit 852941a` in a throwaway worktree at this branch's head
+  **conflicts on 35 paths** (the W4-002 surface/web delivery overlaps W2-003 files) —
+  recorded honestly: a merge-revert of 852941a needs conflict resolution, so the
+  practical git-level restore is `git checkout 852941a` (verified present on
+  origin/main; the tree builds from source per the reproducible-build records), with
+  the deployment-layer alias re-point as the immediate user-facing rollback. Nothing
+  was reverted.
 
 ## 7. Unresolved limitations
 
-*Appended in the follow-up commit.*
+1. **Typecheck authority is per-workspace by design** — the repository has no root
+   `tsconfig.json` (verified: no history for the path), so a bare root
+   `npx tsc --noEmit` exits 1 printing the usage banner. The authoritative check is
+   `npm run typecheck` (per-workspace `tsc --noEmit`): exit 0, 0 errors (section 1).
+2. **No Phase-4 deployment record / live URL yet** (section 5): the existing certified
+   chain is the Phase-3 record (094797e, eleven gates PASS) + web releases through
+   409d920/gukgxzaxx with placeholder URLs by design; a Phase-4 deployment needs the
+   operator-side credential at the review gate plus a fresh `deploy:record` run.
+3. **Journey capture environment notes** (section 3): captures ran against the dev
+   server (`next dev --webpack`) per the work order's method, not a production build;
+   two chunk records lack the `finishedAt` marker (processes killed after their last
+   recorded page completed — all recorded pages complete and zero-error); two
+   text-presence probes read false at pre-interaction time because the target strings
+   live in collapsed disclosures (phrases verified in sources; visible in the
+   post-interaction captures).
+4. **W1-003 Phase-2 Stripe dashboard survey** remains an operator-window dependency
+   (recorded in the P4-W1-003 verification; the `stripe_dashboard_ux_research_recorded`
+   gate is satisfied by the 21 sanitized research documents + the row-by-row mapping).
+5. **The 429-throttle history of the delivery lanes** (console lane siege, documented
+   in the program worklog) delayed this delivery across legs 56-a → 56-a-3; no
+   evidence was lost (push-early protocol), but the certification arrived in three
+   legs rather than one.
 
 ## 8. The 16 phase gates (gate-by-gate evidence table)
 
-*Appended in the follow-up commit.*
+Read from `spec/development-state/phase-4-state.json` `gates` array; each gate mapped
+to its concrete evidence:
+
+| # | Gate | Concrete evidence |
+|---|---|---|
+| 1 | `phase3_complete` | Phase 3 closed at merge `094797e` (P3-W3-003, all gates re-run at the station: 56/56+56/56 browser cells, 9/9 boundary invariants, rollback cycle proven); the phase-4 prerequisite in `phase-4-state.json` is satisfied by P3-W1-003/P3-W2-003/P3-W3-003, all merged |
+| 2 | `onchain_domain_certified` | `packages/onchain-domain` (W1-001, merged `9fdc09c`): battery row `onchain-domain 145` (section 1); adversarial 12/12 (suite 9); execution/settlement-mapping 42/42 (suite 10) |
+| 3 | `wallet_signer_authorization_certified` | `packages/onchain-security` (W1-002, merged `c2ab122`): authorization/signers/delegation/secrets **59/59** (suite 2) |
+| 4 | `multi_chain_execution_evidence` | `packages/onchain-adapters` (W2-001, merged `5453ea5`): **90/90** across EVM/Solana/UTXO lifecycles + contract semantics (suite 1); UNKNOWN paths 40/40 (suite 10) |
+| 5 | `multi_venue_execution_evidence` | `packages/onchain-venues` **61/61** + `packages/best-execution` **81/81** (suite 4; W2-002, merged `62454ac`) |
+| 6 | `merchant_crypto_payment_evidence` | `packages/merchant-crypto` (W1-003, merged `bf1c5a8`): **191/191** (suite 5) |
+| 7 | `eligible_stripe_settlement_evidence` | `packages/merchant-checkout` (W2-003, merged `852941a`): **170/170** incl. settlement modes NATIVE_STRIPE_CRYPTO / PAYSWAY_EXTERNAL_SETTLEMENT (suite 6) |
+| 8 | `lab_mixed_rail_evidence` | `packages/mixed-rail` **71/71** (suite 7; W3-001, merged `801b4bb`) + the Lab composition harness (`lab 109`, battery section 1) |
+| 9 | `onchain_opportunity_evidence` | `packages/onchain-opportunities` (W3-002, merged `1ea9f9f`): **153/153** with the no-guaranteed-returns vocabulary law (suite 8) |
+| 10 | `adversarial_blocking_evidence` | `packages/onchain-threat-intel` **162/162** + cross-package adversarial scans 12+10+27+15+18 (suite 9; W3-003, merged `70b0f20`) |
+| 11 | `mixed_fiat_onchain_route_evidence` | `packages/route-compiler` (W4-001, merged `fffbdfe`): **165/165** — four representative routes, failure injection, custody continuity (suite 7) |
+| 12 | `stripe_dashboard_ux_research_recorded` | 21 sanitized Stripe UX research documents + `packages/web/RESEARCH-MAPPING.md` (every document mapped row-by-row; W1-003 `bf1c5a8` / W4-002 `e3930cb`) |
+| 13 | `responsive_accessible_ux_certified` | `packages/web` **306/306** (22 files incl. a11y-aria, a11y-keyboard, a11y-deep-links, honest-states, universal-interface) + `packages/surface` **33/33** (suite 11; W4-002, merged `bf41475`) |
+| 14 | `production_browser_verification` | This delivery, commit `d94d551`: 20 cert captures (10 areas × 2 viewports), 0 console errors / 0 page errors / 0 dead buttons, per-page records in `packages/web/evidence/cert/journeys/` + the README method section; plus the browser-verification gate in `production-deployment.json` (PASS, runtime-plane bound) |
+| 15 | `production_release_reproducible` | The deterministic record tooling: `web-release.mjs` recomputes the BUILD_ID source digest independently (verified equal, `gukgxzaxx` @ 409d920); `production-deployment.json` deterministic over its inputs; battery/typecheck/verify:repo re-run fresh on this tree with zero delta (section 1). Phase-4-tree record: the honest operator-credential gap (section 5) |
+| 16 | `rollback_verified` | The rollback gate PASS in `production-deployment.json` (RESTORE_REPLAY_PROCEDURE INV-O04, drilled) + the web-release rollback record mode + this record's git-level dry-run (section 6) |
