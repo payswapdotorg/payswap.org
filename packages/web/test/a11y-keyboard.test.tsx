@@ -320,8 +320,12 @@ describe("keyboard: the mobile SidebarDrawer (dialog semantics)", () => {
     const onClose = vi.fn();
     render(
       <SidebarDrawer open={open} onClose={onClose} label="Command Center sections">
-        <a href="/app">Overview</a>
-        <a href="/app/payments">Payments</a>
+        {/* UX-004: /app/payments gained child page routes (link builder +
+            detail), so the next/no-html-link-for-pages rule now treats it as
+            a page href — fixture anchors use same-document fragments, which
+            is all the focus-trap assertions need. */}
+        <a href="#drawer-overview">Overview</a>
+        <a href="#drawer-payments">Payments</a>
       </SidebarDrawer>,
     );
     return { onClose };
