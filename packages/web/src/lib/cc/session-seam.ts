@@ -22,12 +22,24 @@
 
 import type { ProductRole } from "@payswap/ux";
 import { PRODUCT_ROLES } from "@payswap/ux";
+import type { SidebarProjectionKind } from "@payswap/ux";
+import { sidebarProjectionForRole } from "@payswap/ux";
 
 import type { WebSessionContext } from "@/lib/session/server";
 import { currentWebSessionContext } from "@/lib/session/server";
 
 /** Cookie carrying the Command Center role preference (dev/demo affordance). */
 export const CC_ROLE_COOKIE = "ps-cc-role" as const;
+
+/**
+ * Cookie carrying the Command Center PROJECTION preference (UX-006, contract
+ * 10 §6 "merchant CAN switch projections — same account, two projections").
+ * Like the role cookie: a navigation/view derivation ONLY — never an
+ * authentication, never authority, never financial state (law 1). Merchant
+ * stays the default; `consumer` re-projects the SAME object model around
+ * "my money, my payments, my contacts, my requests" (never a re-axing).
+ */
+export const CC_PROJECTION_COOKIE = "ps-cc-projection" as const;
 
 /** The single place the Command Center learns about the session. */
 export interface CcSessionPrincipal {
@@ -148,4 +160,46 @@ export function ccSessionLine(session: CcSessionResolution): string {
     case "not-wired":
       return "Session plane: not configured (honest)";
   }
+}
+
+// ---------------------------------------------------------------------------
+// The projection seam (UX-006, contract 10 §6 — additive; same law as the
+// role preference: a view derivation, never an authentication)
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse a projection-preference cookie value; null unless it names a real
+ * projection kind ("merchant" | "consumer" — fail-closed, exactly like
+ * `parseRolePreference`). Anything else (absent, malformed) means "no
+ * preference" and the role's default projection applies.
+ */
+export function parseProjectionPreference(
+  value: string | undefined | null,
+): SidebarProjectionKind | null {
+  if (value !== "merchant" && value !== "consumer") {
+    return null;
+  }
+  return value;
+}
+
+/**
+ * The effective sidebar projection for THIS render (contract 10 §6): the
+ * explicit projection preference when the visitor chose one (a merchant CAN
+ * switch projections on the same account); otherwise the role's own default
+ * (borrower projects consumer; everyone else merchant). The projection NEVER
+ * changes the session, never grants authority and never re-axes the
+ * navigation — it re-labels the SAME object model around the viewer's mental
+ * model through the UX-002 `projectSidebar` API.
+ */
+export function effectiveSidebarProjection(
+  role: ProductRole | null,
+  projectionPreference: SidebarProjectionKind | null,
+): SidebarProjectionKind {
+  if (projectionPreference !== null) {
+    return projectionPreference;
+  }
+  if (role === null) {
+    return "merchant";
+  }
+  return sidebarProjectionForRole(role).projection;
 }
