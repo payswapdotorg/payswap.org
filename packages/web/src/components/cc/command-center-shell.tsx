@@ -1,38 +1,50 @@
 "use client";
 
 /**
- * The Command Center shell (P3-W2-002).
+ * The Command Center shell (P3-W2-002; contract-01 convergence by UX-003).
  *
- * Client composition of the @payswap/design primitives: the static grouped
- * Sidebar (hidden <lg), the mobile SidebarDrawer, the Topbar (breadcrumb +
- * ⌘K search trigger + context badges) and the CommandPalette wired to real
- * actions. All navigation is derived server-side from the certified
- * `deriveNavigationForRole` model and passed in as data — this component
- * hardcodes nothing. Interactive state is shell-level only (drawer/palette);
- * every section surface renders as server content below the topbar.
+ * Client composition of the @payswap/design primitives around the UX-002
+ * object-model sidebar: the static grouped Sidebar (hidden <lg), the mobile
+ * SidebarDrawer, the persistent EnvironmentBanner (honest TEST band — the
+ * live path exists in the component but no live deployment exists to reach
+ * it), the Topbar (breadcrumb + ⌘K search trigger + Settings + the global
+ * Create split-button with visible chords `c p` / `c r` / `c i` / `c l` /
+ * `c v` active everywhere inside /app) and the CommandPalette wired to real
+ * actions. The sidebar arrives as a role PROJECTION of the registry
+ * (computed server-side) — this component hardcodes nothing. Interactive
+ * state is shell-level only (drawer/palette/accordion); every section
+ * surface renders as server content below the topbar.
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { ProductRole, RoleNavigationView } from "@payswap/ux";
+import type { ProductRole } from "@payswap/ux";
+import { navigationItems, PRODUCT_NAVIGATION } from "@payswap/ux";
+import type { ProjectedSidebar } from "@payswap/ux";
+import type { SetupGuideStep } from "@payswap/design";
 import {
   CommandPalette,
+  CreateMenu,
+  EnvironmentBanner,
   Sidebar,
   SidebarDrawer,
-  SidebarItem,
-  SidebarSection,
+  SetupGuideWidget,
   Topbar,
   useCommandKey,
+  type CreateMenuItem as DesignCreateMenuItem,
 } from "@payswap/design";
 
-import { appRouteForNavItemId, resolveAppSection } from "@/lib/cc/routes";
+import { appRouteForSidebarGroupItem, appRouteForSidebarRow, createMenuTargets, deepestKnownAppRoute } from "@/lib/cc/routes";
 import { deriveUniversalPalette, UNIVERSAL_AREA_MODEL } from "@/lib/universal/palette";
 import { resolveUniversalAreaRoute } from "@/lib/universal/areas";
+import { CC_ENVIRONMENT } from "@/components/shell/environment";
+import { setupStepRoute } from "@/components/shell/setup-guide";
 import { CcNavContent } from "./cc-nav-content";
 
 export interface CommandCenterShellProps {
-  /** The certified, role-derived navigation (computed server-side). */
-  readonly nav: RoleNavigationView;
+  /** The role-projected object-model sidebar (computed server-side). */
+  readonly sidebar: ProjectedSidebar;
   /** The role driving this render (null while gated). */
   readonly role: ProductRole | null;
   /** True when the marked preview mode is active (banner renders). */
@@ -41,42 +53,71 @@ export interface CommandCenterShellProps {
   readonly sessionLine: string;
   /** The role switcher form (a server slot — works without JavaScript). */
   readonly roleSwitcher: ReactNode;
+  /** The honest setup-guide steps (derived server-side from real state). */
+  readonly setupSteps: readonly SetupGuideStep[];
   readonly children: ReactNode;
 }
 
+/** Legacy-section labels for deep surfaces the sidebar folds (labels only). */
+const LEGACY_LABELS: Readonly<Record<string, string>> = Object.fromEntries(
+  navigationItems(PRODUCT_NAVIGATION).map((item) => [
+    item.id === "overview" ? "/app" : `/app/${item.id}`,
+    item.label,
+  ]),
+);
+
 export function CommandCenterShell({
-  nav,
+  sidebar,
   role,
   preview,
   sessionLine,
   roleSwitcher,
+  setupSteps,
   children,
 }: CommandCenterShellProps) {
   const router = useRouter();
   const pathname = usePathname() ?? "/app";
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [announced, setAnnounced] = useState<string | null>(null);
 
   useCommandKey(() => {
     setPaletteOpen(true);
   });
 
-  // Close the drawer whenever navigation happens (the palette closes itself).
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [pathname]);
+  // The mobile drawer closes when a navigation happens INSIDE it (any
+  // anchor click — event delegation, no navigation-chasing effect).
+  const handleDrawerContentClick = (event: React.MouseEvent<HTMLDivElement>): void => {
+    if (event.target instanceof HTMLElement && event.target.closest("a") !== null) {
+      setDrawerOpen(false);
+    }
+  };
 
-  const resolved = resolveAppSection(pathname);
+  // The active /app route: universal areas win on their routes, otherwise
+  // the deepest KNOWN route (detail pages keep their collection active).
   const universalRoute = resolveUniversalAreaRoute(pathname);
-  const activeRoute =
-    universalRoute ??
-    (resolved.kind === "SECTION" ? resolved.route : appRouteForNavItemId("overview"));
+  const activeRoute = universalRoute ?? deepestKnownAppRoute(pathname);
+
+  // The breadcrumb label: the projection's own label when the sidebar binds
+  // this route, otherwise the legacy/universal surface's certified label.
   const activeLabel =
-    resolved.kind === "SECTION"
-      ? (nav.items.find((view) => appRouteForNavItemId(view.item.id) === resolved.route)?.item
-          .label ?? "Command Center")
-      : (UNIVERSAL_AREA_MODEL.find((area) => area.route === pathname)?.label ??
-        "Command Center");
+    sidebar.rows.find((view) => appRouteForSidebarRow(view.row) === activeRoute)?.label ??
+    sidebar.groups
+      .flatMap((view) => view.group.items)
+      .find((item) => appRouteForSidebarGroupItem(item) === activeRoute)?.label ??
+    LEGACY_LABELS[activeRoute] ??
+    UNIVERSAL_AREA_MODEL.find((area) => area.route === pathname)?.label ??
+    "Command Center";
+
+  // Live region: announce route changes politely (contract 01 §2.5). No
+  // announcement on first paint — only on actual navigation.
+  const firstPathname = useRef(pathname);
+  useEffect(() => {
+    if (firstPathname.current !== pathname) {
+      firstPathname.current = pathname;
+      setAnnounced(`Navigated to ${activeLabel}`);
+    }
+  }, [pathname, activeLabel]);
 
   const palette = deriveUniversalPalette(role);
   const sections = [
@@ -108,10 +149,40 @@ export function CommandCenterShell({
     },
   ];
 
+  // The global Create split-button (contract 01 §6): five canonical
+  // creations, each with its visible chord, routing to the work-order
+  // targets. Chords are active everywhere inside /app while mounted (the
+  // design hook never fires while a text input is focused).
+  const createItems: readonly DesignCreateMenuItem[] = createMenuTargets().map(
+    ([item, route]) => ({
+      id: item.id,
+      label: item.label,
+      chord: item.chord,
+      onSelect: () => {
+        router.push(route);
+      },
+    }),
+  );
+
   const sidebarFooter = (
-    <div className="cc-role-form">
+    <div className="cc-role-form cc-shell__footer">
+      <SetupGuideWidget
+        steps={[...setupSteps]}
+        onSelectStep={(stepId) => {
+          router.push(setupStepRoute(stepId));
+        }}
+      />
       <p className="cc-role-form__note">{sessionLine}</p>
       {roleSwitcher}
+      <Link className="cc-shell__footer-link" href="/app/developers">
+        Developers
+      </Link>
+      {/* Customize (contract 01 §2.4): appearance configuration is
+          account-level — Settings serves it until a dedicated surface
+          ships (the same fold doctrine as the route binding table). */}
+      <Link className="cc-shell__footer-link" href="/app/settings">
+        Customize
+      </Link>
     </div>
   );
 
@@ -141,7 +212,7 @@ export function CommandCenterShell({
   return (
     <div className="ps-root cc-shell">
       <Sidebar label="Command Center sections" brand={brand} footer={sidebarFooter}>
-        <CcNavContent nav={nav} activeRoute={activeRoute} />
+        <CcNavContent sidebar={sidebar} activeRoute={activeRoute} />
       </Sidebar>
 
       <SidebarDrawer
@@ -152,10 +223,20 @@ export function CommandCenterShell({
         brand={brand}
         footer={sidebarFooter}
       >
-        <CcNavContent nav={nav} activeRoute={activeRoute} />
+        <div onClick={handleDrawerContentClick}>
+          <CcNavContent sidebar={sidebar} activeRoute={activeRoute} />
+        </div>
       </SidebarDrawer>
 
       <div className="cc-shell__main">
+        {/* The honest environment band: persistent, full-width, top-pinned,
+            not dismissible (contract 01 §2). TEST in this deployment; the
+            live path renders nothing by design and is unreachable here. */}
+        <EnvironmentBanner
+          environment={CC_ENVIRONMENT}
+          exitHref="/app/settings"
+          data-testid="cc-env-banner"
+        />
         <Topbar
           leading={
             <button
@@ -187,11 +268,22 @@ export function CommandCenterShell({
           searchText="Search…"
           searchLabel="Open the command palette"
           badges={
-            preview ? (
-              <span className="ps-badge" data-tone="preview">
-                Preview — no session
-              </span>
-            ) : null
+            <>
+              <EnvironmentBanner environment={CC_ENVIRONMENT} variant="badge" />
+              {preview ? (
+                <span className="ps-badge" data-tone="preview">
+                  Preview — no session
+                </span>
+              ) : null}
+            </>
+          }
+          actions={
+            <>
+              <Link className="cc-shell__topbar-link" href="/app/settings">
+                Settings
+              </Link>
+              <CreateMenu items={[...createItems]} data-testid="cc-create-menu" />
+            </>
           }
         />
         {preview ? (
@@ -205,6 +297,10 @@ export function CommandCenterShell({
             </span>
           </p>
         ) : null}
+        {/* Route-change live region (contract 01 §2.5). */}
+        <p className="ps-sr-only" role="status" aria-live="polite" data-testid="cc-route-announcer">
+          {announced}
+        </p>
         <div className="cc-shell__content">{children}</div>
       </div>
 
