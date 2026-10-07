@@ -14,12 +14,13 @@
  * it without a request.
  */
 
-import type { ProductRole } from "@payswap/ux";
+import type { ProductRole, SidebarProjectionKind } from "@payswap/ux";
 import { projectSidebar } from "@payswap/ux";
 import type { ProjectedSidebar } from "@payswap/ux";
 
 import {
   effectiveNavigationRole,
+  effectiveSidebarProjection,
   isPreviewMode,
   type CcSessionResolution,
 } from "./session-seam";
@@ -35,11 +36,18 @@ export interface CcRenderState {
   readonly preview: boolean;
   /** True when the honest authentication gate must replace section content. */
   readonly gated: boolean;
+  /**
+   * The visitor's PROJECTION preference (UX-006, contract 10 §6): null = none
+   * given, the role's own default applies. A VIEW DERIVATION ONLY — the same
+   * law as the role preference (never an authentication, never authority).
+   */
+  readonly projectionPreference: SidebarProjectionKind | null;
 }
 
 export function deriveCcRenderState(
   session: CcSessionResolution,
   rolePreference: ProductRole | null,
+  projectionPreference: SidebarProjectionKind | null = null,
 ): CcRenderState {
   const navRole = effectiveNavigationRole(session, rolePreference);
   const preview = isPreviewMode(session, rolePreference);
@@ -49,16 +57,24 @@ export function deriveCcRenderState(
     navRole,
     preview,
     gated: session.status !== "authenticated" && navRole === null,
+    projectionPreference,
   };
 }
 
 /**
  * Derive the sidebar view for a render state — the UX-002 compatibility
  * fold: the role PROJECTS onto the one object-model sidebar (emphasis +
- * merchant/consumer labels), never a re-axing of the navigation.
+ * merchant/consumer labels), never a re-axing of the navigation. The
+ * visitor's PROJECTION preference (UX-006) re-labels the same rows around
+ * the consumer mental model when set (contract 10 §6: same account, two
+ * projections) — ids, routes and order stay identical either way.
  */
 export function sidebarForState(
   state: CcRenderState,
 ): ProjectedSidebar {
-  return projectSidebar(state.navRole ?? DEFAULT_NAV_ROLE);
+  const projection = effectiveSidebarProjection(
+    state.navRole ?? DEFAULT_NAV_ROLE,
+    state.projectionPreference,
+  );
+  return projectSidebar(state.navRole ?? DEFAULT_NAV_ROLE, { projection });
 }

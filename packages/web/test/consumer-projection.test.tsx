@@ -5,7 +5,7 @@ import { CONSUMER_ROW_LABELS, projectSidebar } from "@payswap/ux";
 import { SIDEBAR_PERSISTENT_ROW_IDS } from "@payswap/ux";
 
 import { CcNavContent } from "../src/components/cc/cc-nav-content";
-import { deriveCcRenderState } from "../src/lib/cc/render-state";
+import { deriveCcRenderState, sidebarForState } from "../src/lib/cc/render-state";
 import {
   effectiveSidebarProjection,
   parseProjectionPreference,
@@ -169,5 +169,36 @@ describe("projection seam: session honesty is preserved (the projection is a vie
     // value can ever authenticate, unlock or gate anything.
     expect(effectiveSidebarProjection("merchant", "consumer")).toBe("consumer");
     expect(effectiveSidebarProjection(null, "consumer")).toBe("consumer");
+  });
+});
+
+describe("projection seam: the LAYOUT wiring (sidebarForState re-labels for the render)", () => {
+  const state = (projectionPreference: "merchant" | "consumer" | null) =>
+    deriveCcRenderState(NOT_WIRED, "merchant", projectionPreference);
+
+  it("no preference: the merchant sidebar labels (the default)", () => {
+    const sidebar = sidebarForState(state(null));
+    expect(sidebar.projection).toBe("merchant");
+    expect(sidebar.rows.map((view) => view.label)).toContain("Balances");
+    expect(sidebar.rows.map((view) => view.label)).not.toContain("My balances");
+  });
+
+  it("the consumer preference re-labels the SAME rows through the render state (never a re-axing)", () => {
+    const merchantSidebar = sidebarForState(state(null));
+    const consumerSidebar = sidebarForState(state("consumer"));
+    expect(consumerSidebar.projection).toBe("consumer");
+    // Same ids, routes, order — only the labels change (contract 10 §6).
+    expect(consumerSidebar.rows.map((view) => view.row.id)).toEqual(
+      merchantSidebar.rows.map((view) => view.row.id),
+    );
+    expect(consumerSidebar.rows.map((view) => view.row.route)).toEqual(
+      merchantSidebar.rows.map((view) => view.row.route),
+    );
+    expect(consumerSidebar.rows.map((view) => view.label)).toContain("My balances");
+  });
+
+  it("an explicit merchant preference overrides a consumer-default role", () => {
+    const borrower = deriveCcRenderState(NOT_WIRED, "borrower", "merchant");
+    expect(sidebarForState(borrower).projection).toBe("merchant");
   });
 });
