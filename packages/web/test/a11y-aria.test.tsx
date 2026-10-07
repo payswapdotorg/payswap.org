@@ -27,7 +27,7 @@ import {
   ToastViewport,
   Topbar,
 } from "@payswap/design";
-import { deriveNavigationForRole, PRODUCT_NAVIGATION } from "@payswap/ux";
+import { projectSidebar } from "@payswap/ux";
 
 import RootLayout from "../src/app/layout";
 import { SiteHeader } from "../src/components/site-header";
@@ -333,9 +333,8 @@ describe("aria: live regions announce with the right politeness", () => {
 
 describe("aria: the active page is carried by aria-current, never color alone", () => {
   it("the Command Center navigation marks the active section", () => {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "merchant");
     const markup = renderToStaticMarkup(
-      <CcNavContent nav={nav} activeRoute="/app/payments" />,
+      <CcNavContent sidebar={projectSidebar("merchant")} activeRoute="/app/payments" />,
     );
     const current = doc(markup).querySelector('[aria-current="page"]');
     expect(current?.getAttribute("href")).toBe("/app/payments");
@@ -380,13 +379,13 @@ describe("aria: the active page is carried by aria-current, never color alone", 
 
 describe("aria: the Command Center shell", () => {
   function shellMarkup(): string {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "merchant");
     return renderToStaticMarkup(
       <CommandCenterShell
-        nav={nav}
+        sidebar={projectSidebar("merchant")}
         role="merchant"
         preview
         sessionLine="No session — preview only."
+        setupSteps={[]}
         roleSwitcher={<select aria-label="View as role (preview)" />}
       >
         <p>section</p>
@@ -414,7 +413,7 @@ describe("aria: the Command Center shell", () => {
     const sweep = sweepNames(doc(shellMarkup()), "body");
     expect(sweep.unlabeledLinks).toEqual([]);
     expect(sweep.links.filter((l) => (l.getAttribute("href") ?? "").startsWith("/app")).length)
-      .toBeGreaterThanOrEqual(13);
+      .toBeGreaterThanOrEqual(5);
   });
 
   it("the preview banner is a polite status", () => {

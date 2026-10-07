@@ -308,3 +308,252 @@
   display: inline-block;
   margin-top: var(--ps-space-2);
 }
+
+/* --- Object-model sidebar (UX-003, contract 01 §3) ---------------------- */
+
+/* The five persistent money-object rows (always visible, exact order). */
+.cc-nav__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-1);
+  padding-bottom: var(--ps-space-3);
+  border-bottom: 1px solid var(--ps-border);
+  margin-bottom: var(--ps-space-3);
+}
+
+/* Workload groups: accordion — one open, collapse default. */
+.cc-nav__group {
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-nav__group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-space-2);
+  width: 100%;
+  padding: var(--ps-space-2) var(--ps-space-2);
+  border: 0;
+  border-radius: var(--ps-radius-md);
+  background: transparent;
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-xs);
+  font-weight: var(--ps-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.cc-nav__group-toggle:hover {
+  color: var(--ps-fg);
+  background-color: var(--ps-surface);
+}
+
+.cc-nav__group-toggle:focus-visible {
+  outline: 2px solid var(--ps-focus);
+  outline-offset: 1px;
+}
+
+.cc-nav__group-chevron {
+  font-size: var(--ps-text-xs);
+  line-height: 1;
+}
+
+.cc-nav__group-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-1);
+  margin: 0;
+  padding: 0 0 var(--ps-space-2) var(--ps-space-2);
+  list-style: none;
+}
+
+/* --- Shell footer (setup guide + session + role preview + developers) --- */
+
+.cc-shell__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ps-space-3);
+}
+
+.cc-shell__footer-link,
+.cc-shell__topbar-link {
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-sm);
+  text-decoration: none;
+}
+
+.cc-shell__footer-link:hover,
+.cc-shell__topbar-link:hover {
+  color: var(--ps-fg);
+  text-decoration: underline;
+}
+
+/* --- Shared card anatomy (Home blocks, Balances) ------------------------ */
+
+.cc-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-4);
+  padding: var(--ps-space-6);
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-md);
+  background: var(--ps-surface);
+}
+
+.cc-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ps-space-3);
+}
+
+.cc-card__title {
+  margin: 0;
+  font-size: var(--ps-text-lg);
+  font-weight: var(--ps-weight-semibold);
+}
+
+.cc-card__meta {
+  margin: 0;
+  color: var(--ps-fg-subtle);
+  font-size: var(--ps-text-sm);
+}
+
+.cc-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: var(--ps-space-4);
+}
+
+.cc-reco-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--ps-space-4);
+}
+
+.cc-kv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  margin: 0;
+}
+
+.cc-kv__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--ps-space-2) var(--ps-space-3);
+}
+
+.cc-kv__key {
+  min-width: 10rem;
+  color: var(--ps-fg-subtle);
+  font-size: var(--ps-text-sm);
+}
+
+.cc-kv__value {
+  margin: 0;
+  font-size: var(--ps-text-sm);
+}
+
+.cc-link {
+  color: var(--ps-accent-emphasis);
+  font-size: var(--ps-text-sm);
+  text-decoration: none;
+}
+
+.cc-link:hover {
+  text-decoration: underline;
+}
+
+/* --- The honest empty (shared shell-level empty state) ------------------ */
+
+.cc-empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-2);
+  padding: var(--ps-space-4);
+  border: 1px dashed var(--ps-border);
+  border-radius: var(--ps-radius-md);
+}
+
+.cc-empty__reason {
+  margin: 0;
+  max-width: 46rem;
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-sm);
+  line-height: 1.6;
+}
+
+.cc-empty__action {
+  align-self: flex-start;
+  color: var(--ps-accent-emphasis);
+  font-weight: var(--ps-weight-medium);
+  font-size: var(--ps-text-sm);
+}
+
+/* --- Tables (shell-level wrapper over the design ps-table) -------------- */
+
+.cc-tablewrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--ps-border);
+  border-radius: var(--ps-radius-md);
+}
+
+/* --- Balances (contract 09 §2 + W5) -------------------------------------- */
+
+.cc-balances-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--ps-space-4);
+}
+
+.cc-balances-total {
+  margin: var(--ps-space-2) 0 0;
+  font-size: var(--ps-text-3xl);
+  font-weight: var(--ps-weight-semibold);
+  letter-spacing: -0.01em;
+}
+
+.cc-balances-total__currency {
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-lg);
+}
+
+.cc-balances-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ps-space-2);
+}
+
+/* "Settle <cadence>" is an inline status, not a setting (W5). */
+.cc-settle-status {
+  display: inline-block;
+  padding: var(--ps-space-1) var(--ps-space-2);
+  border: 1px solid var(--ps-border);
+  border-radius: 999px;
+  color: var(--ps-fg-muted);
+  font-size: var(--ps-text-xs);
+  white-space: nowrap;
+}
+
+/* --- The integration ladder (Transactions empty) ------------------------- */
+
+.cc-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ps-space-1);
+  margin: var(--ps-space-3) 0 0;
+  padding-left: var(--ps-space-4);
+}
+
+.cc-ladder a {
+  color: var(--ps-accent-emphasis);
+}

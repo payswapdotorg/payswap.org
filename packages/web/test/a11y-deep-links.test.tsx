@@ -10,13 +10,13 @@
  * provider catalogue, the ⌘K palette) must resolve against it.
  */
 
-import { readdirSync, statSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import { JSDOM } from "jsdom";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { deriveNavigationForRole, PRODUCT_NAVIGATION, PRODUCT_ROLES } from "@payswap/ux";
+import { PRODUCT_ROLES, projectSidebar } from "@payswap/ux";
 
 import { SiteHeader } from "../src/components/site-header";
 import { SiteFooter } from "../src/components/site-footer";
@@ -32,7 +32,7 @@ import NotFoundApp from "../src/app/app/not-found";
 import { ProviderCataloguePanel } from "../src/components/connect/provider-catalogue";
 import { CATALOGUE_STATUSES } from "../src/app/(auth)/_server/connection-catalogue";
 import { deriveCcPalette } from "../src/lib/cc/palette";
-import { appRoutes, resolveAppSection } from "../src/lib/cc/routes";
+import { appRoutes, resolveAppSection, sidebarNavTargets } from "../src/lib/cc/routes";
 import { PRIMARY_NAV, COMMAND_CENTER_HREF } from "../src/lib/site";
 import { API_BASE_URL_ENV_VAR, type ApiRuntimeState } from "../src/lib/api";
 import { deriveCcRenderState } from "../src/lib/cc/render-state";
@@ -57,6 +57,8 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/app",
   "/app/accounts",
   "/app/activity",
+  "/app/balances",
+  "/app/catalog",
   "/app/checkout",
   "/app/connections",
   "/app/convert",
@@ -65,6 +67,7 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/app/capabilities",
   "/app/collections",
   "/app/credit",
+  "/app/customers",
   "/app/developers",
   "/app/disputes",
   "/app/evidence",
@@ -76,6 +79,7 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/app/reports",
   "/app/security",
   "/app/settings",
+  "/app/transactions",
 ];
 
 const API_INVENTORY: readonly string[] = ["/api/health"];
@@ -208,13 +212,15 @@ describe("deep links: every nav entry resolves to a real route", () => {
     ],
   ];
 
-  // The CC navigation, for every role derivation.
+  // The CC navigation, for every role projection of the object-model
+  // sidebar (contract 01 §3 — rows never re-ax, groups project).
   for (const role of PRODUCT_ROLES) {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, role);
     surfaces.push([
       `CC navigation (${role})`,
       extractInternalHrefs(
-        renderToStaticMarkup(<CcNavContent nav={nav} activeRoute="/app" />),
+        renderToStaticMarkup(
+          <CcNavContent sidebar={projectSidebar(role)} activeRoute="/app" />,
+        ),
       ),
     ]);
   }
@@ -275,28 +281,73 @@ describe("deep links: every nav entry resolves to a real route", () => {
       });
     }
   });
+
+  it("every object-model sidebar target binds to a REAL route (route binding totality — no nav target 404s)", () => {
+    const targets = sidebarNavTargets();
+    // The registry is exactly 5 persistent rows + the five workload groups'
+    // items — every one of them resolves onto this deployment's filesystem.
+    expect(targets.filter((target) => target.groupTestId === null)).toHaveLength(5);
+    for (const target of targets) {
+      expect(ROUTE_INVENTORY).toContain(target.appRoute);
+    }
+    // The five persistent rows bind DIRECTLY (a money object never folds
+    // onto another surface's route).
+    for (const target of targets.filter((t) => t.groupTestId === null)) {
+      expect(target.appRoute).toBe(
+        target.route === "/" ? "/app" : `/app${target.route}`,
+      );
+    }
+  });
+
+  it("legacy /app deep links re-resolve honestly (known sections resolve; unknown paths reach the named notice, never a silent redirect)", () => {
+    // Every legacy section id still resolves to its real route.
+    for (const [, route] of appRoutes()) {
+      const resolution = resolveAppSection(route);
+      expect(resolution.kind).toBe("SECTION");
+    }
+    // The object-model rows resolve as SIDEBAR targets.
+    for (const rowRoute of [
+      "/app/balances",
+      "/app/transactions",
+      "/app/customers",
+      "/app/catalog",
+    ]) {
+      const resolution = resolveAppSection(rowRoute);
+      expect(resolution.kind).toBe("SIDEBAR");
+    }
+    // Unknown paths stay UNKNOWN_SECTION — the honest not-found notice
+    // (contract 07 §4) decides what renders, never a blind redirect.
+    expect(resolveAppSection("/app/not-a-thing").kind).toBe("UNKNOWN_SECTION");
+  });
 });
 
 describe("deep links: the Command Center shell navigation is complete", () => {
-  it("the shell renders the merchant navigation as real anchors", () => {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "merchant");
+  it("the shell renders the object-model sidebar as real anchors that all resolve", () => {
+    const sidebar = projectSidebar("merchant");
     const markup = renderToStaticMarkup(
       <CommandCenterShell
-        nav={nav}
+        sidebar={sidebar}
         role="merchant"
         preview
         sessionLine="No session."
+        setupSteps={[]}
         roleSwitcher={<select aria-label="View as role (preview)" />}
       >
         <p>x</p>
       </CommandCenterShell>,
     );
     const hrefs = extractInternalHrefs(markup);
-    // Every visible merchant section is reachable from the shell.
-    for (const view of nav.items) {
-      const route =
-        view.item.id === "overview" ? "/app" : `/app/${view.item.id}`;
-      expect(hrefs).toContain(route);
+    // Every persistent row and every visible group item is reachable from
+    // the shell, as a real anchor.
+    for (const view of sidebar.rows) {
+      expect(hrefs).toContain(
+        view.row.route === "/" ? "/app" : `/app${view.row.route}`,
+      );
+    }
+    for (const view of sidebar.groups.filter((g) => g.visible)) {
+      for (const item of view.group.items) {
+        expect(hrefs).toContain(sidebarNavTargets().find((t) => t.id === item.slug)!.appRoute);
+      }
     }
     expect(hrefs.filter((href) => !hrefResolves(href))).toEqual([]);
   });

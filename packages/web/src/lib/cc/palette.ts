@@ -1,20 +1,22 @@
 /**
- * Command Center palette derivation (P3-W2-002).
+ * Command Center palette derivation (P3-W2-002; object-model nav entries by
+ * UX-003).
  *
  * Pure derivation of the ⌘K CommandPalette command model from the certified
  * contracts — Actions (verb-first, from the journey/navigation bindings) and
- * Go-to (every section the current role's derived navigation exposes). The
- * shell maps each derived command to a real navigation; there are no
- * placeholder commands. Every journey action respects the role-derived
- * visibility of its bound navigation item (a role that cannot see Payments
- * is not offered "Pay a recipient").
+ * Go-to (the object-model sidebar registry: the five persistent rows +
+ * every workload-group item the role's projection exposes, each bound to
+ * its REAL /app route). The shell maps each derived command to a real
+ * navigation; there are no placeholder commands. Every journey action
+ * respects the role-derived visibility of its bound navigation item (a role
+ * that cannot see Payments is not offered "Pay a recipient").
  */
 
-import type { ProductNavItemId, ProductRole, RoleNavigationView } from "@payswap/ux";
-import { deriveNavigationForRole } from "@payswap/ux";
+import type { ProductNavItemId, ProductRole } from "@payswap/ux";
+import { deriveNavigationForRole, projectSidebar } from "@payswap/ux";
 import { PRODUCT_NAVIGATION } from "@payswap/ux";
 
-import { appRouteForNavItemId } from "./routes";
+import { appRouteForNavItemId, appRouteForSidebarGroupItem, appRouteForSidebarRow } from "./routes";
 
 /** One palette command as derived data (the shell attaches the navigation). */
 export interface PaletteCommandSpec {
@@ -104,12 +106,15 @@ const CONNECT_ROUTE = "/connect" as const;
  */
 export const DEFAULT_PALETTE_ROLE: ProductRole = "merchant";
 
+/** The palette chip for the persistent money-object rows (contract 01 §3). */
+const ROW_GROUP_LABEL = "Money objects" as const;
+
 /**
  * Derive the Actions section: journey starts whose bound navigation item is
  * visible for the role.
  */
 export function derivePaletteActions(role: ProductRole | null): readonly PaletteCommandSpec[] {
-  const nav: RoleNavigationView = deriveNavigationForRole(
+  const nav = deriveNavigationForRole(
     PRODUCT_NAVIGATION,
     role ?? DEFAULT_PALETTE_ROLE,
   );
@@ -134,27 +139,36 @@ export function derivePaletteActions(role: ProductRole | null): readonly Palette
   });
 }
 
-/** The certified group labels, keyed by group id (data, not hardcode). */
-const GROUP_LABELS: Readonly<Record<string, string>> = Object.fromEntries(
-  PRODUCT_NAVIGATION.groups.map((group) => [group.id, group.label]),
-);
-
 /**
- * Derive the Go-to section: every section the current role's derived
- * navigation exposes, labeled with its nav label and chipped with its group.
+ * Derive the Go-to section from the OBJECT-MODEL SIDEBAR registry (UX-003):
+ * the five persistent rows (projection-aware labels — a consumer projection
+ * says "My balances") plus every workload-group item the role's projection
+ * exposes, each bound to its real /app route. Unbound registry entries are
+ * impossible (the route binding is total); a registry entry whose route
+ * folds onto a shared surface keeps its own label and keywords so search
+ * finds it by the workload name.
  */
 export function derivePaletteGoTo(role: ProductRole | null): readonly PaletteCommandSpec[] {
-  const nav: RoleNavigationView = deriveNavigationForRole(
-    PRODUCT_NAVIGATION,
-    role ?? DEFAULT_PALETTE_ROLE,
-  );
-  return nav.items.map((view) => ({
-    id: `goto-${view.item.id}`,
-    label: view.item.label,
-    group: GROUP_LABELS[view.item.group] ?? view.item.group,
-    href: appRouteForNavItemId(view.item.id),
-    keywords: view.item.summary,
+  const projection = projectSidebar(role ?? DEFAULT_PALETTE_ROLE);
+  const rows = projection.rows.map((view) => ({
+    id: `goto-${view.row.id}`,
+    label: view.label,
+    group: ROW_GROUP_LABEL,
+    href: appRouteForSidebarRow(view.row),
+    keywords: `${view.row.object} ${view.row.label}`,
   }));
+  const groupItems = projection.groups
+    .filter((view) => view.visible)
+    .flatMap((view) =>
+      view.group.items.map((item) => ({
+        id: `goto-${item.slug}`,
+        label: item.label,
+        group: view.group.label,
+        href: appRouteForSidebarGroupItem(item),
+        keywords: `${item.label} ${view.group.label}`,
+      })),
+    );
+  return [...rows, ...groupItems];
 }
 
 /** The full palette model the shell renders (Actions first, then Go-to). */

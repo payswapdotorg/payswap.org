@@ -6,12 +6,18 @@ import { CcAuthGate } from "../src/components/cc/cc-auth-gate";
 import { CcSectionNotYetAvailable } from "../src/components/cc/cc-section-not-yet";
 import { deriveCcRenderState } from "../src/lib/cc/render-state";
 import { resolveCcSession } from "../src/lib/cc/session-seam";
-import { deriveNavigationForRole, PRODUCT_NAVIGATION } from "@payswap/ux";
+import {
+  SIDEBAR,
+  SIDEBAR_PERSISTENT_ROW_IDS,
+  SIDEBAR_GROUP_SLUGS,
+  projectSidebar,
+} from "@payswap/ux";
 
 /**
- * P3-W2-002 — the shell's server-renderable surfaces: the grouped navigation
- * from the certified model, the honest auth gate (Wave-1's pattern, no
- * pretend login), and the honest not-yet sections.
+ * P3-W2-002 / UX-003 — the shell's server-renderable surfaces: the
+ * object-model sidebar from the UX-002 registry (exactly 5 persistent rows
+ * + workload groups, role PROJECTIONS never re-axing), the honest auth gate
+ * (Wave-1's pattern, no pretend login), and the honest not-yet sections.
  */
 
 function text(html: string): string {
@@ -19,61 +25,76 @@ function text(html: string): string {
 }
 
 describe("command center navigation content", () => {
-  it("renders every grouped section for the merchant derivation (role-derived: Liquidity/Opportunities/Developers are EXCLUDED — the certified law)", () => {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "merchant");
-    const html = renderToStaticMarkup(<CcNavContent nav={nav} activeRoute="/app" />);
-    for (const label of ["Overview", "Money movement", "Capabilities", "Trust", "Account"]) {
-      expect(html).toContain(label);
+  it("renders exactly the FIVE persistent rows, in registry order, with stable testids (contract 01 §3)", () => {
+    const html = renderToStaticMarkup(
+      <CcNavContent sidebar={projectSidebar("merchant")} activeRoute="/app" />,
+    );
+    const rows = html.match(/data-testid="nav\.item\.[a-z-]+"/g) ?? [];
+    const rowIds = rows
+      .map((match) => match.slice("data-testid=\"nav.item.".length, -1))
+      .filter((id) => (SIDEBAR_PERSISTENT_ROW_IDS as readonly string[]).includes(id));
+    expect(rowIds).toEqual([...SIDEBAR_PERSISTENT_ROW_IDS]);
+    for (const [id, route] of [
+      ["home", "/app"],
+      ["balances", "/app/balances"],
+      ["transactions", "/app/transactions"],
+      ["customers", "/app/customers"],
+      ["catalog", "/app/catalog"],
+    ] as const) {
+      expect(html).toContain(`data-testid="nav.item.${id}"`);
+      expect(html).toContain(`href="${route}"`);
     }
-    for (const label of ["Overview", "Activity", "Payments", "Collections", "Payouts", "Billing", "Credit", "Capabilities", "Agents", "Programs and incentives", "Disputes", "Evidence", "Settings"]) {
-      expect(html).toContain(label);
+  });
+
+  it("renders the five workload groups with stable nav.group.<slug> testids and their items", () => {
+    const html = renderToStaticMarkup(
+      <CcNavContent sidebar={projectSidebar("merchant")} activeRoute="/app" />,
+    );
+    for (const slug of SIDEBAR_GROUP_SLUGS) {
+      expect(html).toContain(`data-testid="nav.group.${slug}"`);
     }
-    // The merchant capability table has no liquidity.provide / opportunities.view
-    // / developer surfaces — the derivation must hide them, never grey them out.
-    expect(html).not.toContain("Liquidity");
-    expect(html).not.toContain("Opportunities");
-    expect(html).not.toContain('href="/app/developers"');
+    // Group items render as real anchors (deep-linkable) even while the
+    // accordion is collapsed — the registry shape is the truth.
+    for (const item of ["payments-analytics", "checkout", "invoices", "reports", "installed", "workflows"]) {
+      expect(html).toContain(`data-testid="nav.item.${item}"`);
+    }
+    expect(html).toContain('href="/app/payments"');
+    expect(html).toContain('href="/app/billing"');
+    expect(html).toContain('href="/app/reports"');
+    expect(html).toContain('href="/app/capabilities"');
   });
 
   it("marks the active route with aria-current=page (never color alone)", () => {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "merchant");
-    const raw = renderToStaticMarkup(<CcNavContent nav={nav} activeRoute="/app/payments" />);
+    const raw = renderToStaticMarkup(
+      <CcNavContent sidebar={projectSidebar("merchant")} activeRoute="/app/payments" />,
+    );
     const current = raw.match(/<a[^>]*aria-current="page"[^>]*>/)?.[0] ?? "";
     expect(current).toContain('href="/app/payments"');
   });
 
-  it("renders every merchant item as a real anchor (deep-linkable); the developer role adds Developers", () => {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "merchant");
-    const raw = renderToStaticMarkup(<CcNavContent nav={nav} activeRoute="/app" />);
-    for (const href of [
-      "/app",
-      "/app/activity",
-      "/app/payments",
-      "/app/collections",
-      "/app/payouts",
-      "/app/capabilities",
-      "/app/agents",
-      "/app/programs",
-      "/app/disputes",
-      "/app/evidence",
-      "/app/settings",
-      "/app/billing",
-      "/app/credit",
-    ]) {
-      expect(raw).toContain(`href="${href}"`);
+  it("projects roles WITHOUT re-axing: the borrower sees consumer labels and hides insights/capabilities, but the five rows stay", () => {
+    const projected = projectSidebar("borrower");
+    expect(projected.projection).toBe("consumer");
+    const html = text(
+      renderToStaticMarkup(<CcNavContent sidebar={projected} activeRoute="/app" />),
+    );
+    // Consumer mental model labels (contract 10 §2).
+    expect(html).toContain("My balances");
+    expect(html).toContain("My payments");
+    expect(html).not.toContain(">Balances<");
+    // Hidden role-default groups are absent; every other group stays.
+    expect(html).not.toContain('data-testid="nav.group.insights"');
+    expect(html).not.toContain('data-testid="nav.group.capabilities"');
+    expect(html).toContain('data-testid="nav.group.more"');
+    // The persistent rows are NEVER hidden.
+    for (const id of SIDEBAR_PERSISTENT_ROW_IDS) {
+      expect(html).toContain(`data-testid="nav.item.${id}"`);
     }
-    const devNav = deriveNavigationForRole(PRODUCT_NAVIGATION, "developer");
-    const devRaw = renderToStaticMarkup(<CcNavContent nav={devNav} activeRoute="/app/developers" />);
-    expect(devRaw).toContain('href="/app/developers"');
   });
 
-  it("role-derives: the supplier view hides Credit/Liquidity/Agents", () => {
-    const nav = deriveNavigationForRole(PRODUCT_NAVIGATION, "supplier");
-    const html = text(renderToStaticMarkup(<CcNavContent nav={nav} activeRoute="/app" />));
-    expect(html).not.toContain("Credit");
-    expect(html).not.toContain("Liquidity");
-    expect(html).not.toContain("Agents");
-    expect(html).toContain("Payments");
+  it("renders the registry itself exactly (5 rows + 5 groups, stable order)", () => {
+    expect(SIDEBAR.rows.map((row) => row.id)).toEqual([...SIDEBAR_PERSISTENT_ROW_IDS]);
+    expect(SIDEBAR.groups.map((group) => group.slug)).toEqual([...SIDEBAR_GROUP_SLUGS]);
   });
 });
 
