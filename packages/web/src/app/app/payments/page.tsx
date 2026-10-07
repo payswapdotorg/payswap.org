@@ -57,7 +57,7 @@ function prefillFromParams(
       ? params.to.trim().slice(0, 80)
       : undefined;
   const asset =
-    typeof params.asset === "string" && /^[A-Za-z]{3}$/.test(params.asset.trim())
+    typeof params.asset === "string" && /^[A-Za-z0-9]{2,10}$/.test(params.asset.trim())
       ? params.asset.trim().toUpperCase()
       : undefined;
   const amount =

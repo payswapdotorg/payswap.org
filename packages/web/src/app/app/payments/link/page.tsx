@@ -69,7 +69,7 @@ async function LinkBuilderSection({
           ...(amount !== undefined && /^\d+$/.test(amount)
             ? { amountMinorUnits: amount }
             : {}),
-          ...(currency !== undefined && /^[A-Z]{3}$/.test(currency) ? { currency } : {}),
+          ...(currency !== undefined && /^[A-Z0-9]{2,10}$/.test(currency) ? { currency } : {}),
           ...(name !== undefined && name.trim().length > 0
             ? { name: name.slice(0, 80) }
             : {}),

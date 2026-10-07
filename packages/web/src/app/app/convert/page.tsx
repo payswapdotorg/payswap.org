@@ -58,11 +58,15 @@ export default async function ConvertPage({
   );
 }
 
-/** A 3-letter asset code, uppercased; undefined for anything else (never guessed). */
+/**
+ * An asset CODE in the shape the grammar accepts (2–10 alphanumerics —
+ * USD, EUR, GHS, ETH, USDC…), uppercased; undefined for anything else
+ * (never guessed).
+ */
 function readAssetCode(value: string | string[] | undefined): string | undefined {
   if (typeof value !== "string") {
     return undefined;
   }
   const trimmed = value.trim();
-  return /^[A-Za-z]{3}$/.test(trimmed) ? trimmed.toUpperCase() : undefined;
+  return /^[A-Za-z0-9]{2,10}$/.test(trimmed) ? trimmed.toUpperCase() : undefined;
 }

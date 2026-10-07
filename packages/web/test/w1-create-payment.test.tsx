@@ -425,3 +425,38 @@ describe("W1 counterparty combobox (ambiguity resolved by choice, never a guess)
     expect(screen.getByTestId("selected-counterparty").textContent).toContain("contact:new:Zoe");
   });
 });
+
+describe("W1 pre-fill seed (contract 06 §4 — what the search/command surface hands the form)", () => {
+  it("exact minor units of a FOUR-char asset (USDC) format into the amount field", () => {
+    // Regression: the pre-fill seam once validated asset codes as exactly
+    // 3 letters, silently dropping the amount for USDC/USDT links. The
+    // grammar's own token shape (2–10 alphanumerics) is the law.
+    renderWorkflow({
+      initial: { amountMinorUnits: "100000000", currency: "USDC", counterpartyText: "alice" },
+    });
+    const amount = screen.getByLabelText(/Amount/i) as HTMLInputElement;
+    expect(amount.value).toBe("100");
+    const currency = screen.getByLabelText(/Currency/i) as HTMLSelectElement;
+    expect(currency.value).toBe("USDC");
+    const counterparty = screen.getByPlaceholderText("Find or add a contact…") as HTMLInputElement;
+    expect(counterparty.value).toBe("alice");
+  });
+
+  it("three-char fiat codes still pre-fill (the both-ship-together law holds either way)", () => {
+    renderWorkflow({
+      initial: { amountMinorUnits: "5000", currency: "EUR", counterpartyText: "bob" },
+    });
+    const amount = screen.getByLabelText(/Amount/i) as HTMLInputElement;
+    expect(amount.value).toBe("50");
+    const currency = screen.getByLabelText(/Currency/i) as HTMLSelectElement;
+    expect(currency.value).toBe("EUR");
+  });
+
+  it("a pre-filled field validates EXACTLY like a hand-typed one (never a bypassed form)", () => {
+    renderWorkflow({
+      initial: { amountMinorUnits: "100000000", currency: "USDC", counterpartyText: "alice" },
+    });
+    // Valid seed → the confirm button restates the exact amount+asset.
+    expect(screen.getByRole("button", { name: "Send 100 USDC" })).toBeDefined();
+  });
+});
