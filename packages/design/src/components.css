@@ -791,6 +791,17 @@
   margin-left: auto;
 }
 
+/* cert-fix (§20 viewport matrix): on phone widths the end cluster (search +
+   environment badge + settings + create) cannot fit one row — it wraps onto
+   its own rows so the topbar keeps the zero-overflow rule. Every affordance
+   stays reachable; nothing is hidden. */
+@media (max-width: 639px) {
+  .ps-topbar__end {
+    flex-wrap: wrap;
+    row-gap: var(--ps-space-2);
+  }
+}
+
 .ps-topbar__badges {
   display: flex;
   align-items: center;
@@ -1334,6 +1345,10 @@
   border: 1px solid var(--ps-border);
   border-radius: var(--ps-radius-lg);
   background-color: var(--ps-surface);
+  /* cert-fix (§20 viewport matrix): wide object tables scroll WITHIN their
+     panel instead of pushing the page wider than the viewport (the
+     zero-overflow rule the sidebar already follows). */
+  overflow-x: auto;
 }
 
 .ps-table {
