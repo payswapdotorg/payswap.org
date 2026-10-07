@@ -80,6 +80,7 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/app/payouts",
   "/app/programs",
   "/app/reports",
+  "/app/safety",
   "/app/security",
   "/app/settings",
   "/app/transactions",
