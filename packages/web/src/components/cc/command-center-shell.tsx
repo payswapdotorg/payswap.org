@@ -40,6 +40,7 @@ import { deriveUniversalPalette, UNIVERSAL_AREA_MODEL } from "@/lib/universal/pa
 import { resolveUniversalAreaRoute } from "@/lib/universal/areas";
 import { CC_ENVIRONMENT } from "@/components/shell/environment";
 import { setupStepRoute } from "@/components/shell/setup-guide";
+import { UniversalSearch } from "@/components/search/universal-search";
 import { CcNavContent } from "./cc-nav-content";
 
 export interface CommandCenterShellProps {
@@ -121,6 +122,23 @@ export function CommandCenterShell({
 
   const palette = deriveUniversalPalette(role);
   const sections = [
+    {
+      // The six-verb command grammar entries (contract 06 §3 — UX-005):
+      // pay · request · invoice · link · convert · withdraw, each bound to
+      // its real workflow route. The palette is the ⌘K keyboard lane into
+      // the same grammar the topbar search field parses typed input with.
+      id: "cc-commands",
+      label: "Commands",
+      commands: palette.commands.map((command) => ({
+        id: command.id,
+        label: command.label,
+        group: command.group,
+        keywords: command.keywords,
+        run: () => {
+          router.push(command.href);
+        },
+      })),
+    },
     {
       id: "cc-actions",
       label: "Actions",
@@ -265,10 +283,16 @@ export function CommandCenterShell({
           onSearch={() => {
             setPaletteOpen(true);
           }}
-          searchText="Search…"
+          searchText="Commands…"
           searchLabel="Open the command palette"
           badges={
             <>
+              {/* The universal SEARCH/COMMAND surface (contract 06, UX-005):
+                  the topbar search field with the visible "/" hint — one
+                  box that finds resources AND parses command intents. The
+                  ⌘K trigger beside it stays the palette's own lane
+                  (commands + go-to), honestly labeled. */}
+              <UniversalSearch role={role} />
               <EnvironmentBanner environment={CC_ENVIRONMENT} variant="badge" />
               {preview ? (
                 <span className="ps-badge" data-tone="preview">

@@ -73,6 +73,7 @@ import {
   assetExponent,
   composeRegistrySentence,
   errorReasonIdFromApiCode,
+  formatMinorUnits,
   parseAmountToMinorUnits,
 } from "@/app/app/payments/_view/payment-view";
 
@@ -86,6 +87,23 @@ export interface MethodOnFile {
   readonly maskedLine: string;
 }
 
+/**
+ * The PRE-FILL seed (contract 06 §4, UX-005): what a parsed command (or a
+ * no-result intent-turn) hands the form — the SAME param shape the W2 link
+ * builder consumes. Missing parameters are simply absent fields (never a
+ * parse error); the form asks for the rest and validates as always.
+ */
+export interface CreatePaymentWorkflowInitial {
+  /** The counterparty as typed (the combobox offers its own disambiguation). */
+  readonly counterpartyText?: string;
+  /** The asset/currency code the amount's minor units were computed with. */
+  readonly currency?: string;
+  /** EXACT minor units (decimal string) — formatted to text, never float-parsed. */
+  readonly amountMinorUnits?: string;
+  /** A free-text seed for the payment's description (the intent-turn path). */
+  readonly description?: string;
+}
+
 export interface CreatePaymentWorkflowProps {
   /** Authority records of connected instances (the only execution surface). */
   readonly connectedInstances: readonly ConnectedCapabilityInstanceRecord[];
@@ -96,6 +114,8 @@ export interface CreatePaymentWorkflowProps {
   /** Methods on file per counterparty (injected authority data; empty is honest). */
   readonly methodsOnFile: readonly MethodOnFile[];
   readonly autoStart: boolean;
+  /** The pre-fill seed from a parsed command (optional; absent = empty form). */
+  readonly initial?: CreatePaymentWorkflowInitial;
   /** The live session's CSRF echo (undefined in the marked preview). */
   readonly csrfToken?: string;
 }
@@ -136,17 +156,27 @@ export function CreatePaymentWorkflow({
   contactDirectory,
   methodsOnFile,
   autoStart,
+  initial,
   csrfToken,
 }: CreatePaymentWorkflowProps) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ kind: "COMPOSING" });
   const [schedule, setSchedule] = useState<Schedule>("one-time");
   const [recurrenceInterval, setRecurrenceInterval] = useState<Interval>("monthly");
-  const [amountText, setAmountText] = useState("");
-  const [currency, setCurrency] = useState<string>("USDC");
-  const [counterpartyText, setCounterpartyText] = useState("");
+  // The pre-fill seed (contract 06 §4): only the INITIAL state — every edit
+  // and validation path is the same as a hand-typed form (a pre-filled form
+  // is never a bypassed one).
+  const [amountText, setAmountText] = useState(
+    initial?.amountMinorUnits !== undefined && initial?.currency !== undefined
+      ? formatMinorUnits(initial.amountMinorUnits, initial.currency)
+      : "",
+  );
+  const [currency, setCurrency] = useState<string>(initial?.currency ?? "USDC");
+  const [counterpartyText, setCounterpartyText] = useState(
+    initial?.counterpartyText ?? "",
+  );
   const [selectedCounterparty, setSelectedCounterparty] = useState<ContactDirectoryEntry | null>(null);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(initial?.description ?? "");
   const [descriptor, setDescriptor] = useState("");
   const [fundingRail, setFundingRail] = useState<FundingRail>("manual-entry");
   const [errors, setErrors] = useState<FormErrors>({});
@@ -543,7 +573,18 @@ export function CreatePaymentWorkflow({
                 );
               }}
             >
-              {CURRENCIES.map((code) => (
+              {/* A PRE-FILLED asset code outside the certified option set
+                  stays visible as its own option (the grammar parses any
+                  code, e.g. "pay alice 100 eth") — honest: the operator
+                  sees exactly what was carried, and execution runs the same
+                  rail checks as always ("no connected capability can route
+                  ETH yet" is a real answer, never a hidden drop). */}
+              {((CURRENCIES as readonly string[]).includes(currency)
+                ? CURRENCIES
+                : /^[A-Z]{3}$/.test(currency)
+                  ? [currency, ...CURRENCIES]
+                  : CURRENCIES
+              ).map((code) => (
                 <option key={code} value={code}>
                   {code}
                 </option>
