@@ -51,6 +51,7 @@ import type {
   ViewAction,
 } from "@payswap/ux";
 import {
+  abandonPayJourney,
   applyPaymentSubmissionResponse,
   beginPayJourney,
   resolveCounterparty,
@@ -449,6 +450,21 @@ export function CreatePaymentWorkflow({
       }
       return;
     }
+    /**
+     * NAVIGATION-kind action routes (cert-fix: no dead buttons — every
+     * available NAVIGATION action the pay journey declares must resolve to
+     * a real behavior). "Connect another capability" is the honest
+     * empty-state egress: it goes to the capabilities surface (the
+     * connection-plane hub), the same destination the empty state links.
+     */
+    const journeyNavTargets: Readonly<Record<string, string>> = {
+      "connect-another-capability": "/app/capabilities",
+    };
+    const navTarget = journeyNavTargets[action.actionId];
+    if (navTarget !== undefined) {
+      router.push(navTarget);
+      return;
+    }
     switch (action.actionId) {
       case "choose-different-capability":
         setPhase({
@@ -462,6 +478,18 @@ export function CreatePaymentWorkflow({
         return;
       case "retry-as-new-intent":
         setPhase({ kind: "COMPOSING" });
+        return;
+      case "abandon-payment":
+        // The certified fold: only a NOT-submitted journey can be abandoned
+        // (a submitted intent is authority). The fold throws on submitted
+        // journeys — surfaced as the honest note, never a silent no-op.
+        try {
+          setPhase({ kind: "JOURNEY", journey: abandonPayJourney(journey) });
+        } catch {
+          setDualNote(
+            "The contract refused to abandon this payment — a submitted intent is authority; nothing was discarded.",
+          );
+        }
         return;
       case "submit-payment": {
         void submit("send");
