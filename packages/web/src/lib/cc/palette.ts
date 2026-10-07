@@ -12,7 +12,7 @@
  * that cannot see Payments is not offered "Pay a recipient").
  */
 
-import type { ProductNavItemId, ProductRole } from "@payswap/ux";
+import type { CommandVerb, ProductNavItemId, ProductRole } from "@payswap/ux";
 import { deriveNavigationForRole, projectSidebar } from "@payswap/ux";
 import { PRODUCT_NAVIGATION } from "@payswap/ux";
 
@@ -182,4 +182,107 @@ export function deriveCcPalette(role: ProductRole | null): CcPaletteModel {
     actions: derivePaletteActions(role),
     goTo: derivePaletteGoTo(role),
   };
+}
+
+// ---------------------------------------------------------------------------
+// The six-verb command grammar entries (contract 06 §3/§4 — UX-005)
+// ---------------------------------------------------------------------------
+
+/**
+ * One entry of the Commands group: the grammar verbs `pay · request ·
+ * invoice · link · convert · withdraw` (the same six as `COMMAND_VERBS` in
+ * @payswap/ux — this table only binds them to THIS deployment's real routes
+ * and their search synonyms; the grammar itself is never re-defined here).
+ */
+export interface CommandGrammarEntry {
+  readonly verb: CommandVerb;
+  readonly id: string;
+  readonly label: string;
+  /** What the verb does, in one honest line (rendered as the row detail). */
+  readonly detail: string;
+  readonly group: "Commands";
+  /** Match synonyms for the entry (title + synonyms, contract 06 §3). */
+  readonly keywords: string;
+  /** The workflow surface this verb opens when nothing is parsed. */
+  readonly href: string;
+}
+
+/**
+ * The six verbs and their REAL route targets (work-order-mandated):
+ * - pay → /app/payments?start=1 (the W1 create-payment workflow);
+ * - request → the W1 form (the certified CreateMenu `c r` target; a dedicated
+ *   request-mode toggle inside W1 does not exist yet — the form is the target);
+ * - invoice → /app/billing (the billing family hub);
+ * - link → /app/payments/link (the W2 payment-link builder);
+ * - convert → /app/convert (the conversion journey);
+ * - withdraw → /app/balances (the Balances withdraw flow — the routing kind
+ *   `balances-withdraw-flow` in @payswap/ux COMMAND_VERB_ROUTING; the
+ *   surface's Withdraw action proceeds to the real payout journey).
+ */
+export const COMMAND_GRAMMAR_ENTRIES: readonly CommandGrammarEntry[] = Object.freeze([
+  Object.freeze({
+    verb: "pay",
+    id: "command-pay",
+    label: "Pay",
+    detail: "Send money to a recipient (opens the payment form)",
+    group: "Commands",
+    keywords: "pay send money recipient usdc transfer",
+    href: "/app/payments?start=1",
+  }),
+  Object.freeze({
+    verb: "request",
+    id: "command-request",
+    label: "Request",
+    detail: "Request money from a payer (opens the payment form)",
+    group: "Commands",
+    keywords: "request collect ask payer invoice money",
+    href: "/app/payments?start=1",
+  }),
+  Object.freeze({
+    verb: "invoice",
+    id: "command-invoice",
+    label: "Invoice",
+    detail: "Bill a customer — the billing surface",
+    group: "Commands",
+    keywords: "invoice bill customer subscription recurring",
+    href: "/app/billing",
+  }),
+  Object.freeze({
+    verb: "link",
+    id: "command-link",
+    label: "Link",
+    detail: "Create a no-code payment link",
+    group: "Commands",
+    keywords: "link payment-link share product checkout donate",
+    href: "/app/payments/link",
+  }),
+  Object.freeze({
+    verb: "convert",
+    id: "command-convert",
+    label: "Convert",
+    detail: "Convert between currencies and rails",
+    group: "Commands",
+    keywords: "convert swap exchange currency rail",
+    href: "/app/convert",
+  }),
+  Object.freeze({
+    verb: "withdraw",
+    id: "command-withdraw",
+    label: "Withdraw",
+    detail: "Withdraw to a connected destination (Balances withdraw flow)",
+    group: "Commands",
+    keywords: "withdraw payout cash out destination bank",
+    href: "/app/balances",
+  }),
+] as const);
+
+/** The Commands-group entries as palette command specs (the ⌘K palette). */
+export function derivePaletteCommands(): readonly PaletteCommandSpec[] {
+  return COMMAND_GRAMMAR_ENTRIES.map((entry) => ({
+    id: entry.id,
+    label: `${entry.label} — ${entry.detail.replace(/\s*\(.*\)$/, "")}`,
+    group: entry.group,
+    href: entry.href,
+    keywords: `${entry.verb} ${entry.keywords}`,
+  }));
 }
