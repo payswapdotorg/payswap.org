@@ -1,8 +1,16 @@
 "use client";
 
 /**
- * The Pay journey surface (P3-W2-002; end-to-end continuity by P3-W3-002) —
- * the certified PayJourney contract as a live UI.
+ * The Pay journey LIVE view (P3-W2-002; end-to-end continuity by P3-W3-002;
+ * converged by UX-004).
+ *
+ * The W1 COMPOSING surface that used to live here (the minor-units form) is
+ * CONVERGED — contract 04 §2 W1 now renders through
+ * `components/workflows/create-payment-workflow.tsx` (segmented schedule,
+ * currency-prefixed MoneyInput, counterparty combobox, statement descriptor,
+ * funding-rail dependent-disable, ConfirmationButton restating amount+asset,
+ * dual-submit). This module keeps what W1 still consumes once the payment is
+ * in flight: the certified PayJourney contract rendered live.
  *
  * Laws honored structurally:
  * - capability selection ONLY from connected instances (the options derive
@@ -20,30 +28,13 @@
  * - the provider customer-action state renders verbatim when tracked
  *   (AWAITING_CUSTOMER_ACTION), with the reauth/customer-action journey
  *   reachable from this surface;
- * - amounts are exact minor units (INV-F01) — the input is a minor-unit
- *   integer, never parsed from a formatted currency string.
+ * - amounts are exact minor units (INV-F01).
  */
 
-import { useState } from "react";
 import Link from "next/link";
-import type {
-  ConnectedCapabilityInstanceRecord,
-  CurrencyRoutabilityCheck,
-  PayJourney,
-  RouteCandidate,
-  ViewAction,
-} from "@payswap/ux";
+import type { PayJourney, ViewAction } from "@payswap/ux";
 import {
-  abandonPayJourney,
-  applyPaymentSubmissionResponse,
-  beginPayJourney,
-  selectPayCapability,
-} from "@payswap/ux";
-import {
-  Button,
   EmptyState,
-  Field,
-  Input,
   KeyValue,
   Panel,
   StatusPill,
@@ -51,12 +42,6 @@ import {
 } from "@payswap/design";
 
 import { JourneyActionList } from "./journey-actions";
-import { ReconcileJourneySurface } from "./reconcile-journey-surface";
-import { dispatchJourneyApiCommand } from "@/lib/cc/journey-dispatch";
-
-type PayPhase =
-  | { readonly kind: "COMPOSING" }
-  | { readonly kind: "JOURNEY"; readonly journey: PayJourney };
 
 const STATE_PILLS: Readonly<Record<string, { tone: "ok" | "attention" | "unknown" | "failed" | "disabled"; label: string }>> = {
   SELECTING_CAPABILITY: { tone: "attention", label: "Selecting capability" },
@@ -69,14 +54,6 @@ const STATE_PILLS: Readonly<Record<string, { tone: "ok" | "attention" | "unknown
   FAILED: { tone: "failed", label: "Failed" },
   ABANDONED: { tone: "disabled", label: "Cancelled" },
 };
-
-function minorUnitsInput(value: string): string | null {
-  const trimmed = value.trim();
-  if (!/^\d{1,12}$/.test(trimmed)) {
-    return null;
-  }
-  return trimmed.replace(/^0+(?=\d)/, "");
-}
 
 /** The provider customer-action panel — the tracked state verbatim. */
 function CustomerActionPanel() {
@@ -102,7 +79,10 @@ function CustomerActionPanel() {
   );
 }
 
-/** The live-journey view (every state except composing) — exported for tests. */
+/**
+ * The live-journey view (every state after composition) — consumed by the W1
+ * create-payment workflow and exported for tests.
+ */
 export function PayJourneyView({
   journey,
   onAction,
@@ -217,253 +197,5 @@ export function PayJourneyView({
       ) : null}
       <JourneyActionList heading="Actions" actions={journey.actions} onAction={onAction} />
     </>
-  );
-}
-
-export function PayJourneySurface({
-  connectedInstances,
-  routabilityChecks,
-  routeCandidates,
-  autoStart,
-  csrfToken,
-}: {
-  /** Authority records of connected instances (empty until the connect plane ships). */
-  readonly connectedInstances: readonly ConnectedCapabilityInstanceRecord[];
-  /** Authority routability checks per instance (absent check = honestly not routable). */
-  readonly routabilityChecks: readonly CurrencyRoutabilityCheck[];
-  /** Route candidates for review (catalogue entries render comparison-only). */
-  readonly routeCandidates: readonly RouteCandidate[];
-  readonly autoStart: boolean;
-  /** The live session's CSRF echo (undefined in the marked preview — no mutations). */
-  readonly csrfToken?: string;
-}) {
-  const [phase, setPhase] = useState<PayPhase>({ kind: "COMPOSING" });
-  const [amountMinor, setAmountMinor] = useState("");
-  const [currency, setCurrency] = useState("GHS");
-  const [recipient, setRecipient] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [dispatchNote, setDispatchNote] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-
-  const canCompose =
-    minorUnitsInput(amountMinor) !== null && recipient.trim().length > 0 && /^[A-Z]{3}$/.test(currency);
-
-  function begin(): void {
-    const minorUnits = minorUnitsInput(amountMinor);
-    if (minorUnits === null || recipient.trim().length === 0 || !/^[A-Z]{3}$/.test(currency)) {
-      setError("Amount (exact minor units), a 3-letter currency and a recipient are required.");
-      return;
-    }
-    setError(null);
-    setPhase({
-      kind: "JOURNEY",
-      journey: beginPayJourney({
-        request: { amount: { currency, minorUnits }, recipient: recipient.trim() },
-        connectedInstances,
-        routabilityChecks,
-      }),
-    });
-  }
-
-  async function submitPayment(action: ViewAction): Promise<void> {
-    if (pending) {
-      return;
-    }
-    setPending(true);
-    setError(null);
-    setDispatchNote(null);
-    try {
-      const result = await dispatchJourneyApiCommand("pay", action, csrfToken);
-      if (result.kind === "response") {
-        try {
-          setPhase((current) =>
-            current.kind === "JOURNEY"
-              ? {
-                  kind: "JOURNEY",
-                  journey: applyPaymentSubmissionResponse(
-                    current.journey,
-                    result.response,
-                  ),
-                }
-              : current,
-          );
-          if (result.response.kind === "error") {
-            const errorBody = result.response.body.error;
-            setDispatchNote(
-              `The PaySwap API answered verbatim — ${errorBody.code} (${errorBody.category}), HTTP ${result.response.status}: ${errorBody.message}. The journey records the error exactly; nothing was submitted.`,
-            );
-          }
-          return;
-        } catch {
-          setError(
-            "The contract refused to fold the API's answer — the journey state is unchanged.",
-          );
-          return;
-        }
-      }
-      setError(result.message);
-    } finally {
-      setPending(false);
-    }
-  }
-
-  function onAction(action: ViewAction): void {
-    if (phase.kind !== "JOURNEY") {
-      return;
-    }
-    const journey = phase.journey;
-    if (action.actionId.startsWith("select-capability:")) {
-      const instanceId = action.actionId.slice("select-capability:".length);
-      const option = journey.options.find(
-        (candidate) => candidate.instance.instanceId === instanceId,
-      );
-      if (option === undefined) {
-        setError("That capability is not among this journey's connected instance options.");
-        return;
-      }
-      try {
-        setPhase({
-          kind: "JOURNEY",
-          journey: selectPayCapability(journey, option.instance.instanceId, routeCandidates),
-        });
-      } catch {
-        // Fail-closed honesty: the contract refused the fold (e.g. a
-        // non-routable selection); surface the reason, never a workaround.
-        setError("The contract refused this selection — see the routability reasons listed.");
-      }
-      return;
-    }
-    switch (action.actionId) {
-      case "choose-different-capability":
-        setPhase({
-          kind: "JOURNEY",
-          journey: beginPayJourney({
-            request: journey.request,
-            connectedInstances,
-            routabilityChecks,
-          }),
-        });
-        return;
-      case "abandon-payment":
-        setPhase({ kind: "JOURNEY", journey: abandonPayJourney(journey) });
-        return;
-      case "retry-as-new-intent":
-        setPhase({ kind: "COMPOSING" });
-        return;
-      case "submit-payment": {
-        void submitPayment(action);
-        return;
-      }
-      default:
-        // Tracking refreshes and evidence views are real navigations; the
-        // honest outcome folds below.
-        return;
-    }
-  }
-
-  return (
-    <div className="cc-stack">
-      {phase.kind === "COMPOSING" ? (
-        <Panel
-          title="Compose a payment"
-          description="Exact minor units (INV-F01) — e.g. 1050 for ₵10.50. Nothing is submitted from this form; the journey reviews before any submission."
-        >
-          <div className="cc-stack">
-            {autoStart ? (
-              <p className="cc-actions__reason" role="status">
-                Started from the Pay action — compose the payment below.
-              </p>
-            ) : null}
-            <div className="cc-grid">
-              <Field
-                label="Amount (minor units)"
-                required
-                hint="Exact integer in the currency's minor unit — never a formatted amount."
-              >
-                <Input
-                  inputMode="numeric"
-                  autoComplete="off"
-                  value={amountMinor}
-                  placeholder="1050"
-                  onChange={(event) => {
-                    setAmountMinor(event.target.value);
-                  }}
-                />
-              </Field>
-              <Field label="Currency" required hint="Three-letter ISO-style code.">
-                <Input
-                  value={currency}
-                  maxLength={3}
-                  placeholder="GHS"
-                  onChange={(event) => {
-                    setCurrency(event.target.value.toUpperCase());
-                  }}
-                />
-              </Field>
-            </div>
-            <Field label="Recipient" required>
-              <Input
-                value={recipient}
-                placeholder="The recipient reference"
-                onChange={(event) => {
-                  setRecipient(event.target.value);
-                }}
-              />
-            </Field>
-            <p className="cc-actions__reason">
-              Routability is derived ONLY from authority checks on connected
-              instances — for example, GHS is honestly non-routable on a
-              Stripe instance (a provider-capability datum, never a failure).
-              An instance without a check is treated as not routable
-              (fail-closed honesty).
-            </p>
-            {error !== null ? (
-              <p role="alert" className="cc-actions__reason">
-                {error}
-              </p>
-            ) : null}
-            <div>
-              <Button variant="primary" disabled={!canCompose} onClick={begin}>
-                Review capability options
-              </Button>
-            </div>
-          </div>
-        </Panel>
-      ) : (
-        <>
-          <PayJourneyView journey={phase.journey} onAction={onAction} />
-          {pending ? (
-            <p className="cc-actions__reason" role="status">
-              Dispatching the payment submission to the authoritative PaySwap
-              API…
-            </p>
-          ) : null}
-          {dispatchNote !== null ? (
-            <p
-              className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm leading-6 text-amber-900"
-              role="status"
-            >
-              {dispatchNote}
-            </p>
-          ) : null}
-          {phase.journey.stateName === "RECONCILING" ? (
-            <ReconcileJourneySurface
-              paymentRef={
-                phase.journey.submittedIntentId ??
-                phase.journey.request.correlationId ??
-                `pay:${phase.journey.request.amount.currency}`
-              }
-              evidenceRefs={phase.journey.evidenceRefs.map((ref) => String(ref))}
-              ambiguityEvidenceRef={
-                phase.journey.evidenceRefs.length > 0
-                  ? String(phase.journey.evidenceRefs[phase.journey.evidenceRefs.length - 1])
-                  : undefined
-              }
-              csrfToken={csrfToken}
-            />
-          ) : null}
-        </>
-      )}
-    </div>
   );
 }

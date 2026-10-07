@@ -10,7 +10,7 @@
  * provider catalogue, the ⌘K palette) must resolve against it.
  */
 
-import { readdirSync, statSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { describe, expect, it } from "vitest";
 import { JSDOM } from "jsdom";
@@ -71,6 +71,9 @@ const ROUTE_INVENTORY: readonly string[] = [
   "/app/liquidity",
   "/app/opportunities",
   "/app/payments",
+  "/app/payments/link",
+  "/app/payments/link/:id",
+  "/app/payments/:id",
   "/app/payouts",
   "/app/programs",
   "/app/reports",
