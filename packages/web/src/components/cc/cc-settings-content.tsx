@@ -1,8 +1,9 @@
 /**
  * The Settings section content (P3-W2-002): session display (the seam state,
  * verbatim), role preference (the marked preview switcher), the honest
- * deployment-scope note, and links to the auth/connect flows by route string
- * (owned by the parallel work stream — not implemented here).
+ * deployment-scope note, and the real auth/connect route links (cert-fix:
+ * /login was a dead route — the session plane's real routes are /signin and
+ * /signout, offered per the live session state).
  */
 
 import Link from "next/link";
@@ -89,15 +90,20 @@ export function CcSettingsContent({ state }: { readonly state: CcRenderState }) 
 
       <Panel
         title="Authentication and connections"
-        description="Owned by the parallel work stream (P3-W1-002) — linked by route string, not implemented here."
+        description="The real session plane (P3-W1-002) and the provider-connection flow — both live routes in this deployment."
       >
         <div className="cc-gate-links">
-          <Link href="/login">Sign in</Link>
+          {session.status === "authenticated" ? (
+            <Link href="/signout">Sign out</Link>
+          ) : (
+            <Link href="/signin">Sign in</Link>
+          )}
           <Link href="/connect">Connect a provider</Link>
         </div>
         <p className="cc-actions__reason">
-          These routes resolve when the authentication/connection plane
-          merges; until then they are the documented hand-off points.
+          {session.status === "authenticated"
+            ? "Sign out revokes this session server-side (the real revocation, never a client-side-only logout). Sessions expire honestly and re-authenticate through the real sign-in."
+            : "Sign in reaches the real session plane — scrypt-verified identities, server-issued tokens, honest expiry. Connect a provider opens the connection flow (authorization happens on the provider's own surface)."}
         </p>
       </Panel>
     </div>
